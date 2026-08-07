@@ -2,8 +2,10 @@ import Link from "next/link";
 import {
   ArrowRight,
   Home,
+  GraduationCap,
   ClipboardCheck,
   MessagesSquare,
+  Microscope,
   BookOpenCheck,
   Newspaper,
   Stethoscope,
@@ -11,13 +13,20 @@ import {
   Mail,
 } from "lucide-react";
 
+/** 상단 네비 = 사이트맵. 새 promo 페이지를 추가하면 여기에도 등록한다.
+ *  (풋터 링크는 NAV_ITEMS 에서 홈을 뺀 목록을 그대로 사용) */
 const NAV_ITEMS = [
   { href: "/", label: "홈", icon: Home },
+  { href: "/promo/uidae-class", label: "의대 진학반", icon: GraduationCap },
   { href: "/promo/susi", label: "수시컨설팅", icon: ClipboardCheck },
   { href: "/promo/interview", label: "면접 수업", icon: MessagesSquare },
+  { href: "/promo/tamgu", label: "탐구보고서", icon: Microscope },
   { href: "/promo/guide", label: "사용법", icon: BookOpenCheck },
   { href: "/promo/blog", label: "블로그", icon: Newspaper },
 ];
+
+/** 풋터 사이트맵 — 홈 제외 */
+const FOOTER_LINKS = NAV_ITEMS.filter((item) => item.href !== "/");
 
 /** 상담 CTA 앵커 — 풋터 연락처 블록(#contact)으로 스크롤된다.
  *  모든 promo 페이지가 이 chrome 을 쓰므로 어느 페이지에서든 동작한다. */
@@ -104,18 +113,15 @@ export function PromoChrome({
               </p>
             </div>
             <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm">
-              <Link href="/promo/susi" className="text-slate-300 transition hover:text-teal-300">
-                수시컨설팅
-              </Link>
-              <Link href="/promo/interview" className="text-slate-300 transition hover:text-teal-300">
-                면접 수업
-              </Link>
-              <Link href="/promo/guide" className="text-slate-300 transition hover:text-teal-300">
-                사용법
-              </Link>
-              <Link href="/promo/blog" className="text-slate-300 transition hover:text-teal-300">
-                블로그
-              </Link>
+              {FOOTER_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-slate-300 transition hover:text-teal-300"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
 
