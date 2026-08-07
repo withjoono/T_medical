@@ -96,7 +96,7 @@ export default function InterviewPage() {
         title="의대 면접,"
         highlight="실전에서 갈립니다"
         body="면접은 벼락치기가 어렵습니다. 다중미니면접(MMI), 인·적성, 제시문, 생기부 기반 면접을 유형별로 분석하고, 대학별 빈출 문항으로 실전처럼 반복 훈련합니다. 표현·태도·논리까지 담당 멘토가 즉시 교정합니다."
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="면접 수업 상담하기"
         secondaryHref="/promo/susi"
         secondaryLabel="수시 컨설팅 보기"
@@ -140,7 +140,7 @@ export default function InterviewPage() {
         title="면접장에서 흔들리지 않도록"
         body="지원 대학의 면접 유형과 빈출 문항으로 실전처럼 훈련하고, 담당 멘토의 피드백으로 완성하세요."
         Icon={MessagesSquare}
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="면접 수업 상담하기"
       />
     </>

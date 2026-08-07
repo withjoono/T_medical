@@ -119,7 +119,7 @@ export default function GuidePage() {
         title="처음이어도 괜찮아요,"
         highlight="5단계면 충분합니다"
         body="가입부터 목표 계열 선택, 성적·생기부 준비, 수시·정시 전략, 면접·MMI 대비까지 — T Medi를 200% 활용하는 방법을 정리했습니다."
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="바로 시작하기"
         secondaryHref="/promo/blog"
         secondaryLabel="블로그 보기"
@@ -187,7 +187,7 @@ export default function GuidePage() {
         title="이제 나만의 의약학 전략을 만들 차례"
         body="목표 계열을 고르고 5단계를 따라가면, 합격까지의 경로가 그려집니다."
         Icon={Target}
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="시작하기"
       />
     </>

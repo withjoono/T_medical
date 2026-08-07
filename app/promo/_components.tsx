@@ -39,7 +39,7 @@ export function PromoHero({
   title,
   highlight,
   body,
-  primaryHref = "/",
+  primaryHref = "#contact",
   primaryLabel = "시작하기",
   secondaryHref,
   secondaryLabel,
@@ -352,7 +352,7 @@ export function FinalCTA({
   title,
   body,
   Icon,
-  primaryHref = "/",
+  primaryHref = "#contact",
   primaryLabel = "시작하기",
 }: {
   title: string;

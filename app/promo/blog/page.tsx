@@ -96,7 +96,7 @@ export default function BlogPage() {
         title="합격을 앞당기는"
         highlight="의약학 입시 콘텐츠"
         body="의치한약수 입시 트렌드부터 MMI 면접 실전, 수능 최저 전략, 계열 선택까지 — 현장 노하우를 담은 글을 정리했습니다."
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="시작하기"
         secondaryHref="/promo/guide"
         secondaryLabel="사용법 보기"
@@ -179,7 +179,7 @@ export default function BlogPage() {
         title="콘텐츠만 읽지 말고, 직접 전략을 세워보세요"
         body="블로그에서 배운 전략을 나의 성적·목표 계열에 바로 적용할 수 있습니다."
         Icon={Newspaper}
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="시작하기"
       />
     </>

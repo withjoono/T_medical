@@ -5,6 +5,7 @@
     "cleanUrls": true,
     "trailingSlash": false,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [{ "source": "/promo", "destination": "/", "type": 301 }],
     "rewrites": [{ "source": "**", "destination": "/index.html" }]
   }
 }

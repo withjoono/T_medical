@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Stethoscope,
@@ -20,12 +19,7 @@ import {
   CheckList,
   FinalCTA,
 } from "./_components";
-
-export const metadata: Metadata = {
-  title: "T Medi | 의치한약수 진학 전문 포털 — 의대·치대·한의대·약대·수의대",
-  description:
-    "의대·치대·한의대·약대·수의대(의치한약수) 진학 전문 포털 T Medi. 계열별 전략, 수능 최저 관리, 면접·MMI·인적성 대비, 생기부·학종 설계를 한 곳에서. tmedi.kr",
-};
+import { CONTACT_ANCHOR } from "./_chrome";
 
 /** 의약학 계열별 전략 카드 (링크 아님 — 정보성 섹션) */
 const TRACKS = [
@@ -112,8 +106,8 @@ export default function PromoHome() {
         title="의약학 합격의 모든 길,"
         highlight="T Medi 하나로"
         body="의대·치대·한의대·약대·수의대 — 계열마다 다른 전형과 요구 역량을 정확히 파악하고, 수능 최저·면접·MMI·생기부까지 하나의 전략으로 연결합니다."
-        primaryHref="/"
-        primaryLabel="지금 시작하기"
+        primaryHref={CONTACT_ANCHOR}
+        primaryLabel="상담 신청하기"
         secondaryHref="/promo/guide"
         secondaryLabel="사용법 먼저 보기"
         Icon={Stethoscope}
@@ -201,7 +195,7 @@ export default function PromoHome() {
         title="의약학 진학, 지금 전략부터 시작하세요"
         body="목표 계열을 고르고 나의 성적·생기부 상황을 입력하면, T Medi가 합격까지의 경로를 함께 설계합니다."
         Icon={Stethoscope}
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="무료로 시작하기"
       />
     </>

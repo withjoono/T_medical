@@ -145,7 +145,7 @@ export default function UidaeClassPage() {
         title="내신·모의고사·생기부,"
         highlight="한 반에서 통합관리"
         body="의대 합격의 세 축을 따로 관리하면 하나는 반드시 무너집니다. 플래너 학습관리부터 생기부 컨설팅, 모의고사·내신 앱 관리까지 — 담당 멘토가 3개월간 함께 붙잡는 소수정원 반입니다."
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="지금 상담 예약하기"
         secondaryHref="/promo"
         secondaryLabel="T Medi 먼저 보기"
@@ -255,7 +255,7 @@ export default function UidaeClassPage() {
             { icon: Award, label: "생기부 컨설팅 5회 포함" },
             { icon: Target, label: "4대 앱 통합관리" },
           ]}
-          href="/"
+          href="#contact"
           label="지금 상담 예약하기"
         />
       </PromoSection>
@@ -264,7 +264,7 @@ export default function UidaeClassPage() {
         title="9월 3일, 의대 진학반과 함께 시작하세요"
         body="내신·모의고사·생기부를 한 반에서. 소수정원으로 조기 마감될 수 있으니 지금 상담을 예약하세요."
         Icon={Stethoscope}
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="상담 예약하기"
       />
     </>

@@ -124,7 +124,7 @@ export default function TamguPage() {
         title="의대 지망 탐구보고서,"
         highlight="과학고 눈높이로"
         body="대부분의 일반고 탐구는 글쓰기 첨삭에서 멈춥니다. 하지만 의대 학종·세특에서 변별력을 만드는 건 내용의 깊이입니다. 과학고 R&E까지 감수하는 전 과목 선생님이, 의대 지망생의 탐구를 한 단계 위 깊이로 끌어올립니다."
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="탐구보고서 상담하기"
         secondaryHref="/promo"
         secondaryLabel="왜 다른지 보기"
@@ -212,7 +212,7 @@ export default function TamguPage() {
           badge="컨설팅 5회 · 학습관리 병행"
           BadgeIcon={Award}
           items={INCLUDED}
-          href="/"
+          href="#contact"
           label="탐구보고서 상담하기"
         />
       </PromoSection>
@@ -235,7 +235,7 @@ export default function TamguPage() {
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/"
+              href="#contact"
               className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-teal-500/30 transition hover:brightness-110"
             >
               상담하기

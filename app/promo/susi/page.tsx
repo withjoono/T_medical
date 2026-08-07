@@ -96,7 +96,7 @@ export default function SusiConsultingPage() {
         title="의대 수시,"
         highlight="전형 설계부터 다릅니다"
         body="학종·교과·논술 중 무엇이 유리한지, 생기부는 어디로 향해야 하는지, 수능 최저는 충족 가능한지 — 담당 멘토가 현재 성적과 생기부를 기준으로 수시 6장 전체를 1:1로 설계합니다."
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="수시 컨설팅 상담하기"
         secondaryHref="/promo/interview"
         secondaryLabel="면접 수업 보기"
@@ -140,7 +140,7 @@ export default function SusiConsultingPage() {
         title="의대 수시, 지금 전략부터 시작하세요"
         body="목표 계열과 현재 성적·생기부 상황을 기준으로, 합격까지의 수시 경로를 담당 멘토가 함께 설계합니다."
         Icon={ClipboardCheck}
-        primaryHref="/"
+        primaryHref="#contact"
         primaryLabel="수시 컨설팅 상담하기"
       />
     </>
