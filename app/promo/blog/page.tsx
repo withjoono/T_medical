@@ -71,14 +71,14 @@ const POSTS = [
 
 function CategoryChips() {
   return (
-    <div className="mb-8 flex flex-wrap gap-2">
+    <div className="mb-8 flex flex-wrap justify-center gap-2">
       {CATEGORIES.map((c, i) => (
         <span
           key={c}
           className={
             i === 0
-              ? "rounded-full bg-teal-600 px-4 py-1.5 text-sm font-medium text-white"
-              : "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+              ? "rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 px-4 py-1.5 text-sm font-medium text-white shadow-sm shadow-teal-500/25"
+              : "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
           }
         >
           {c}
@@ -101,16 +101,25 @@ export default function BlogPage() {
         secondaryHref="/promo/guide"
         secondaryLabel="사용법 보기"
         Icon={Newspaper}
+        stats={[
+          { icon: Newspaper, label: "입시 트렌드" },
+          { icon: Clock, label: "실전 노하우" },
+        ]}
       />
 
-      <PromoSection>
+      <PromoSection
+        eyebrow="LATEST"
+        EyebrowIcon={Newspaper}
+        title="최신 글"
+        subtitle="의약학 입시의 최신 흐름과 실전 노하우를 주제별로 담았습니다."
+      >
         <CategoryChips />
 
         {/* Featured */}
-        <article className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-teal-50 to-white shadow-sm">
+        <article className="overflow-hidden rounded-3xl border border-teal-200/70 bg-gradient-to-br from-teal-50 to-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal-500/10">
           <div className="p-8 sm:p-10">
             <div className="flex items-center gap-3 text-xs font-medium text-slate-500">
-              <span className="rounded-full bg-teal-600 px-3 py-1 text-white">
+              <span className="rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 px-3 py-1 text-white">
                 {FEATURED.category}
               </span>
               <span className="inline-flex items-center gap-1">
@@ -133,11 +142,11 @@ export default function BlogPage() {
         </article>
 
         {/* Post grid */}
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {POSTS.map((post) => (
             <article
               key={post.title}
-              className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              className="flex flex-col rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
             >
               <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
                 <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-teal-700">

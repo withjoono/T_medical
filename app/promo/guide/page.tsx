@@ -26,23 +26,23 @@ export const metadata: Metadata = {
 
 const STEPS = [
   {
-    title: "1. 가입 & 목표 설정",
+    title: "가입 & 목표 설정",
     body: "Hub(T Skool) 계정으로 간편 로그인합니다. 학년, 현재 내신·모의고사 성적대를 입력해 시작점을 설정합니다.",
   },
   {
-    title: "2. 목표 계열 선택",
+    title: "목표 계열 선택",
     body: "의대·치대·한의대·약대·수의대 중 목표 계열을 고릅니다. 계열별로 전형 구조와 요구 역량이 달라 전략의 출발점이 됩니다.",
   },
   {
-    title: "3. 성적 · 생기부 준비",
+    title: "성적 · 생기부 준비",
     body: "내신 등급, 모의고사 성적, 생기부 세특·활동 내역을 정리합니다. 의약학이 중시하는 생명·화학 세특 방향을 점검합니다.",
   },
   {
-    title: "4. 수시 · 정시 전략 수립",
+    title: "수시 · 정시 전략 수립",
     body: "교과·종합·논술·정시를 계열별로 비교해 지원 조합을 설계합니다. 수능 최저 충족 가능성을 함께 확인합니다.",
   },
   {
-    title: "5. 면접 · MMI 대비",
+    title: "면접 · MMI 대비",
     body: "대학·계열별 면접 유형(MMI·인적성·제시문)을 분석하고 실전 질문으로 훈련합니다. 최종 지원 전 마무리 점검을 진행합니다.",
   },
 ];
@@ -124,9 +124,16 @@ export default function GuidePage() {
         secondaryHref="/promo/blog"
         secondaryLabel="블로그 보기"
         Icon={Rocket}
+        stats={[
+          { icon: Target, label: "목표 계열 선택" },
+          { icon: FileText, label: "생기부 설계" },
+          { icon: MessagesSquare, label: "면접·MMI" },
+        ]}
       />
 
       <PromoSection
+        eyebrow="START"
+        EyebrowIcon={Rocket}
         title="빠른 시작 5단계"
         subtitle="순서대로 따라오면 목표 계열까지의 전략이 완성됩니다."
       >
@@ -134,6 +141,8 @@ export default function GuidePage() {
       </PromoSection>
 
       <PromoSection
+        eyebrow="MENU"
+        EyebrowIcon={Compass}
         title="메뉴별 사용법"
         subtitle="각 메뉴가 의약학 진학의 어떤 부분을 책임지는지 확인하세요."
         tone="muted"
@@ -142,18 +151,25 @@ export default function GuidePage() {
       </PromoSection>
 
       <PromoSection
+        eyebrow="TIPS"
+        EyebrowIcon={Lightbulb}
         title="활용 팁"
         subtitle="합격생들이 놓치지 않았던 실전 포인트를 정리했습니다."
       >
         <CheckList items={TIPS} />
       </PromoSection>
 
-      <PromoSection title="자주 묻는 질문" tone="muted">
+      <PromoSection
+        eyebrow="FAQ"
+        EyebrowIcon={HelpCircle}
+        title="자주 묻는 질문"
+        tone="muted"
+      >
         <div className="mx-auto max-w-3xl space-y-3">
           {FAQ.map((item) => (
             <details
               key={item.q}
-              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:shadow-md"
             >
               <summary className="flex cursor-pointer list-none items-start gap-3 text-base font-semibold text-slate-900">
                 <HelpCircle className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />

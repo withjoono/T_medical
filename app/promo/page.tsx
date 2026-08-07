@@ -117,10 +117,18 @@ export default function PromoHome() {
         secondaryHref="/promo/guide"
         secondaryLabel="사용법 먼저 보기"
         Icon={Stethoscope}
+        stats={[
+          { icon: Stethoscope, label: "의·치·한·약·수" },
+          { icon: ClipboardCheck, label: "수능 최저 관리" },
+          { icon: MessagesSquare, label: "면접·MMI" },
+          { icon: FileText, label: "생기부·학종" },
+        ]}
       />
 
       {/* 강점 축 */}
       <PromoSection
+        eyebrow="WHY"
+        EyebrowIcon={ShieldCheck}
         title="왜 의약학은 별도 전략이 필요할까요?"
         subtitle="의치한약수 입시는 일반 대학 입시와 경쟁 구조·평가 요소가 다릅니다. T Medi는 이 차이를 정면으로 다룹니다."
         tone="muted"
@@ -130,6 +138,8 @@ export default function PromoHome() {
 
       {/* 기능 소개 축 */}
       <PromoSection
+        eyebrow="FEATURES"
+        EyebrowIcon={Target}
         title="핵심 기능"
         subtitle="계열 선택부터 면접 대비까지, 의약학 진학의 전 과정을 지원합니다."
       >
@@ -138,6 +148,8 @@ export default function PromoHome() {
 
       {/* 계열별 전략 */}
       <PromoSection
+        eyebrow="TRACKS"
+        EyebrowIcon={GraduationCap}
         title="계열별 진학 전략"
         subtitle="의대·치대·한의대·약대·수의대, 그리고 정시 최저까지. 각 계열의 특성에 맞춘 접근을 확인하세요."
         tone="muted"
@@ -146,13 +158,13 @@ export default function PromoHome() {
       </PromoSection>
 
       {/* 다른 promo 페이지로 연결 */}
-      <PromoSection title="더 알아보기">
+      <PromoSection eyebrow="MORE" EyebrowIcon={Newspaper} title="더 알아보기">
         <div className="grid gap-4 sm:grid-cols-2">
           <Link
             href="/promo/guide"
-            className="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+            className="group flex items-start gap-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-md shadow-teal-500/20">
               <BookOpenCheck className="h-6 w-6" />
             </div>
             <div>
@@ -167,9 +179,9 @@ export default function PromoHome() {
           </Link>
           <Link
             href="/promo/blog"
-            className="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+            className="group flex items-start gap-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white shadow-md shadow-teal-500/20">
               <Newspaper className="h-6 w-6" />
             </div>
             <div>
