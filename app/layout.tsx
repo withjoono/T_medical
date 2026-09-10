@@ -1,14 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import "./globals.css"
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-  weight: ["400", "500", "600", "700", "800", "900"],
-})
 
 const SITE_URL = "https://tmedi.kr"
 const DESCRIPTION =
@@ -51,8 +43,27 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className={`${inter.variable} antialiased`}>
-      <body className="font-sans">{children}</body>
+    <html lang="ko">
+      <head>
+        {/*
+          한글 웹폰트는 CDN 링크로 싣는다.
+          - Pretendard: 본문·UI. dynamic-subset 이라 글자 단위로만 받아 가볍다.
+          - Noto Serif KR(본명조): 표제·숫자 전용(.display). 600/700 두 종만.
+          next/font/google 을 쓰지 않는 이유 — Pretendard 는 Google Fonts 에 없고,
+          두 폰트의 로딩 방식을 하나로 맞추는 편이 FOUT 제어에 유리하다.
+        */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap"
+        />
+      </head>
+      <body className="antialiased">{children}</body>
     </html>
   )
 }

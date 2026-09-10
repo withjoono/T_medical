@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   Stethoscope,
   Target,
@@ -7,7 +6,6 @@ import {
   MessagesSquare,
   BookOpenCheck,
   Newspaper,
-  ArrowRight,
   Activity,
   FileText,
   ShieldCheck,
@@ -220,60 +218,34 @@ export default function PromoHome() {
 
       {/* 다른 promo 페이지로 연결 */}
       <PromoSection eyebrow="MORE" EyebrowIcon={Newspaper} title="더 알아보기">
-        <div className="mb-4">
-          <LinkCards
-            items={[
-              {
-                href: "/promo/susi/gyogwa",
-                icon: BookOpenCheck,
-                title: "학생부교과전형",
-                body: "환산 등급과 수능 최저로 승부하는 정량 트랙. 1단계 배수 축소 흐름까지 정리했습니다.",
-              },
-              {
-                href: "/promo/susi/nonsul",
-                icon: Target,
-                title: "논술전형",
-                body: "121명뿐인 좁은 문. 수리·과학 논술과 높은 최저를 동시에 요구합니다.",
-              },
-            ]}
-          />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link
-            href="/promo/guide"
-            className="group flex items-start gap-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-md shadow-teal-500/20">
-              <BookOpenCheck className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="flex items-center gap-1 text-lg font-semibold text-slate-900">
-                사용법
-                <ArrowRight className="h-4 w-4 text-teal-600 transition-transform group-hover:translate-x-1" />
-              </h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-600">
-                가입부터 목표 계열 선택, 성적·생기부 준비, 수시·정시 전략, 면접·MMI 대비까지 단계별 시작 가이드.
-              </p>
-            </div>
-          </Link>
-          <Link
-            href="/promo/blog"
-            className="group flex items-start gap-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-sky-500 text-white shadow-md shadow-teal-500/20">
-              <Newspaper className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="flex items-center gap-1 text-lg font-semibold text-slate-900">
-                블로그
-                <ArrowRight className="h-4 w-4 text-teal-600 transition-transform group-hover:translate-x-1" />
-              </h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-600">
-                의약학 입시 트렌드, MMI 면접 실전, 수능 최저 전략, 계열 선택 인사이트를 담은 콘텐츠.
-              </p>
-            </div>
-          </Link>
-        </div>
+        <LinkCards
+          items={[
+            {
+              href: "/promo/susi/gyogwa",
+              icon: BookOpenCheck,
+              title: "학생부교과전형",
+              body: "환산 등급과 수능 최저로 승부하는 정량 트랙. 1단계 배수 축소 흐름까지 정리했습니다.",
+            },
+            {
+              href: "/promo/susi/nonsul",
+              icon: Target,
+              title: "논술전형",
+              body: "121명뿐인 좁은 문. 수리·과학 논술과 높은 최저를 동시에 요구합니다.",
+            },
+            {
+              href: "/promo/guide",
+              icon: Compass,
+              title: "사용법",
+              body: "가입부터 목표 계열 선택, 성적·생기부 준비, 수시·정시 전략, 면접·MMI 대비까지 단계별 시작 가이드.",
+            },
+            {
+              href: "/promo/blog",
+              icon: Newspaper,
+              title: "블로그",
+              body: "의약학 입시 트렌드, MMI 면접 실전, 수능 최저 전략, 계열 선택 인사이트를 담은 콘텐츠.",
+            },
+          ]}
+        />
       </PromoSection>
 
       <FinalCTA

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   Microscope,
   FlaskConical,
@@ -10,7 +9,6 @@ import {
   Award,
   GitMerge,
   Scale,
-  ArrowRight,
   Phone,
   Mail,
   Clock,
@@ -22,6 +20,7 @@ import {
   StepList,
   CheckList,
   PriceCard,
+  FinalCTA,
 } from "../_components";
 
 export const metadata: Metadata = {
@@ -145,7 +144,7 @@ export default function TamguPage() {
         tone="muted"
       >
         <FeatureGrid items={PROBLEMS} columns={2} />
-        <p className="mx-auto mt-10 max-w-2xl text-center text-slate-600">
+        <p className="mx-auto mt-12 max-w-2xl text-center text-[15px] font-light leading-[1.85] text-ink-500">
           그래서 의대 지망 탐구는, 열심히 해도 세특에서 티가 안 나는 경우가
           많습니다.
         </p>
@@ -158,17 +157,19 @@ export default function TamguPage() {
         title="우리는 무엇이 다를까요?"
         subtitle="일반고에서도 과학고 수준의 탐구 지도를 받을 수 있기 때문입니다."
       >
-        {/* featured 콜아웃 */}
-        <div className="mx-auto mb-5 max-w-5xl">
-          <div className="flex flex-col items-start gap-5 rounded-2xl border border-teal-200/70 bg-gradient-to-br from-teal-50 to-cyan-50 p-7 shadow-sm sm:flex-row sm:items-center">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-md shadow-teal-500/25">
-              <FEATURED.icon className="h-7 w-7" />
-            </div>
+        {/* featured 콜아웃 — 좌측 제이드 바를 두른 강조 블록 */}
+        <div className="mx-auto mb-10 flex max-w-5xl bg-jade-50">
+          <span className="w-[3px] shrink-0 bg-jade-600" />
+          <div className="flex flex-col items-start gap-5 px-7 py-6 sm:flex-row sm:items-center">
+            <FEATURED.icon
+              className="h-8 w-8 shrink-0 text-jade-600"
+              strokeWidth={1.25}
+            />
             <div>
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="display text-[1.0625rem] leading-snug text-ink-900">
                 {FEATURED.title}
               </h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-700">
+              <p className="mt-2.5 text-[14px] font-light leading-[1.85] text-ink-600">
                 {FEATURED.body}
               </p>
             </div>
@@ -217,40 +218,25 @@ export default function TamguPage() {
         />
       </PromoSection>
 
-      {/* 마무리 + 연락처 (다크) */}
-      <section className="relative isolate overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950" />
-        <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-teal-500/20 blur-[120px]" />
-        <div className="pointer-events-none absolute -bottom-44 -right-32 h-[30rem] w-[30rem] rounded-full bg-cyan-500/20 blur-[130px]" />
-        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center sm:px-12 sm:py-28">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/30">
-            <Microscope className="h-7 w-7" />
-          </div>
-          <h2 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            일반고에서도, 남다른 탐구는 가능합니다
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-slate-300">
-            같은 시간을 써도, 어떤 시선으로 지도받느냐에 따라 탐구의 깊이는
-            달라집니다.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="#contact"
-              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-7 py-3.5 text-base font-semibold text-white shadow-lg shadow-teal-500/30 transition hover:brightness-110"
-            >
-              상담하기
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-300">
-            <span className="inline-flex items-center gap-1.5">
-              <Phone className="h-4 w-4 text-teal-400" /> 010-2518-7139
-              <span className="text-slate-500">(06:00~22:00)</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Mail className="h-4 w-4 text-teal-400" /> withjuno@naver.com
-            </span>
-          </div>
+      {/* 마무리 (공용 잉크 CTA) + 연락처 한 줄 */}
+      <FinalCTA
+        title="일반고에서도, 남다른 탐구는 가능합니다"
+        body="같은 시간을 써도, 어떤 시선으로 지도받느냐에 따라 탐구의 깊이는 달라집니다."
+        Icon={Microscope}
+        primaryHref="#contact"
+        primaryLabel="상담하기"
+      />
+      <section className="border-t border-hair bg-paper-100 px-6 py-8 sm:px-12">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm font-light text-ink-600">
+          <span className="inline-flex items-center gap-2.5">
+            <Phone className="h-4 w-4 text-jade-600" strokeWidth={1.5} />
+            <span className="tnum font-medium text-ink-900">010-2518-7139</span>
+            <span className="text-xs text-ink-400">06:00 – 22:00</span>
+          </span>
+          <span className="inline-flex items-center gap-2.5">
+            <Mail className="h-4 w-4 text-jade-600" strokeWidth={1.5} />
+            withjuno@naver.com
+          </span>
         </div>
       </section>
     </>

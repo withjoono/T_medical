@@ -1,125 +1,196 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* =============================================================================
+ * T Medi — Design System
+ * "Medical Institute / Editorial" — 의대 입시 기관의 권위와 정밀함.
+ *
+ * 원칙
+ *  1. 그라디언트는 장식이 아니라 강조다. 잉크 그라운드와 브라스 헤어라인에만 쓴다.
+ *  2. 모서리는 각지게. 둥근 카드 대신 1px 헤어라인으로 구획한다.
+ *  3. 숫자와 표제는 세리프(본명조), 본문과 UI는 Pretendard.
+ *  4. 색은 3개뿐 — ink(권위) / jade(의학) / brass(품격). 나머지는 종이와 헤어라인.
+ *
+ * 사용법: Tailwind v4 @theme 이 아래 토큰을 유틸리티로 생성한다.
+ *   bg-ink  text-jade  border-hair  bg-paper  text-brass ...
+ *   (이전 globals.css 의 --primary 등 rgb() 미래핑 토큰은 렌더되지 않아 제거함)
+ * ========================================================================== */
 
-/* Updated to warm, inviting color scheme with orange/coral primary */
-:root {
-  --background: 255 251 247;
-  --foreground: 51 51 51;
-  --card: 255 255 255;
-  --card-foreground: 51 51 51;
-  --popover: 255 255 255;
-  --popover-foreground: 51 51 51;
-  --primary: 255 107 53;
-  --primary-foreground: 255 255 255;
-  --secondary: 255 237 213;
-  --secondary-foreground: 51 51 51;
-  --muted: 250 245 240;
-  --muted-foreground: 115 115 115;
-  --accent: 255 152 0;
-  --accent-foreground: 255 255 255;
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
-  --border: 245 230 215;
-  --input: 245 230 215;
-  --ring: 255 107 53;
-  --chart-1: 255 107 53;
-  --chart-2: 255 152 0;
-  --chart-3: 255 183 77;
-  --chart-4: 255 204 128;
-  --chart-5: 255 224 178;
-  --radius: 0.5rem;
-  --sidebar: oklch(0.985 0.01 60);
-  --sidebar-foreground: oklch(0.25 0 0);
-  --sidebar-primary: oklch(0.55 0.15 40);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.97 0.01 60);
-  --sidebar-accent-foreground: oklch(0.25 0 0);
-  --sidebar-border: oklch(0.92 0.01 60);
-  --sidebar-ring: oklch(0.7 0.1 40);
-}
+@theme {
+  /* --- Ink : 권위의 축. 다크 그라운드 + 본문 텍스트 --- */
+  --color-ink: #0a1720;
+  --color-ink-900: #0e202c;
+  --color-ink-800: #142c3a;
+  --color-ink-700: #1d3b4b;
+  --color-ink-600: #2c5163;
+  --color-ink-500: #456a7d;
+  --color-ink-400: #6d8b9b;
+  --color-ink-300: #9db2bd;
+  --color-ink-200: #c8d5dc;
+  --color-ink-100: #e4ebef;
 
-.dark {
-  --background: 30 25 23;
-  --foreground: 250 245 240;
-  --card: 41 37 36;
-  --card-foreground: 250 245 240;
-  --popover: 41 37 36;
-  --popover-foreground: 250 245 240;
-  --primary: 255 152 0;
-  --primary-foreground: 255 255 255;
-  --secondary: 68 64 60;
-  --secondary-foreground: 250 245 240;
-  --muted: 68 64 60;
-  --muted-foreground: 163 163 163;
-  --accent: 255 152 0;
-  --accent-foreground: 255 255 255;
-  --destructive: 220 38 38;
-  --destructive-foreground: 250 245 240;
-  --border: 68 64 60;
-  --input: 68 64 60;
-  --ring: 255 152 0;
-  --chart-1: 255 152 0;
-  --chart-2: 255 183 77;
-  --chart-3: 255 204 128;
-  --chart-4: 255 224 178;
-  --chart-5: 255 235 204;
-  --sidebar: oklch(0.18 0.01 40);
-  --sidebar-foreground: oklch(0.98 0.01 60);
-  --sidebar-primary: oklch(0.6 0.15 40);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.25 0.01 40);
-  --sidebar-accent-foreground: oklch(0.98 0.01 60);
-  --sidebar-border: oklch(0.25 0.01 40);
-  --sidebar-ring: oklch(0.5 0.1 40);
-}
-/* </CHANGE> */
+  /* --- Paper : 따뜻한 오프화이트. 순백(#fff)은 쓰지 않는다 --- */
+  --color-paper: #fbfaf7;
+  --color-paper-50: #fdfcfa;
+  --color-paper-100: #f5f3ee;
+  --color-paper-200: #ece9e1;
+  --color-paper-300: #ded9cd;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  /* --- Jade : 의학 계열 액센트 --- */
+  --color-jade: #0d6b5c;
+  --color-jade-700: #0a5649;
+  --color-jade-600: #0d6b5c;
+  --color-jade-500: #148574;
+  --color-jade-400: #2ba18d;
+  --color-jade-200: #a8d5cc;
+  --color-jade-100: #dcece8;
+  --color-jade-50: #eef6f4;
+
+  /* --- Brass : 품격의 헤어라인·배지. 넓은 면에는 절대 쓰지 않는다 --- */
+  --color-brass: #a8894c;
+  --color-brass-600: #927741;
+  --color-brass-400: #c4a468;
+  --color-brass-300: #dbc48a;
+  --color-brass-200: #e8dcc0;
+  --color-brass-50: #f7f2e6;
+
+  /* --- Hairline : 구획선 --- */
+  --color-hair: #e3ded3;
+  --color-hair-strong: #cfc8b8;
+
+  /* --- Typography --- */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-serif: "Noto Serif KR", "Apple SD Gothic Neo", Batang, serif;
+
+  /* --- Radius : 각지게 --- */
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--color-hair);
   }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--color-paper);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01", "tnum" 0;
+  }
+
+  /* 한글은 어절 단위로 끊는다 — 제목 줄바꿈 품질의 핵심 */
+  h1, h2, h3, h4, p, li, td, th, dd, dt, figcaption, blockquote {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--color-jade-200);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-jade-500);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* --- 세리프 디스플레이 : 표제·숫자 전용 --- */
+  .display {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* 숫자는 등폭으로 — 표·통계에서 자릿수가 흔들리지 않게 */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* --- 아이브로우 : 섹션 상단의 소문자 트래킹 라벨 --- */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* --- 페이퍼 그레인 : 잉크 그라운드 위 미세 질감 --- */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* --- 정밀 그리드 : 잉크 히어로 배경의 도면 느낌 --- */
+  .blueprint {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
+  /* --- 브라스 헤어라인 : 상단 1px 금선 --- */
+  .brass-rule {
+    background-image: linear-gradient(
+      to right,
+      transparent,
+      var(--color-brass-400) 18%,
+      var(--color-brass-300) 50%,
+      var(--color-brass-400) 82%,
+      transparent
+    );
+  }
+
+  /* --- 가로 스크롤 영역에서 스크롤바만 숨긴다 (모바일 섹션 네비) --- */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* --- 링크 밑줄 : 두께가 자라는 고급 인터랙션 --- */
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

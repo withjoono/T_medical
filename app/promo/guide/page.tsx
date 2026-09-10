@@ -165,17 +165,19 @@ export default function GuidePage() {
         title="자주 묻는 질문"
         tone="muted"
       >
-        <div className="mx-auto max-w-3xl space-y-3">
+        <div className="mx-auto max-w-3xl border-t border-hair">
           {FAQ.map((item) => (
-            <details
-              key={item.q}
-              className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:shadow-md"
-            >
-              <summary className="flex cursor-pointer list-none items-start gap-3 text-base font-semibold text-slate-900">
-                <HelpCircle className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
-                <span>{item.q}</span>
+            <details key={item.q} className="group border-b border-hair">
+              <summary className="flex cursor-pointer list-none items-start gap-4 py-5 transition-colors hover:text-jade-700">
+                <HelpCircle
+                  className="mt-0.5 h-4 w-4 shrink-0 text-jade-600 transition-transform duration-300 group-open:rotate-90"
+                  strokeWidth={1.75}
+                />
+                <span className="display text-[15px] leading-snug text-ink-900">
+                  {item.q}
+                </span>
               </summary>
-              <p className="mt-3 pl-8 text-sm leading-relaxed text-slate-600">
+              <p className="pb-6 pl-8 text-[14px] font-light leading-[1.85] text-ink-500">
                 {item.a}
               </p>
             </details>

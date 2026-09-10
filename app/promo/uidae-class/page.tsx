@@ -116,21 +116,18 @@ const INCLUDED = [
 const MENTORS = [
   {
     icon: FileText,
-    tile: "from-teal-500 to-cyan-500",
     name: "생기부 컨설팅 멘토",
     role: "의대 재학·졸업 멘토진",
     body: "생명·화학 세특과 의학적 탐구·봉사 활동을 1:1로 컨설팅합니다. 학종 평가자 관점에서 생기부 방향을 잡습니다.",
   },
   {
     icon: LineChart,
-    tile: "from-cyan-500 to-sky-500",
     name: "성적관리 멘토",
     role: "모의고사 · 내신 관리 담당",
     body: "모고앱·생기북앱으로 모의고사와 내신 추이를 추적하고, 수능 최저 충족선 대비 현재 위치를 점검합니다.",
   },
   {
     icon: UserCheck,
-    tile: "from-emerald-500 to-teal-500",
     name: "강준호 (거북쌤)",
     role: "반 편성 · 학습관리 총괄",
     body: "T스쿨 대표. 플래너 앱 기반 주간 학습관리와 반 운영을 총괄하며 학생·학부모와 진행 상황을 공유합니다.",
@@ -208,26 +205,23 @@ export default function UidaeClassPage() {
         subtitle="한 멘토가 학습·생기부·성적을 연결해 봅니다."
         tone="muted"
       >
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid border-l border-t border-hair bg-paper-50 sm:grid-cols-2 lg:grid-cols-3">
           {MENTORS.map((m) => {
             const Icon = m.icon;
             return (
               <div
                 key={m.name}
-                className="group rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
+                className="group relative border-b border-r border-hair p-8 transition-colors duration-300 hover:bg-white"
               >
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${m.tile} text-white shadow-md shadow-teal-500/20`}
-                >
-                  <Icon className="h-6 w-6" />
-                </div>
-                <h3 className="mt-5 text-lg font-semibold text-slate-900">
+                <span className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-jade-600 transition-transform duration-500 group-hover:scale-x-100" />
+                <span className="flex h-11 w-11 items-center justify-center border border-hair-strong bg-white text-jade-600 transition-colors duration-300 group-hover:border-jade-200 group-hover:bg-jade-50">
+                  <Icon className="h-5 w-5" strokeWidth={1.5} />
+                </span>
+                <h3 className="display mt-6 text-[1.0625rem] leading-snug text-ink-900">
                   {m.name}
                 </h3>
-                <p className="mt-1 text-sm font-medium text-teal-700">
-                  {m.role}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                <p className="eyebrow mt-2 text-brass-600">{m.role}</p>
+                <p className="mt-3 text-[14px] font-light leading-[1.8] text-ink-500">
                   {m.body}
                 </p>
               </div>

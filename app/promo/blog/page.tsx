@@ -69,16 +69,17 @@ const POSTS = [
   },
 ];
 
+/** 분류 탭 — 알약 칩 대신 활자 + 밑줄. 현재 분류만 잉크 밑줄로 고정한다. */
 function CategoryChips() {
   return (
-    <div className="mb-8 flex flex-wrap justify-center gap-2">
+    <div className="mb-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-y border-hair py-4">
       {CATEGORIES.map((c, i) => (
         <span
           key={c}
           className={
             i === 0
-              ? "rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 px-4 py-1.5 text-sm font-medium text-white shadow-sm shadow-teal-500/25"
-              : "rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:border-teal-200 hover:bg-teal-50 hover:text-teal-700"
+              ? "border-b-2 border-jade-600 pb-1 text-[13px] font-semibold tracking-tight text-ink"
+              : "link-underline pb-1 text-[13px] font-light tracking-tight text-ink-500 transition-colors hover:text-ink"
           }
         >
           {c}
@@ -115,59 +116,66 @@ export default function BlogPage() {
       >
         <CategoryChips />
 
-        {/* Featured */}
-        <article className="overflow-hidden rounded-3xl border border-teal-200/70 bg-gradient-to-br from-teal-50 to-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal-500/10">
-          <div className="p-8 sm:p-10">
-            <div className="flex items-center gap-3 text-xs font-medium text-slate-500">
-              <span className="rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 px-3 py-1 text-white">
-                {FEATURED.category}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" />
-                {FEATURED.readTime}
-              </span>
-              <span>{FEATURED.date}</span>
-            </div>
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+        {/* 머리기사 — 저널 1면 조판. 좌측에 분류·날짜, 우측에 표제와 리드 */}
+        <article className="group grid gap-8 border-t-2 border-ink pt-8 lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
+          <div className="flex flex-row flex-wrap items-center gap-x-5 gap-y-2 lg:flex-col lg:items-start lg:gap-3">
+            <span className="eyebrow text-brass-600">{FEATURED.category}</span>
+            <span className="tnum text-xs font-light text-ink-400">
+              {FEATURED.date}
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-light text-ink-400">
+              <Clock className="h-3 w-3" strokeWidth={1.5} />
+              {FEATURED.readTime}
+            </span>
+          </div>
+          <div>
+            <h2 className="display text-[1.625rem] leading-[1.4] text-ink-900 sm:text-[2rem] sm:leading-[1.35]">
               {FEATURED.title}
             </h2>
-            <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-600">
+            <p className="mt-5 max-w-3xl text-[15px] font-light leading-[1.9] text-ink-500">
               {FEATURED.excerpt}
             </p>
-            <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-teal-700">
-              자세히 읽기
-              <ArrowUpRight className="h-4 w-4" />
+            <span className="mt-7 inline-flex items-center gap-1.5 text-[13px] font-semibold tracking-tight text-jade-700">
+              <span className="link-underline">자세히 읽기</span>
+              <ArrowUpRight
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                strokeWidth={2}
+              />
             </span>
           </div>
         </article>
 
-        {/* Post grid */}
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* 기사 목록 — 헤어라인으로만 나뉜 그리드 */}
+        <div className="mt-16 grid border-l border-t border-hair bg-paper-50 sm:grid-cols-2 lg:grid-cols-3">
           {POSTS.map((post) => (
             <article
               key={post.title}
-              className="flex flex-col rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
+              className="group relative flex flex-col border-b border-r border-hair p-7 transition-colors duration-300 hover:bg-white"
             >
-              <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-                <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-teal-700">
-                  {post.category}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
+              <span className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-jade-600 transition-transform duration-500 group-hover:scale-x-100" />
+              <div className="flex items-center gap-4">
+                <span className="eyebrow text-brass-600">{post.category}</span>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-light text-ink-400">
+                  <Clock className="h-3 w-3" strokeWidth={1.5} />
                   {post.readTime}
                 </span>
               </div>
-              <h3 className="mt-3 text-lg font-semibold leading-snug text-slate-900">
+              <h3 className="display mt-5 text-[1.0625rem] leading-[1.5] text-ink-900">
                 {post.title}
               </h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">
+              <p className="mt-3 flex-1 text-[14px] font-light leading-[1.8] text-ink-500">
                 {post.excerpt}
               </p>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-xs text-slate-400">{post.date}</span>
-                <span className="inline-flex items-center gap-1 text-sm font-semibold text-teal-700">
+              <div className="mt-6 flex items-center justify-between border-t border-hair pt-4">
+                <span className="tnum text-[11px] font-light text-ink-400">
+                  {post.date}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[12px] font-semibold tracking-tight text-jade-700">
                   읽기
-                  <ArrowUpRight className="h-3.5 w-3.5" />
+                  <ArrowUpRight
+                    className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    strokeWidth={2}
+                  />
                 </span>
               </div>
             </article>

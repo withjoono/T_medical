@@ -1,67 +1,101 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Home,
-  GraduationCap,
-  ClipboardCheck,
-  MessagesSquare,
-  Microscope,
-  BookOpenCheck,
-  Newspaper,
-  Stethoscope,
-  Target,
-  Globe2,
-  PenLine,
-  FileText,
-  Phone,
-  Mail,
-  LucideIcon,
-} from "lucide-react";
+import { Phone, Mail, Clock, LucideIcon } from "lucide-react";
 
 /** 상단 네비 = 사이트맵. 새 promo 페이지를 추가하면 여기에도 등록한다.
  *  children 을 가진 항목은 상단 네비에 부모만 노출되고, 풋터에는 하위 링크까지 펼쳐진다.
- *  (풋터 링크는 NAV_ITEMS 에서 홈을 뺀 목록을 children 까지 펼쳐 사용) */
+ *
+ *  icon 은 풋터/모바일 보조 표기에만 쓰고 상단 네비에서는 렌더하지 않는다.
+ *  (아이콘이 늘어선 네비는 대시보드처럼 보인다 — 활자만으로 위계를 만든다) */
 type NavItem = {
   href: string;
   label: string;
-  icon: LucideIcon;
-  children?: { href: string; label: string; icon: LucideIcon }[];
+  icon?: LucideIcon;
+  children?: { href: string; label: string }[];
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "홈", icon: Home },
+  { href: "/", label: "홈" },
   {
     href: "/promo/susi",
     label: "수시 전형",
-    icon: ClipboardCheck,
     children: [
-      { href: "/promo/susi/gyogwa", label: "교과전형", icon: BookOpenCheck },
-      { href: "/promo/susi/jonghap", label: "학생부종합", icon: FileText },
-      { href: "/promo/susi/nonsul", label: "논술전형", icon: PenLine },
+      { href: "/promo/susi/gyogwa", label: "교과전형" },
+      { href: "/promo/susi/jonghap", label: "학생부종합" },
+      { href: "/promo/susi/nonsul", label: "논술전형" },
     ],
   },
-  { href: "/promo/jungsi", label: "정시", icon: Target },
-  { href: "/promo/overseas", label: "해외 의대", icon: Globe2 },
-  { href: "/promo/uidae-class", label: "의대 진학반", icon: GraduationCap },
-  { href: "/promo/interview", label: "면접 수업", icon: MessagesSquare },
-  { href: "/promo/tamgu", label: "탐구보고서", icon: Microscope },
-  { href: "/promo/guide", label: "사용법", icon: BookOpenCheck },
-  { href: "/promo/blog", label: "블로그", icon: Newspaper },
+  { href: "/promo/jungsi", label: "정시" },
+  { href: "/promo/overseas", label: "해외 의대" },
+  { href: "/promo/uidae-class", label: "의대 진학반" },
+  { href: "/promo/interview", label: "면접 수업" },
+  { href: "/promo/tamgu", label: "탐구보고서" },
+  { href: "/promo/guide", label: "사용법" },
+  { href: "/promo/blog", label: "블로그" },
 ];
 
-/** 풋터 사이트맵 — 홈 제외, 하위 페이지까지 펼침 */
-const FOOTER_LINKS = NAV_ITEMS.filter((item) => item.href !== "/").flatMap(
-  (item) => [
-    { href: item.href, label: item.label, sub: false },
-    ...(item.children ?? []).map((c) => ({
-      href: c.href,
-      label: c.label,
-      sub: true,
-    })),
-  ]
-);
+/** 풋터 사이트맵 — 홈 제외, 주제별 3열로 묶는다. */
+const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[] }[] =
+  [
+    {
+      heading: "수시",
+      links: [
+        { href: "/promo/susi", label: "수시 전형 총정리" },
+        { href: "/promo/susi/gyogwa", label: "학생부교과전형" },
+        { href: "/promo/susi/jonghap", label: "학생부종합전형" },
+        { href: "/promo/susi/nonsul", label: "논술전형" },
+      ],
+    },
+    {
+      heading: "정시 · 해외",
+      links: [
+        { href: "/promo/jungsi", label: "정시 전략" },
+        { href: "/promo/overseas", label: "해외 의대 경유 루트" },
+      ],
+    },
+    {
+      heading: "수업 · 자료",
+      links: [
+        { href: "/promo/uidae-class", label: "의대 진학반" },
+        { href: "/promo/interview", label: "면접 수업" },
+        { href: "/promo/tamgu", label: "탐구보고서" },
+        { href: "/promo/guide", label: "사용법" },
+        { href: "/promo/blog", label: "블로그" },
+      ],
+    },
+  ];
 
 export const CONTACT_ANCHOR = "#contact";
+
+/** 워드마크 — 세리프 모노그램 + 트래킹된 활자.
+ *  그라디언트 알약 아이콘 대신 각진 헤어라인 사각형을 쓴다. */
+function Wordmark({ onDark = false }: { onDark?: boolean }) {
+  const frame = onDark
+    ? "border-white/25 text-white"
+    : "border-ink-800 text-ink";
+  const name = onDark ? "text-white" : "text-ink";
+  const sub = onDark ? "text-ink-400" : "text-ink-400";
+  return (
+    <span className="flex items-center gap-3">
+      <span
+        className={`display flex h-9 w-9 items-center justify-center border text-[15px] leading-none ${frame}`}
+      >
+        T
+      </span>
+      <span className="flex flex-col leading-none">
+        <span
+          className={`display text-[15px] tracking-[0.14em] ${name}`}
+        >
+          T MEDI
+        </span>
+        <span
+          className={`mt-1.5 text-[10px] font-medium tracking-[0.2em] ${sub}`}
+        >
+          의약학 진학
+        </span>
+      </span>
+    </span>
+  );
+}
 
 /** promo 공통 크롬(상단 네비 + 풋터).
  *  루트(app/page.tsx)와 /promo/* (app/promo/layout.tsx) 양쪽에서 사용한다. */
@@ -71,48 +105,57 @@ export function PromoChrome({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      {/* ===== TOP NAV ===== */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-sm shadow-teal-500/30">
-              <Stethoscope className="h-4.5 w-4.5" />
-            </div>
-            <span className="text-base font-bold tracking-tight text-slate-900">
-              T Medi
-              <span className="ml-1.5 text-xs font-medium text-slate-400">
-                의약학
-              </span>
+    <div className="min-h-screen bg-paper text-ink-900">
+      {/* ===== 상단 유틸리티 바 ===== */}
+      <div className="hidden bg-ink text-ink-300 sm:block">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2 text-[11px] font-light tracking-wide">
+          <span className="tracking-[0.16em] text-ink-400">
+            의대 · 치대 · 한의대 · 약대 · 수의대 진학 전문
+          </span>
+          <span className="flex items-center gap-5">
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="h-3 w-3 text-jade-400" strokeWidth={1.5} />
+              06:00 – 22:00
             </span>
+            <a
+              href="tel:010-2518-7139"
+              className="link-underline inline-flex items-center gap-1.5 transition-colors hover:text-white"
+            >
+              <Phone className="h-3 w-3 text-jade-400" strokeWidth={1.5} />
+              010-2518-7139
+            </a>
+          </span>
+        </div>
+      </div>
+
+      {/* ===== 헤더 ===== */}
+      <header className="sticky top-0 z-40 border-b border-hair bg-paper/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <Link href="/" aria-label="T Medi 홈">
+            <Wordmark />
           </Link>
           <Link
             href={CONTACT_ANCHOR}
-            className="group inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-teal-500/30 transition hover:brightness-110"
+            className="rounded-sm bg-ink px-5 py-2.5 text-[13px] font-semibold tracking-tight text-paper transition-colors duration-300 hover:bg-ink-800"
           >
             상담 신청
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
 
-        {/* feature tabs */}
-        <nav className="border-t border-slate-100 bg-white/60">
-          <div className="mx-auto max-w-6xl overflow-x-auto px-4 sm:px-6">
-            <ul className="flex min-w-max items-center gap-1 py-2">
-              {NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:bg-teal-50 hover:text-teal-700"
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
+        {/* 섹션 네비 — 활자만. hover 시 밑줄이 자란다. */}
+        <nav className="border-t border-hair">
+          <div className="no-scrollbar mx-auto max-w-6xl overflow-x-auto px-6">
+            <ul className="flex min-w-max items-center gap-7 py-3">
+              {NAV_ITEMS.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="link-underline text-[13px] font-medium tracking-tight text-ink-600 transition-colors hover:text-ink"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </nav>
@@ -120,77 +163,87 @@ export function PromoChrome({
 
       {children}
 
-      {/* ===== FOOTER ===== */}
-      <footer className="relative isolate overflow-hidden bg-slate-950 text-slate-300">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950" />
-        <div className="pointer-events-none absolute -bottom-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-teal-500/10 blur-[120px]" />
-        <div className="relative mx-auto max-w-6xl px-6 py-14 sm:px-12">
-          <div className="flex flex-col items-start justify-between gap-8 sm:flex-row">
+      {/* ===== 풋터 ===== */}
+      <footer className="grain relative isolate overflow-hidden text-ink-300">
+        <div className="absolute inset-0 bg-ink" />
+        <div className="blueprint absolute inset-0 opacity-60" />
+        <div className="brass-rule absolute inset-x-0 top-0 h-px opacity-80" />
+
+        <div className="relative mx-auto max-w-6xl px-6 py-16 sm:px-12 sm:py-20">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+            {/* 브랜드 블록 */}
             <div className="max-w-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-sm shadow-teal-500/30">
-                  <Stethoscope className="h-4.5 w-4.5" />
-                </div>
-                <span className="text-base font-bold tracking-tight text-white">
-                  T Medi
-                  <span className="ml-1.5 text-xs font-medium text-slate-400">
-                    의약학
-                  </span>
-                </span>
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-slate-400">
+              <Wordmark onDark />
+              <p className="mt-6 text-[13px] font-light leading-[1.9] text-ink-400">
                 의대·치대·한의대·약대·수의대(의치한약수) 진학 전문. 내신·모의고사·생기부·면접까지
                 한 곳에서 관리하는 메디컬 진학 포털.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm sm:grid-cols-3">
-              {FOOTER_LINKS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={
-                    item.sub
-                      ? "pl-3 text-xs text-slate-400 transition hover:text-teal-300"
-                      : "text-slate-300 transition hover:text-teal-300"
-                  }
-                >
-                  {item.sub ? `└ ${item.label}` : item.label}
-                </Link>
+
+            {/* 사이트맵 */}
+            <div className="grid gap-10 sm:grid-cols-3">
+              {FOOTER_COLUMNS.map((col) => (
+                <div key={col.heading}>
+                  <p className="eyebrow text-brass-300">{col.heading}</p>
+                  <ul className="mt-5 space-y-3">
+                    {col.links.map((l) => (
+                      <li key={l.href}>
+                        <Link
+                          href={l.href}
+                          className="link-underline text-[13px] font-light text-ink-300 transition-colors hover:text-white"
+                        >
+                          {l.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
             </div>
           </div>
 
+          {/* 상담 문의 */}
           <div
             id="contact"
-            className="mt-10 scroll-mt-28 border-t border-white/10 pt-6"
+            className="mt-14 scroll-mt-32 border-t border-white/10 pt-10"
           >
-            <p className="text-sm font-semibold text-white">상담 문의</p>
-            <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-400">
+            <p className="eyebrow text-brass-300">상담 문의</p>
+            <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-3 text-sm font-light text-ink-300">
               <a
                 href="tel:010-2518-7139"
-                className="inline-flex items-center gap-1.5 transition hover:text-teal-300"
+                className="group inline-flex items-baseline gap-3 transition-colors hover:text-white"
               >
-                <Phone className="h-4 w-4 text-teal-400" /> 010-2518-7139
-                <span className="text-slate-500">(06:00~22:00)</span>
+                <Phone
+                  className="h-4 w-4 shrink-0 translate-y-0.5 text-jade-400"
+                  strokeWidth={1.5}
+                />
+                <span className="display tnum text-lg text-white">
+                  010-2518-7139
+                </span>
+                <span className="text-xs text-ink-500">06:00 – 22:00</span>
               </a>
               <a
                 href="mailto:withjuno@naver.com"
-                className="inline-flex items-center gap-1.5 transition hover:text-teal-300"
+                className="link-underline inline-flex items-center gap-2.5 transition-colors hover:text-white"
               >
-                <Mail className="h-4 w-4 text-teal-400" /> withjuno@naver.com
+                <Mail className="h-4 w-4 text-jade-400" strokeWidth={1.5} />
+                withjuno@naver.com
               </a>
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-1 text-xs text-slate-500">
-            <span>거북스쿨 · 대표 강준호 · T Medi (의약학 · 의치한약수 진학 전문)</span>
+          {/* 법적 표기 */}
+          <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-[11px] font-light tracking-wide text-ink-500 sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              거북스쿨 · 대표 강준호 · T Medi (의약학 · 의치한약수 진학 전문)
+            </span>
             <span>
               ©{" "}
               <a
                 href="https://tmedi.kr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline transition hover:text-slate-300"
+                className="link-underline transition-colors hover:text-ink-300"
               >
                 tmedi.kr
               </a>{" "}
