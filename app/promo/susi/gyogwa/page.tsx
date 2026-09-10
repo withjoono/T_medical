@@ -17,7 +17,6 @@ import {
   FeatureGrid,
   StepList,
   CheckList,
-  StatBand,
   CompareTable,
   NoteBox,
   LinkCards,
@@ -140,31 +139,6 @@ export default function GyogwaPage() {
         ]}
       />
 
-      <StatBand
-        items={[
-          {
-            value: "1,176명",
-            label: "2027 의대 교과 모집",
-            sub: "전체 모집의 33.5% · 학종에 이은 2위 규모",
-          },
-          {
-            value: "292명",
-            label: "일반전형 교과",
-            sub: "일반전형 내 비중은 16.6%에 그칩니다",
-          },
-          {
-            value: "약 50%",
-            label: "지역 선발 중 교과 비중",
-            sub: "지역 몫의 과반이 교과로 배정됩니다",
-          },
-          {
-            value: "3~10배수",
-            label: "1단계 선발 배수",
-            sub: "2027학년도에 축소한 대학이 다수",
-          },
-        ]}
-        caption="2027학년도 전형계획 집계 기준. 대학별 배수·반영 방식은 모집요강에서 확정됩니다."
-      />
 
       <PromoSection
         eyebrow="STRUCTURE"

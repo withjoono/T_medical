@@ -33,7 +33,7 @@ type: reference
 | localStorage 키 | `kwakiwon_token`/`_user` | `sakwan_token`/`_user` | `medical_token`/`_user` |
 | `dev` 스크립트 포트 | ❌ 없음 (3000 으로 뜸) | ✅ `-p 3022` | ❌ 없음 (3000 으로 뜸) |
 | `geobuk-shared` | ✅ | ✅ | ❌ 미도입 |
-| CI 워크플로 | Firebase action | `--only hosting` (⚠️) | ❌ 없음(수동 배포) |
+| CI 워크플로 | Firebase action | `--only hosting` (⚠️) | ✅ `--only hosting:medical-front` (2026-09-10 도입) |
 
 ## 이미 갈라진 지점 — 한쪽만 고쳐진 것들
 

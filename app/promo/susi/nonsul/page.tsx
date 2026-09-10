@@ -17,7 +17,6 @@ import {
   FeatureGrid,
   StepList,
   CheckList,
-  StatBand,
   CompareTable,
   NoteBox,
   LinkCards,
@@ -154,31 +153,6 @@ export default function NonsulPage() {
         ]}
       />
 
-      <StatBand
-        items={[
-          {
-            value: "121명",
-            label: "2027 의대 논술 모집",
-            sub: "전체 모집의 3.5% · 네 전형 중 최소",
-          },
-          {
-            value: "111명",
-            label: "일반전형 논술",
-            sub: "일반전형 1,757명 중 6.3%",
-          },
-          {
-            value: "10여 개",
-            label: "논술 실시 의대",
-            sub: "대학별 유형·반영 비율이 크게 다릅니다",
-          },
-          {
-            value: "3개 합 4",
-            label: "가장 높은 최저 수준",
-            sub: "대학에 따라 3개 영역 각 1등급을 요구하기도",
-          },
-        ]}
-        caption="2027학년도 전형계획 집계 기준. 대학별 인원과 최저는 최종 모집요강에서 확정됩니다."
-      />
 
       <PromoSection
         eyebrow="NATURE"

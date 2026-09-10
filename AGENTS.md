@@ -97,10 +97,16 @@ DB를 수정하는 모든 스크립트는 **인자 없이 실행하면 DRY-RUN**
 - `.firebaserc` 에는 `projects.default = ts-front-479305` 만 있고 `targets` 매핑이 없다 → `hosting:` 뒤에는 **site 이름 `medical-front`** 를 그대로 쓴다.
 - target 없는 배포는 2026-05-16 에 `www.tskool.kr`(Hub) 을 위성앱 빌드로 덮은 사고의 형태다. Firebase site ↔ 앱은 1:1 고정이다.
 
-### ⚠️ CI 워크플로가 없다 — 배포는 전부 수동
+### 배포는 CI 자동 — `main` push 하면 프로덕션까지 나간다
 
-`.github/` 디렉터리 자체가 없다(2026-09-03 확인). 형제 앱 `Kwakiwon`·`Sakwan` 에는 main push 자동 배포가 있다.
-→ **`main` 에 머지해도 프로덕션은 갱신되지 않는다.** 반드시 로컬에서 `pnpm build` 후 위 명령으로 직접 배포하고, 배포 사실을 남길 것.
+`.github/workflows/deploy.yml` 이 `main` push(문서 전용 커밋 제외)와 수동 실행에서
+`pnpm install → tsc --noEmit → pnpm build → firebase deploy --only hosting:medical-front` 를 돌린다.
+→ **`main` 에 푸시하는 순간 프로덕션(https://tmedi.kr)이 갱신된다.** 푸시 전에 로컬 빌드로 확인할 것.
+
+- 리포 Secret **`FIREBASE_TOKEN`** 이 있어야 배포 단계가 통과한다.
+- `pnpm build` 는 `typescript.ignoreBuildErrors` 때문에 타입 에러를 통과시키므로,
+  워크플로가 `tsc --noEmit` 을 **별도 게이트로** 건다. 여기서 막히면 배포도 막힌다.
+- CI 를 건너뛰고 급히 내보내야 할 때만 로컬에서 위 명령으로 직접 배포한다.
 
 ### 정적 내보내기(`output: 'export'`) — 서버 기능이 아예 없다
 

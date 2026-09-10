@@ -17,7 +17,6 @@ import {
   PromoSection,
   FeatureGrid,
   CheckList,
-  StatBand,
   LinkCards,
   FinalCTA,
 } from "./_components";
@@ -121,31 +120,6 @@ export default function PromoHome() {
         ]}
       />
 
-      <StatBand
-        items={[
-          {
-            value: "3,507명",
-            label: "2027 의대 총 모집인원",
-            sub: "2026학년도 3,016명 대비 약 490명 증가",
-          },
-          {
-            value: "2,524명",
-            label: "수시 (72.0%)",
-            sub: "학종 1,227 · 교과 1,176 · 논술 121",
-          },
-          {
-            value: "983명",
-            label: "정시 (28.0%)",
-            sub: "일반전형 내에서는 41.3%로 최대 축",
-          },
-          {
-            value: "490명",
-            label: "지역의사 선발 (2027 신설)",
-            sub: "비수도권 32개 의대 · 10년 의무복무",
-          },
-        ]}
-        caption="2027학년도 대학입학전형시행계획 집계 기준. 최종 인원은 각 대학 모집요강에서 확정됩니다."
-      />
 
       {/* 의대 진학 경로 — 이 사이트의 핵심 축 */}
       <PromoSection

@@ -1,0 +1,72 @@
+name: Deploy to Firebase Hosting
+
+# main 에 머지되면 프로덕션(https://tmedi.kr)까지 자동 반영한다.
+# 이전에는 CI 가 없어 로컬에서 `pnpm build && firebase deploy` 를 직접 실행해야 했고,
+# 그 결과 main 의 내용과 실제 서빙되는 사이트가 어긋나는 일이 있었다.
+on:
+  push:
+    branches: [main]
+    # 문서만 고친 커밋으로 배포를 돌리지 않는다.
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - ".gitignore"
+  workflow_dispatch: # 배포만 다시 돌리고 싶을 때 수동 실행
+
+# 연속 푸시 시 마지막 것만 배포한다. 배포 중 취소는 하지 않는다
+# (releasing 단계에서 잘리면 어중간한 버전이 남을 수 있다).
+concurrency:
+  group: deploy-medical-front
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9 # pnpm-lock.yaml 이 lockfileVersion 9.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # next.config.mjs 가 typescript.ignoreBuildErrors 를 켜 두어
+      # `pnpm build` 는 타입 에러를 그냥 통과시킨다. 게이트를 여기서 따로 건다.
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+      - name: Build (static export → out/)
+        run: pnpm build
+        env:
+          # .env* 는 gitignore 대상이라 CI 에는 없다. 현재 promo 라우트는 이 값들을
+          # 참조하지 않고 코드의 기본값으로 충분하지만, 나중에 Hub SSO 를 붙이면
+          # 리포 Variables 에 같은 이름으로 넣어 두면 그대로 주입된다.
+          # (공개 URL 이므로 Secret 이 아니라 Variables 가 맞다)
+          NEXT_PUBLIC_HUB_URL: ${{ vars.NEXT_PUBLIC_HUB_URL }}
+          NEXT_PUBLIC_HUB_API_URL: ${{ vars.NEXT_PUBLIC_HUB_API_URL }}
+          NEXT_PUBLIC_STUDYPLANNER_URL: ${{ vars.NEXT_PUBLIC_STUDYPLANNER_URL }}
+          NEXT_PUBLIC_SANGGIBOOK_URL: ${{ vars.NEXT_PUBLIC_SANGGIBOOK_URL }}
+
+      # ⚠️ `--only hosting` 단독 금지. 반드시 site 이름(medical-front)까지 지정한다.
+      # .firebaserc 에 targets 매핑이 없어 target 이 아니라 site 이름을 그대로 쓴다.
+      # target 없는 배포는 2026-05-16 에 Hub(www.tskool.kr)를 위성앱 빌드로
+      # 덮어쓴 사고의 형태다. Firebase site ↔ 앱은 1:1 고정.
+      # step 이름 안의 ": " 는 YAML 매핑으로 해석되므로 따옴표로 묶는다.
+      - name: "Deploy to Firebase Hosting (site: medical-front)"
+        run: >
+          pnpm dlx firebase-tools@13 deploy
+          --only hosting:medical-front
+          --project ts-front-479305
+          --non-interactive
+          --token "$FIREBASE_TOKEN"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

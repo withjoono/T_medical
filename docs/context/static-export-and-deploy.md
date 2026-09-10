@@ -1,6 +1,6 @@
 ---
 name: static-export-and-deploy
-description: T_Medi 의 Next.js 정적 내보내기 제약, CI 부재로 인한 수동 배포 절차, firebase.json 의 SPA 리라이트 효과
+description: T_Medi 의 Next.js 정적 내보내기 제약, main push 자동 배포 워크플로와 수동 배포 절차, firebase.json 의 SPA 리라이트 효과
 type: project
 ---
 
@@ -51,10 +51,25 @@ Route Handler(`app/api/**`) · Server Action · `middleware.ts` · ISR/`revalida
 - **`**` → `/index.html` 리라이트.** 정적 파일이 먼저 매칭되고, 매칭되지 않은 경로가 여기로 떨어진다 → **존재하지 않는 경로가 404 대신 홈 페이지를 반환한다.** Next 가 만든 `out/404.html` 은 사실상 쓰이지 않는다.
   → 오타 링크·삭제된 라우트가 조용히 홈으로 흡수되어 **링크 오류가 눈에 띄지 않는다.** 라우트를 바꿀 때 링크를 직접 확인할 것. (죽은 `components/navigation.tsx` 의 깨진 링크들이 이 리라이트에 가려져 있다 → `site-structure.md`)
 
-## 배포 — CI 가 없다
+## 배포 — main push 자동 배포
 
-**`.github/` 디렉터리가 존재하지 않는다**(2026-09-03 확인). 형제 앱 두 곳에는 main push 자동 배포 워크플로가 있다.
-→ **`main` 에 머지해도 프로덕션은 갱신되지 않는다.** 매번 수동 배포한다:
+`.github/workflows/deploy.yml` (2026-09-10 도입). `main` push(문서 전용 커밋 제외)와 `workflow_dispatch` 에서 실행된다:
+
+```
+pnpm install --frozen-lockfile
+pnpm exec tsc --noEmit          # build 가 타입 에러를 무시하므로 별도 게이트
+pnpm build                      # out/ 정적 내보내기
+firebase-tools deploy --only hosting:medical-front --project ts-front-479305
+```
+
+→ **`main` 에 푸시하면 프로덕션(https://tmedi.kr)까지 반영된다.** 도입 전에는 CI 가 없어
+main 의 내용과 실제 서빙 사이트가 어긋나 있었다.
+
+- 필요한 Secret: **`FIREBASE_TOKEN`** (형제 앱 `StudyPlanner` 와 같은 방식, 같은 Firebase 프로젝트).
+- `concurrency` 로 마지막 푸시만 배포하되 **배포 중 취소는 하지 않는다** — releasing 단계에서
+  잘리면 어중간한 버전이 남을 수 있다.
+
+CI 를 우회해 급히 내보내야 할 때의 수동 절차는 그대로 유효하다:
 
 ```bash
 pnpm install
@@ -72,11 +87,13 @@ npx firebase-tools deploy --only hosting:medical-front --project ts-front-479305
 ## 환경변수
 
 이 앱이 쓰는 `NEXT_PUBLIC_*` 은 4개다: `NEXT_PUBLIC_HUB_URL`, `NEXT_PUBLIC_HUB_API_URL`, `NEXT_PUBLIC_STUDYPLANNER_URL`, `NEXT_PUBLIC_SANGGIBOOK_URL`.
-`.env*` 는 `.gitignore` 대상이고 CI 도 없으므로, **빌드하는 사람의 로컬 `.env.local` 이 없으면 코드에 박힌 기본값**이 그대로 프로덕션에 나간다:
+`.env*` 는 `.gitignore` 대상이라 CI 러너에는 없다. **`.env.local` 이 없으면 코드에 박힌 기본값**이 그대로 프로덕션에 나간다:
 
 - `https://tskool.kr` / `https://ts-back-nest-479305.du.r.appspot.com` / `https://studyplanner.tskool.kr` / `https://sanggibook.tskool.kr`
 
 **기본값이 곧 프로덕션 설정**이다. 기본값 변경은 프로덕션 변경으로 취급한다.
+워크플로는 이 4개를 리포 **Variables**(Secret 아님 — 공개 URL 이다)에서 주입하도록 배선해 두었다.
+Variables 가 비어 있으면 위 기본값이 쓰인다. Hub SSO 를 실제로 붙이는 시점에 값을 채울 것.
 (참고로 이 4개는 현재 모두 죽은 `components/navigation.tsx` 와 `lib/auth.ts` 에서만 쓰인다.)
 
 ## 리포에 남은 잔재

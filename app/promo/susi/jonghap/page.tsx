@@ -17,7 +17,6 @@ import {
   FeatureGrid,
   StepList,
   CheckList,
-  StatBand,
   CompareTable,
   NoteBox,
   LinkCards,
@@ -144,31 +143,6 @@ export default function JonghapPage() {
         ]}
       />
 
-      <StatBand
-        items={[
-          {
-            value: "1,227명",
-            label: "2027 의대 학종 모집",
-            sub: "전체의 35.0% · 처음으로 최대 전형",
-          },
-          {
-            value: "628명",
-            label: "일반전형 학종",
-            sub: "일반전형 1,757명 중 35.7%",
-          },
-          {
-            value: "258명",
-            label: "지역의사 학종",
-            sub: "지역의사 490명의 52.9%",
-          },
-          {
-            value: "343명",
-            label: "최저 없는 의대 전형",
-            sub: "15개 대학 24개 전형 · 상당수가 학종",
-          },
-        ]}
-        caption="2027학년도 전형계획 집계 기준. 전형별 최저 적용 여부는 모집요강에서 확정됩니다."
-      />
 
       <PromoSection
         eyebrow="EVALUATION"

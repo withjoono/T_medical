@@ -363,49 +363,6 @@ export function CheckList({ items }: { items: string[] }) {
   );
 }
 
-/** 핵심 수치 띠 — 세로 헤어라인으로 나눈 세리프 숫자. */
-export function StatBand({
-  items,
-  caption,
-}: {
-  items: { value: string; label: string; sub?: string }[];
-  caption?: string;
-}) {
-  return (
-    <section className="border-b border-hair bg-paper-50 px-6 py-14 sm:px-12">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((s, i) => (
-            <div
-              key={s.label}
-              className={`px-2 text-center sm:px-6 ${
-                i % 2 === 1 ? "sm:border-l sm:border-hair" : ""
-              } ${i > 0 ? "lg:border-l lg:border-hair" : "lg:border-l-0"}`}
-            >
-              <p className="display tnum text-[2.5rem] leading-none text-ink-900 sm:text-[2.75rem]">
-                {s.value}
-              </p>
-              <p className="mt-4 text-[13px] font-semibold tracking-tight text-ink-800">
-                {s.label}
-              </p>
-              {s.sub && (
-                <p className="mx-auto mt-2 max-w-[15rem] text-xs font-light leading-relaxed text-ink-400">
-                  {s.sub}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-        {caption && (
-          <p className="mt-10 border-t border-hair pt-5 text-center text-xs font-light text-ink-400">
-            {caption}
-          </p>
-        )}
-      </div>
-    </section>
-  );
-}
-
 /** 비교표 — 저널 표 문법. 잉크 헤더 + 헤어라인 행. */
 export function CompareTable({
   head,

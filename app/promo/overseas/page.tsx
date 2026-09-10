@@ -21,7 +21,6 @@ import {
   FeatureGrid,
   StepList,
   CheckList,
-  StatBand,
   CompareTable,
   NoteBox,
   RouteTimeline,
@@ -33,7 +32,7 @@ import {
 export const metadata: Metadata = {
   title: "해외 의대 진학 · 국내 의사면허 경유 루트 | T Medi",
   description:
-    "외국 의대 진학과 한국 의사면허까지의 경로 정리. 보건복지부 인정 외국 의대 38개국 159개교, 예비시험·의사국가시험 절차와 최근 합격 통계, 국내 의대 편입·재외국민 특별전형까지 실제 수치로 안내합니다. tmedi.kr",
+    "외국 의대 진학과 한국 의사면허까지의 경로 정리. 보건복지부 인정 외국 의대 38개국 159개교, 예비시험·의사국가시험 절차, 국내 의대 편입·재외국민 특별전형까지 제도 기준으로 안내합니다. tmedi.kr",
 };
 
 const REGIONS_HEAD = ["권역", "대표 국가", "특징", "확인해야 할 것"];
@@ -103,29 +102,6 @@ const ROUTE_A = [
   },
 ];
 
-const NUMBERS = [
-  {
-    icon: FileCheck2,
-    title: "예비시험 합격자는 최근 급증했다",
-    body: "2015년 10명, 2017년 30명, 2021년 43명, 2024년 55명에 머물던 합격자가 2025년에는 172명으로 늘었습니다. 2차 실기 합격률은 88.7%(응시 194명)였습니다.",
-  },
-  {
-    icon: ScrollText,
-    title: "다만 장기 평균은 다르다",
-    body: "2005년부터 2023년까지 19년간 누적 합격자는 235명, 평균 합격률은 55% 수준이었습니다. 2025년의 급등은 이례적인 수치로 봐야 합니다.",
-  },
-  {
-    icon: Globe2,
-    title: "국시 합격자는 헝가리 출신이 압도적",
-    body: "제89회 의사 국가시험에서 외국 의대 출신 합격자는 52명이었고, 그중 헝가리 출신이 39명(응시 43명)이었습니다. 나머지는 노르웨이·러시아·미국·호주·영국 등에서 1~2명씩입니다.",
-  },
-  {
-    icon: Building2,
-    title: "인정 대학은 나라별로 편중돼 있다",
-    body: "미국 26개, 필리핀 18개, 독일 15개, 일본 15개, 영국 14개 순입니다. '그 나라 의대면 된다'가 아니라 '그 학교가 목록에 있는가'가 기준입니다.",
-  },
-];
-
 const ROUTE_B = [
   {
     title: "국내 의대 편입학",
@@ -192,7 +168,7 @@ export default function OverseasPage() {
         badge="해외 의대 · 국내 면허 경유 루트"
         title="밖에서 시작해"
         highlight="한국 의사로 돌아오는 길"
-        body="외국 의대 진학은 '우회로'가 아니라 별도의 제도 위에 있는 경로입니다. 어떤 학교가 인정되는지, 예비시험이 실제로 얼마나 걸러내는지부터 숫자로 확인하세요."
+        body="외국 의대 진학은 '우회로'가 아니라 별도의 제도 위에 있는 경로입니다. 어떤 학교가 인정되는지, 예비시험이라는 관문이 실제로 무엇을 요구하는지부터 확인하세요."
         primaryHref="#contact"
         primaryLabel="해외 진학 상담하기"
         secondaryHref="/promo/jungsi"
@@ -205,31 +181,6 @@ export default function OverseasPage() {
         ]}
       />
 
-      <StatBand
-        items={[
-          {
-            value: "159개교",
-            label: "국내 면허 취득 가능 외국 의대",
-            sub: "38개국 · 미국 26 · 필리핀 18 · 독일 15 · 일본 15 · 영국 14",
-          },
-          {
-            value: "172명",
-            label: "2025년 예비시험 합격자",
-            sub: "2차 실기 합격률 88.7% (응시 194명)",
-          },
-          {
-            value: "235명",
-            label: "2005~2023 누적 합격자",
-            sub: "19년 평균 합격률 약 55%",
-          },
-          {
-            value: "52명",
-            label: "제89회 국시 외국 의대 출신 합격",
-            sub: "그중 헝가리 출신 39명",
-          },
-        ]}
-        caption="보건복지부·한국보건의료인국가시험원 발표 및 관련 보도 기준. 인정 대학 현황은 주기적으로 갱신됩니다."
-      />
 
       <PromoSection
         eyebrow="ROUTE A"
@@ -240,15 +191,6 @@ export default function OverseasPage() {
         <RouteTimeline steps={ROUTE_A} />
       </PromoSection>
 
-      <PromoSection
-        eyebrow="NUMBERS"
-        EyebrowIcon={FileCheck2}
-        title="숫자로 보는 경유 루트"
-        subtitle="최근 통계는 좋아졌지만, 장기 평균과 함께 봐야 판단이 흔들리지 않습니다."
-        tone="muted"
-      >
-        <FeatureGrid items={NUMBERS} columns={2} />
-      </PromoSection>
 
       <PromoSection
         eyebrow="REGIONS"
@@ -335,14 +277,13 @@ export default function OverseasPage() {
         lines={[
           "보건복지부 '외국학교 졸업자의 보건의료인국가시험 응시절차', 한국보건의료인국가시험원 인정 외국학교 현황 및 관련 보도 기준으로 정리했습니다(2026년 9월 기준).",
           "인정 외국 의과대학 목록은 심사에 따라 추가·제외될 수 있습니다. 지원 전 반드시 국시원 최신 공고에서 학교 단위로 확인하세요.",
-          "예비시험·국가시험 합격 통계는 발표 연도 기준이며, 연도별 편차가 큽니다. 특정 연도 수치를 일반적인 합격 가능성으로 해석하지 마세요.",
           "국내 의대 편입 및 재외국민 특별전형의 모집 대학·인원은 해마다 달라집니다. 해당 연도 모집요강이 유일한 기준입니다.",
         ]}
       />
 
       <FinalCTA
-        title="해외 진학, 감이 아니라 숫자로 결정하세요"
-        body="인정 여부·졸업률·예비시험 실적·총비용을 국내 경로와 나란히 놓고 비교해 드립니다. 결론이 '국내 재수'로 나오는 경우도 많습니다."
+        title="해외 진학, 분위기가 아니라 제도로 결정하세요"
+        body="인정 여부·졸업 가능성·예비시험 준비 부담·총비용을 국내 경로와 나란히 놓고 비교해 드립니다. 결론이 '국내 재수'로 나오는 경우도 많습니다."
         Icon={Globe2}
         primaryHref="#contact"
         primaryLabel="해외 진학 상담하기"

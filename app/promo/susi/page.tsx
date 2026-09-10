@@ -18,7 +18,6 @@ import {
   FeatureGrid,
   StepList,
   CheckList,
-  StatBand,
   CompareTable,
   NoteBox,
   LinkCards,
@@ -184,31 +183,6 @@ export default function SusiHubPage() {
         ]}
       />
 
-      <StatBand
-        items={[
-          {
-            value: "3,507명",
-            label: "2027 의대 총 모집인원",
-            sub: "2026학년도 3,016명 대비 약 490명 증가",
-          },
-          {
-            value: "72.0%",
-            label: "수시 비중",
-            sub: "수시 2,524명 · 정시 983명(28.0%)",
-          },
-          {
-            value: "1,702명",
-            label: "지방 의대 지역인재",
-            sub: "지역의사 선발 포함 시 지방 모집의 약 70%",
-          },
-          {
-            value: "1,757명",
-            label: "일반전형",
-            sub: "전년 대비 27명 감소 · 지역 선발과 5 대 5 구도",
-          },
-        ]}
-        caption="2027학년도 대학입학전형시행계획 집계 기준. 최종 인원은 각 대학 수시 모집요강에서 확정됩니다."
-      />
 
       <PromoSection
         eyebrow="TRACKS"

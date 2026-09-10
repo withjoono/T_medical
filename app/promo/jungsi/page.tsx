@@ -19,7 +19,6 @@ import {
   FeatureGrid,
   StepList,
   CheckList,
-  StatBand,
   CompareTable,
   NoteBox,
   LinkCards,
@@ -147,31 +146,6 @@ export default function JungsiPage() {
         ]}
       />
 
-      <StatBand
-        items={[
-          {
-            value: "983명",
-            label: "2027 의대 정시 모집",
-            sub: "전체 3,507명 중 28.0%",
-          },
-          {
-            value: "726명",
-            label: "일반전형 정시",
-            sub: "일반전형 1,757명 중 41.3%로 최대 축",
-          },
-          {
-            value: "258명",
-            label: "지역 선발 정시",
-            sub: "지역 선발 인원의 14.7%",
-          },
-          {
-            value: "30명",
-            label: "지역의사 정시",
-            sub: "지역의사 490명 중 6.1% · 10년 의무복무 조건",
-          },
-        ]}
-        caption="2027학년도 전형계획 집계 기준. 최종 인원은 각 대학 정시 모집요강에서 확정됩니다."
-      />
 
       <PromoSection
         eyebrow="CHANGES"
