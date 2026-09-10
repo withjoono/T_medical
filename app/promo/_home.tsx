@@ -11,12 +11,16 @@ import {
   Activity,
   FileText,
   ShieldCheck,
+  Globe2,
+  Compass,
 } from "lucide-react";
 import {
   PromoHero,
   PromoSection,
   FeatureGrid,
   CheckList,
+  StatBand,
+  LinkCards,
   FinalCTA,
 } from "./_components";
 import { CONTACT_ANCHOR } from "./_chrome";
@@ -102,22 +106,85 @@ export default function PromoHome() {
   return (
     <>
       <PromoHero
-        badge="의치한약수 진학 전문 포털"
-        title="의약학 합격의 모든 길,"
+        badge="의대 진학 전문 · 의치한약수 포털"
+        title="의대로 가는 모든 길,"
         highlight="T Medi 하나로"
-        body="의대·치대·한의대·약대·수의대 — 계열마다 다른 전형과 요구 역량을 정확히 파악하고, 수능 최저·면접·MMI·생기부까지 하나의 전략으로 연결합니다."
+        body="수시 교과·종합·논술, 정시, 그리고 해외 의대를 거쳐 국내 면허까지 — 의대로 이어지는 모든 경로를 한자리에서 비교하고 설계합니다."
         primaryHref={CONTACT_ANCHOR}
         primaryLabel="상담 신청하기"
-        secondaryHref="/promo/guide"
-        secondaryLabel="사용법 먼저 보기"
+        secondaryHref="/promo/susi"
+        secondaryLabel="고3 수시 전형 보기"
         Icon={Stethoscope}
         stats={[
-          { icon: Stethoscope, label: "의·치·한·약·수" },
-          { icon: ClipboardCheck, label: "수능 최저 관리" },
+          { icon: ClipboardCheck, label: "수시 교과·종합·논술" },
+          { icon: Target, label: "정시 전략" },
+          { icon: Globe2, label: "해외 의대 경유" },
           { icon: MessagesSquare, label: "면접·MMI" },
-          { icon: FileText, label: "생기부·학종" },
         ]}
       />
+
+      <StatBand
+        items={[
+          {
+            value: "3,507명",
+            label: "2027 의대 총 모집인원",
+            sub: "2026학년도 3,016명 대비 약 490명 증가",
+          },
+          {
+            value: "2,524명",
+            label: "수시 (72.0%)",
+            sub: "학종 1,227 · 교과 1,176 · 논술 121",
+          },
+          {
+            value: "983명",
+            label: "정시 (28.0%)",
+            sub: "일반전형 내에서는 41.3%로 최대 축",
+          },
+          {
+            value: "490명",
+            label: "지역의사 선발 (2027 신설)",
+            sub: "비수도권 32개 의대 · 10년 의무복무",
+          },
+        ]}
+        caption="2027학년도 대학입학전형시행계획 집계 기준. 최종 인원은 각 대학 모집요강에서 확정됩니다."
+      />
+
+      {/* 의대 진학 경로 — 이 사이트의 핵심 축 */}
+      <PromoSection
+        eyebrow="ROUTES"
+        EyebrowIcon={Compass}
+        title="의대로 가는 네 갈래"
+        subtitle="지금 내 성적표와 상황에서 실제로 열려 있는 문이 어디인지부터 확인하세요."
+      >
+        <LinkCards
+          items={[
+            {
+              href: "/promo/susi",
+              icon: ClipboardCheck,
+              title: "고3 수시 총정리",
+              body: "교과·종합·논술 세 전형의 구조와 모집 규모, 지역인재·지역의사제, 수능 최저까지 한눈에.",
+            },
+            {
+              href: "/promo/susi/jonghap",
+              icon: FileText,
+              title: "학생부종합전형",
+              body: "1,227명으로 2027 의대 최대 전형. 생기부의 깊이와 MMI 면접이 당락을 가릅니다.",
+            },
+            {
+              href: "/promo/jungsi",
+              icon: Target,
+              title: "정시 전략",
+              body: "수능 100%가 깨진 2027 정시. 영역별 반영 비율과 군별 3장 조합을 설계합니다.",
+            },
+            {
+              href: "/promo/overseas",
+              icon: Globe2,
+              title: "해외 의대 · 경유 루트",
+              body: "인정 외국 의대 38개국 159개교, 예비시험을 거쳐 국내 면허까지 가는 경로를 숫자로.",
+            },
+          ]}
+        />
+      </PromoSection>
 
       {/* 강점 축 */}
       <PromoSection
@@ -153,6 +220,24 @@ export default function PromoHome() {
 
       {/* 다른 promo 페이지로 연결 */}
       <PromoSection eyebrow="MORE" EyebrowIcon={Newspaper} title="더 알아보기">
+        <div className="mb-4">
+          <LinkCards
+            items={[
+              {
+                href: "/promo/susi/gyogwa",
+                icon: BookOpenCheck,
+                title: "학생부교과전형",
+                body: "환산 등급과 수능 최저로 승부하는 정량 트랙. 1단계 배수 축소 흐름까지 정리했습니다.",
+              },
+              {
+                href: "/promo/susi/nonsul",
+                icon: Target,
+                title: "논술전형",
+                body: "121명뿐인 좁은 문. 수리·과학 논술과 높은 최저를 동시에 요구합니다.",
+              },
+            ]}
+          />
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Link
             href="/promo/guide"

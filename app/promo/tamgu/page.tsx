@@ -126,7 +126,7 @@ export default function TamguPage() {
         body="대부분의 일반고 탐구는 글쓰기 첨삭에서 멈춥니다. 하지만 의대 학종·세특에서 변별력을 만드는 건 내용의 깊이입니다. 과학고 R&E까지 감수하는 전 과목 선생님이, 의대 지망생의 탐구를 한 단계 위 깊이로 끌어올립니다."
         primaryHref="#contact"
         primaryLabel="탐구보고서 상담하기"
-        secondaryHref="/promo"
+        secondaryHref="/"
         secondaryLabel="왜 다른지 보기"
         Icon={FlaskConical}
         stats={[

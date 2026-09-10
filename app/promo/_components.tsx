@@ -67,7 +67,7 @@ export function PromoHero({
             {badge}
           </div>
         )}
-        <h1 className="text-4xl font-bold leading-[1.12] tracking-tight text-white sm:text-6xl">
+        <h1 className="break-keep text-4xl font-bold leading-[1.12] tracking-tight text-white sm:text-6xl">
           {title}
           {highlight && (
             <>
@@ -78,7 +78,7 @@ export function PromoHero({
             </>
           )}
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-300">
+        <p className="mx-auto mt-6 max-w-2xl break-keep text-lg leading-relaxed text-slate-300">
           {body}
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -154,12 +154,12 @@ export function PromoSection({
               </div>
             )}
             {title && (
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              <h2 className="break-keep text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
                 {title}
               </h2>
             )}
             {subtitle && (
-              <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              <p className="mx-auto mt-4 max-w-2xl break-keep text-base leading-relaxed text-slate-600">
                 {subtitle}
               </p>
             )}
@@ -368,7 +368,7 @@ export function FinalCTA({
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/30">
           <Icon className="h-7 w-7" />
         </div>
-        <h2 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        <h2 className="mt-6 break-keep text-3xl font-bold tracking-tight text-white sm:text-4xl">
           {title}
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-slate-300">{body}</p>
@@ -381,6 +381,261 @@ export function FinalCTA({
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+ * 아래는 의대 특화 페이지(수시 전형별 / 정시 / 해외 의대)용 추가 컴포넌트.
+ * 위와 동일한 규칙 — semantic 토큰 금지, plain Tailwind 팔레트 클래스만 사용.
+ * ========================================================================= */
+
+/** 숫자 강조 밴드 — 히어로 직후에 핵심 수치를 얹는다. */
+export function StatBand({
+  items,
+  caption,
+}: {
+  items: { value: string; label: string; sub?: string }[];
+  caption?: string;
+}) {
+  return (
+    <section className="border-b border-slate-200 bg-white px-6 py-10 sm:px-12">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((s) => (
+            <div
+              key={s.label}
+              className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-5 text-center shadow-sm"
+            >
+              <p className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
+                {s.value}
+              </p>
+              <p className="mt-2 text-sm font-semibold text-slate-800">
+                {s.label}
+              </p>
+              {s.sub && (
+                <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                  {s.sub}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+        {caption && (
+          <p className="mt-5 text-center text-xs text-slate-400">{caption}</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** 비교표 — 모바일에서 가로 스크롤. 첫 컬럼은 고정 강조. */
+export function CompareTable({
+  head,
+  rows,
+  caption,
+}: {
+  head: string[];
+  rows: string[][];
+  caption?: string;
+}) {
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+        <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+          <thead>
+            <tr className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
+              {head.map((h) => (
+                <th
+                  key={h}
+                  className="px-4 py-3.5 text-sm font-semibold first:rounded-tl-2xl last:rounded-tr-2xl"
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, ri) => (
+              <tr
+                key={r[0] + ri}
+                className={
+                  ri % 2 === 1
+                    ? "bg-slate-50/70 transition hover:bg-teal-50/60"
+                    : "bg-white transition hover:bg-teal-50/60"
+                }
+              >
+                {r.map((c, ci) => (
+                  <td
+                    key={ci}
+                    className={
+                      ci === 0
+                        ? "border-t border-slate-100 px-4 py-3.5 font-semibold text-slate-900"
+                        : "border-t border-slate-100 px-4 py-3.5 leading-relaxed text-slate-600"
+                    }
+                  >
+                    {c}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {caption && (
+        <p className="mt-4 text-center text-xs leading-relaxed text-slate-400">
+          {caption}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** 주의·확인 필요 사항 박스 — tone 으로 색을 바꾼다. */
+export function NoteBox({
+  title,
+  items,
+  tone = "info",
+  Icon,
+}: {
+  title: string;
+  items: string[];
+  tone?: "info" | "warn";
+  Icon?: LucideIcon;
+}) {
+  const shell =
+    tone === "warn"
+      ? "border-amber-200 bg-amber-50"
+      : "border-teal-200 bg-teal-50";
+  const tile =
+    tone === "warn"
+      ? "bg-amber-500 text-white"
+      : "bg-gradient-to-br from-teal-500 to-cyan-500 text-white";
+  const heading = tone === "warn" ? "text-amber-900" : "text-teal-900";
+  const body = tone === "warn" ? "text-amber-800" : "text-teal-800";
+  const dot = tone === "warn" ? "bg-amber-400" : "bg-teal-400";
+  return (
+    <div className={`mx-auto max-w-4xl rounded-2xl border ${shell} p-6`}>
+      <div className="flex items-center gap-2.5">
+        {Icon && (
+          <span
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${tile}`}
+          >
+            <Icon className="h-4 w-4" />
+          </span>
+        )}
+        <h3 className={`text-base font-semibold ${heading}`}>{title}</h3>
+      </div>
+      <ul className="mt-4 space-y-2.5">
+        {items.map((t) => (
+          <li key={t} className={`flex gap-2.5 text-sm leading-relaxed ${body}`}>
+            <span
+              className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${dot}`}
+            />
+            <span>{t}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** 세로 경로 타임라인 — 해외 의대 경유 루트처럼 "단계 + 소요 기간"이 있는 흐름용. */
+export function RouteTimeline({
+  steps,
+}: {
+  steps: { stage: string; title: string; body: string; meta?: string }[];
+}) {
+  return (
+    <ol className="relative mx-auto max-w-3xl border-l-2 border-dashed border-teal-200 pl-8">
+      {steps.map((s, i) => (
+        <li key={s.title} className={i === steps.length - 1 ? "" : "pb-8"}>
+          <span className="absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 text-[11px] font-bold text-white shadow-md shadow-teal-500/30">
+            {i + 1}
+          </span>
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-lg hover:shadow-teal-500/10">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-teal-700">
+                {s.stage}
+              </span>
+              {s.meta && (
+                <span className="text-xs font-medium text-slate-400">
+                  {s.meta}
+                </span>
+              )}
+            </div>
+            <h3 className="mt-2.5 text-lg font-semibold text-slate-900">
+              {s.title}
+            </h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+              {s.body}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** 다른 페이지로 보내는 링크 카드 그리드 (홈/허브의 "더 알아보기" 패턴). */
+export function LinkCards({
+  items,
+  columns = 2,
+}: {
+  items: { href: string; icon: LucideIcon; title: string; body: string }[];
+  columns?: 2 | 3;
+}) {
+  const cols =
+    columns === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2";
+  return (
+    <div className={`grid gap-4 ${cols}`}>
+      {items.map((c, i) => {
+        const Icon = c.icon;
+        return (
+          <Link
+            key={c.href + c.title}
+            href={c.href}
+            className="group flex items-start gap-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/10"
+          >
+            <div
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${
+                TILES[i % TILES.length]
+              } text-white shadow-md shadow-teal-500/20`}
+            >
+              <Icon className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="flex items-center gap-1 text-lg font-semibold text-slate-900">
+                {c.title}
+                <ArrowRight className="h-4 w-4 text-teal-600 transition-transform group-hover:translate-x-1" />
+              </h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                {c.body}
+              </p>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+/** 기준일·출처 각주 — 입시 데이터 페이지 하단 공통. */
+export function SourceNote({ lines }: { lines: string[] }) {
+  return (
+    <section className="bg-slate-50 px-6 pb-16 sm:px-12">
+      <div className="mx-auto max-w-4xl rounded-xl border border-slate-200 bg-white px-5 py-4">
+        <p className="text-xs font-semibold text-slate-500">
+          데이터 기준 · 유의사항
+        </p>
+        <ul className="mt-2 space-y-1.5">
+          {lines.map((l) => (
+            <li key={l} className="text-xs leading-relaxed text-slate-500">
+              · {l}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

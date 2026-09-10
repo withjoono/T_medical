@@ -9,27 +9,58 @@ import {
   BookOpenCheck,
   Newspaper,
   Stethoscope,
+  Target,
+  Globe2,
+  PenLine,
+  FileText,
   Phone,
   Mail,
+  LucideIcon,
 } from "lucide-react";
 
 /** 상단 네비 = 사이트맵. 새 promo 페이지를 추가하면 여기에도 등록한다.
- *  (풋터 링크는 NAV_ITEMS 에서 홈을 뺀 목록을 그대로 사용) */
-const NAV_ITEMS = [
+ *  children 을 가진 항목은 상단 네비에 부모만 노출되고, 풋터에는 하위 링크까지 펼쳐진다.
+ *  (풋터 링크는 NAV_ITEMS 에서 홈을 뺀 목록을 children 까지 펼쳐 사용) */
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  children?: { href: string; label: string; icon: LucideIcon }[];
+};
+
+const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "홈", icon: Home },
+  {
+    href: "/promo/susi",
+    label: "수시 전형",
+    icon: ClipboardCheck,
+    children: [
+      { href: "/promo/susi/gyogwa", label: "교과전형", icon: BookOpenCheck },
+      { href: "/promo/susi/jonghap", label: "학생부종합", icon: FileText },
+      { href: "/promo/susi/nonsul", label: "논술전형", icon: PenLine },
+    ],
+  },
+  { href: "/promo/jungsi", label: "정시", icon: Target },
+  { href: "/promo/overseas", label: "해외 의대", icon: Globe2 },
   { href: "/promo/uidae-class", label: "의대 진학반", icon: GraduationCap },
-  { href: "/promo/susi", label: "수시컨설팅", icon: ClipboardCheck },
   { href: "/promo/interview", label: "면접 수업", icon: MessagesSquare },
   { href: "/promo/tamgu", label: "탐구보고서", icon: Microscope },
   { href: "/promo/guide", label: "사용법", icon: BookOpenCheck },
   { href: "/promo/blog", label: "블로그", icon: Newspaper },
 ];
 
-/** 풋터 사이트맵 — 홈 제외 */
-const FOOTER_LINKS = NAV_ITEMS.filter((item) => item.href !== "/");
+/** 풋터 사이트맵 — 홈 제외, 하위 페이지까지 펼침 */
+const FOOTER_LINKS = NAV_ITEMS.filter((item) => item.href !== "/").flatMap(
+  (item) => [
+    { href: item.href, label: item.label, sub: false },
+    ...(item.children ?? []).map((c) => ({
+      href: c.href,
+      label: c.label,
+      sub: true,
+    })),
+  ]
+);
 
-/** 상담 CTA 앵커 — 풋터 연락처 블록(#contact)으로 스크롤된다.
- *  모든 promo 페이지가 이 chrome 을 쓰므로 어느 페이지에서든 동작한다. */
 export const CONTACT_ANCHOR = "#contact";
 
 /** promo 공통 크롬(상단 네비 + 풋터).
@@ -112,14 +143,18 @@ export function PromoChrome({
                 한 곳에서 관리하는 메디컬 진학 포털.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm">
+            <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm sm:grid-cols-3">
               {FOOTER_LINKS.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-slate-300 transition hover:text-teal-300"
+                  className={
+                    item.sub
+                      ? "pl-3 text-xs text-slate-400 transition hover:text-teal-300"
+                      : "text-slate-300 transition hover:text-teal-300"
+                  }
                 >
-                  {item.label}
+                  {item.sub ? `└ ${item.label}` : item.label}
                 </Link>
               ))}
             </div>

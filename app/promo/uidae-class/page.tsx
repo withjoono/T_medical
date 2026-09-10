@@ -147,7 +147,7 @@ export default function UidaeClassPage() {
         body="의대 합격의 세 축을 따로 관리하면 하나는 반드시 무너집니다. 플래너 학습관리부터 생기부 컨설팅, 모의고사·내신 앱 관리까지 — 담당 멘토가 3개월간 함께 붙잡는 소수정원 반입니다."
         primaryHref="#contact"
         primaryLabel="지금 상담 예약하기"
-        secondaryHref="/promo"
+        secondaryHref="/"
         secondaryLabel="T Medi 먼저 보기"
         Icon={Stethoscope}
         stats={[
