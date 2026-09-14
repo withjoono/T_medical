@@ -7,6 +7,7 @@ import {
   ScrollText,
   HeartHandshake,
   ClipboardCheck,
+  CalendarDays,
 } from "lucide-react";
 import {
   PromoHero,
@@ -15,6 +16,7 @@ import {
   StepList,
   CheckList,
   FinalCTA,
+  LinkCards,
 } from "../_components";
 
 export const metadata: Metadata = {
@@ -134,6 +136,31 @@ export default function InterviewPage() {
         subtitle="아는 것과 말할 수 있는 것은 다릅니다. 실전 감각을 만듭니다."
       >
         <CheckList items={FEATURES} />
+      </PromoSection>
+
+      <PromoSection
+        eyebrow="2027 SEASON"
+        EyebrowIcon={CalendarDays}
+        title="지원 대학의 실제 일정으로 바로 가기"
+        subtitle="1차 발표일과 면접일 사이에만 열리는 구간입니다. 대학별 캘린더와 남은 자리를 그대로 공개합니다."
+        tone="muted"
+      >
+        <LinkCards
+          items={[
+            {
+              href: "/promo/mmi",
+              icon: CalendarDays,
+              title: "2027 대학별 MMI 면접 특강",
+              body: "서울대·고려대·울산대·한림대·계명대·인제대 등 15개 의대. 1단계 발표일에서 역산한 1:1 수업 캘린더와 예약 현황.",
+            },
+            {
+              href: "/promo/susi",
+              icon: ClipboardCheck,
+              title: "수시 전형 총정리",
+              body: "교과·종합·논술 전형별 구조와 지원 전략. 면접이 어느 전형에서 얼마나 반영되는지부터 확인하세요.",
+            },
+          ]}
+        />
       </PromoSection>
 
       <FinalCTA

@@ -28,7 +28,11 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/promo/jungsi", label: "정시" },
   { href: "/promo/overseas", label: "해외 의대" },
   { href: "/promo/uidae-class", label: "의대 진학반" },
-  { href: "/promo/interview", label: "면접 수업" },
+  {
+    href: "/promo/interview",
+    label: "면접 수업",
+    children: [{ href: "/promo/mmi", label: "대학별 MMI 특강" }],
+  },
   { href: "/promo/tamgu", label: "탐구보고서" },
   { href: "/promo/guide", label: "사용법" },
   { href: "/promo/blog", label: "블로그" },
@@ -58,6 +62,7 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
       links: [
         { href: "/promo/uidae-class", label: "의대 진학반" },
         { href: "/promo/interview", label: "면접 수업" },
+        { href: "/promo/mmi", label: "2027 대학별 MMI 면접 특강" },
         { href: "/promo/tamgu", label: "탐구보고서" },
         { href: "/promo/guide", label: "사용법" },
         { href: "/promo/blog", label: "블로그" },
