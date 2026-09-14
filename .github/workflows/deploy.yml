@@ -56,7 +56,7 @@ jobs:
           NEXT_PUBLIC_STUDYPLANNER_URL: ${{ vars.NEXT_PUBLIC_STUDYPLANNER_URL }}
           NEXT_PUBLIC_SANGGIBOOK_URL: ${{ vars.NEXT_PUBLIC_SANGGIBOOK_URL }}
 
-      # ⚠️ `--only hosting` 단독 금지. 반드시 site 이름(medical-front)까지 지정한다.
+      # ⚠️ `--only hosting:medical-front` 단독 금지. 반드시 site 이름(medical-front)까지 지정한다.
       # .firebaserc 에 targets 매핑이 없어 target 이 아니라 site 이름을 그대로 쓴다.
       # target 없는 배포는 2026-05-16 에 Hub(www.tskool.kr)를 위성앱 빌드로
       # 덮어쓴 사고의 형태다. Firebase site ↔ 앱은 1:1 고정.

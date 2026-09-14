@@ -1,3 +1,4 @@
+import { Footer } from "@/components/footer";
 import Link from "next/link";
 import { Phone, Mail, Clock, LucideIcon } from "lucide-react";
 
@@ -164,94 +165,22 @@ export function PromoChrome({
       {children}
 
       {/* ===== 풋터 ===== */}
-      <footer className="grain relative isolate overflow-hidden text-ink-300">
-        <div className="absolute inset-0 bg-ink" />
-        <div className="blueprint absolute inset-0 opacity-60" />
-        <div className="brass-rule absolute inset-x-0 top-0 h-px opacity-80" />
-
-        <div className="relative mx-auto max-w-6xl px-6 py-16 sm:px-12 sm:py-20">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-            {/* 브랜드 블록 */}
-            <div className="max-w-sm">
-              <Wordmark onDark />
-              <p className="mt-6 text-[13px] font-light leading-[1.9] text-ink-400">
-                의대·치대·한의대·약대·수의대(의치한약수) 진학 전문. 내신·모의고사·생기부·면접까지
-                한 곳에서 관리하는 메디컬 진학 포털.
-              </p>
-            </div>
-
-            {/* 사이트맵 */}
-            <div className="grid gap-10 sm:grid-cols-3">
-              {FOOTER_COLUMNS.map((col) => (
-                <div key={col.heading}>
-                  <p className="eyebrow text-brass-300">{col.heading}</p>
-                  <ul className="mt-5 space-y-3">
-                    {col.links.map((l) => (
-                      <li key={l.href}>
-                        <Link
-                          href={l.href}
-                          className="link-underline text-[13px] font-light text-ink-300 transition-colors hover:text-white"
-                        >
-                          {l.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 상담 문의 */}
-          <div
-            id="contact"
-            className="mt-14 scroll-mt-32 border-t border-white/10 pt-10"
-          >
-            <p className="eyebrow text-brass-300">상담 문의</p>
-            <div className="mt-5 flex flex-wrap items-center gap-x-10 gap-y-3 text-sm font-light text-ink-300">
-              <a
-                href="tel:010-2518-7139"
-                className="group inline-flex items-baseline gap-3 transition-colors hover:text-white"
-              >
-                <Phone
-                  className="h-4 w-4 shrink-0 translate-y-0.5 text-jade-400"
-                  strokeWidth={1.5}
-                />
-                <span className="display tnum text-lg text-white">
-                  010-2518-7139
-                </span>
-                <span className="text-xs text-ink-500">06:00 – 22:00</span>
-              </a>
-              <a
-                href="mailto:withjuno@naver.com"
-                className="link-underline inline-flex items-center gap-2.5 transition-colors hover:text-white"
-              >
-                <Mail className="h-4 w-4 text-jade-400" strokeWidth={1.5} />
-                withjuno@naver.com
-              </a>
-            </div>
-          </div>
-
-          {/* 법적 표기 */}
-          <div className="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-[11px] font-light tracking-wide text-ink-500 sm:flex-row sm:items-center sm:justify-between">
-            <span>
-              거북스쿨 · 대표 강준호 · T Medi (의약학 · 의치한약수 진학 전문)
-            </span>
-            <span>
-              ©{" "}
-              <a
-                href="https://tmedi.kr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="link-underline transition-colors hover:text-ink-300"
-              >
-                tmedi.kr
-              </a>{" "}
-              All rights reserved.
-            </span>
+      <section id="contact" className="scroll-mt-32 border-t bg-white px-6 py-10 text-slate-700">
+        <div className="mx-auto max-w-6xl">
+          <nav aria-label="의약학 안내" className="grid gap-8 sm:grid-cols-3">
+            {FOOTER_COLUMNS.map((column) => <div key={column.heading}>
+              <h2 className="font-semibold">{column.heading}</h2>
+              <ul className="mt-3 space-y-2 text-sm">{column.links.map((link) => <li key={link.href}><Link href={link.href}>{link.label}</Link></li>)}</ul>
+            </div>)}
+          </nav>
+          <div className="mt-8 flex flex-wrap items-center gap-6 border-t pt-6 text-sm">
+            <h2 className="font-semibold">상담 문의</h2>
+            <a href="tel:010-2518-7139" className="inline-flex items-center gap-2"><Phone className="h-4 w-4" />010-2518-7139</a>
+            <a href="mailto:withjuno@naver.com" className="inline-flex items-center gap-2"><Mail className="h-4 w-4" />withjuno@naver.com</a>
           </div>
         </div>
-      </footer>
+      </section>
+      <Footer />
     </div>
   );
 }
