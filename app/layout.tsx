@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
+import { SiteChrome } from "./_site/chrome"
 
 const SITE_URL = "https://tmedi.kr"
 const DESCRIPTION =
@@ -8,6 +9,7 @@ const DESCRIPTION =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
   title: "T메디 - 의대 입시 (수시·정시·해외 의대)",
   description: DESCRIPTION,
   // 아이콘·OG 카드는 Hub/brand 가 배포하는 공용 T스쿨 자산.
@@ -63,7 +65,9 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <SiteChrome>{children}</SiteChrome>
+      </body>
     </html>
   )
 }

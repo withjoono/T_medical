@@ -13,12 +13,11 @@
         "source": "/promo",
         "destination": "/",
         "type": 301
-      }
-    ],
-    "rewrites": [
+      },
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/promo/:rest*",
+        "destination": "/:rest*",
+        "type": 301
       }
     ],
     "target": "medical-front"

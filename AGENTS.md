@@ -6,7 +6,8 @@
 ## 이 리포는 무엇인가
 
 **T메디** — 의·치·한·약·수(의대·치대·한의대·약대·수의대) 입시 정보 사이트.
-세 특화대학 앱 중 **가장 작다**(앱 코드 약 2,300행, `components/ui/` 제외). 실질적으로 **`/` + `/promo/*` 프로모 사이트**다.
+세 특화대학 앱 중 **가장 작다**(`components/ui/` 제외). **앱(로그인 영역)이 없는 마케팅 전용 사이트**이며,
+공개 콘텐츠가 전부 최상위 경로에 있다 — `Hub/docs/url-standard.md` 의 '마케팅 전용' 유형.
 
 - **Next.js 15.2.4 App Router + React 19 + Tailwind v4 + shadcn/ui**, `output: 'export'` **정적 사이트**
 - **자체 백엔드가 없다.** 인증은 Hub SSO에 위임하고, 호출하는 서버 API는 **Hub 백엔드 두 개(SSO)뿐**이다.
@@ -94,7 +95,7 @@ DB를 수정하는 모든 스크립트는 **인자 없이 실행하면 DRY-RUN**
 ### 배포는 `firebase deploy --only hosting:medical-front` — `--only hosting` 단독 금지
 
 - `firebase.json` 의 hosting 블록은 **하나뿐이고 `"site": "medical-front"`** 가 박혀 있다. **블록을 늘리거나 `site` 키를 지우지 말 것.**
-- `.firebaserc` 에는 `projects.default = ts-front-479305` 만 있고 `targets` 매핑이 없다 → `hosting:` 뒤에는 **site 이름 `medical-front`** 를 그대로 쓴다.
+- `.firebaserc` 에 `medical-front` **타겟 매핑이 있고** `firebase.json` 의 hosting 블록에도 `"target": "medical-front"` 가 박혀 있다. 남의 앱 타겟을 섞지 말 것.
 - target 없는 배포는 2026-05-16 에 `www.tskool.kr`(Hub) 을 위성앱 빌드로 덮은 사고의 형태다. Firebase site ↔ 앱은 1:1 고정이다.
 
 ### 배포는 CI 자동 — `main` push 하면 프로덕션까지 나간다
@@ -111,38 +112,48 @@ DB를 수정하는 모든 스크립트는 **인자 없이 실행하면 DRY-RUN**
 ### 정적 내보내기(`output: 'export'`) — 서버 기능이 아예 없다
 
 - **Route Handler(`app/api/**`)·Server Action·미들웨어(`middleware.ts`)·ISR/`revalidate`·`cookies()`/`headers()` 사용 불가.**
-- 동적 라우트를 새로 만들면 **`generateStaticParams()` 필수**. 현재 이 리포에는 동적 라우트가 **하나도 없다.**
+- 동적 라우트를 새로 만들면 **`generateStaticParams()` 필수**. 현재 `app/mmi/[slug]` 하나가 있고 `lib/mmi-schedule.ts` 의 `UNIVS` 로 15개를 굽는다.
 - `images.unoptimized: true` — `next/image` 최적화 없음.
 - `out/` 이 산출물이며 `.gitignore` 대상이다. 커밋 금지.
 
-### `firebase.json` 의 SPA 리라이트 — 404 가 뜨지 않는다
+### URL 구조 — 공개 콘텐츠는 전부 최상위 경로 (2026-09-15 이관 완료)
 
-이 앱에만 있는 설정이다(형제 앱에는 없다):
+`Hub/docs/url-standard.md` 를 따른다. 공통 규칙 6번의 원본이다.
 
-```json
-"redirects": [{ "source": "/promo", "destination": "/", "type": 301 }],
-"rewrites":  [{ "source": "**",     "destination": "/index.html" }]
+```
+/                랜딩 — 정본(canonical)
+/susi  /susi/*   /jungsi  /overseas  /uidae-class
+/interview  /mmi  /mmi/<대학>  /tamgu
+/guide           사용법
+/blog            글
 ```
 
-`**` → `/index.html` 리라이트 때문에 **존재하지 않는 경로가 404 대신 홈 페이지를 반환**한다. Next 가 생성한 `out/404.html` 은 사실상 쓰이지 않는다.
-→ 오타 링크가 조용히 홈으로 흡수되므로 **링크 오류가 눈에 띄지 않는다.** 라우트를 추가·삭제할 때 링크를 직접 확인할 것.
-또한 `/promo` 는 301 로 `/` 에 흡수된다. 루트가 곧 promo 홈이기 때문이다.
+- **`/promo/*` 는 더 이상 존재하지 않는다.** 구주소는 `firebase.json` 의 301 두 줄이 받는다 —
+  `/promo` → `/`, `/promo/:rest*` → `/:rest*`. 응답 우선순위가 `리다이렉트 → 정적 파일 → rewrite` 라 항상 리다이렉트가 이긴다.
+- 이 앱에는 **로그인 영역이 없다.** 예약 접두사(`/app`·`/share`·`/auth`)를 쓸 일이 없으므로,
+  새 경로를 만들 때 그 셋만 피하면 된다.
+- **`**` → `/index.html` SPA 리라이트를 제거했다.** 이전에는 없는 경로가 404 대신 홈을 200으로 반환해
+  오타 링크가 조용히 흡수되고 검색엔진에는 soft 404 로 쌓였다. 지금은 Firebase 가 `out/404.html` 을 404 로 준다.
+  → **다시 넣지 말 것.** 정적 export 라 실제 라우트는 전부 파일로 존재하므로 폴백이 필요 없다.
+- 페이지마다 `metadata.alternates.canonical` 을 명시한다. 새 페이지를 추가하면 여기도 같이 넣는다.
+- 사이트맵·robots 의 SSOT 는 **`Hub/brand/apps.json` 의 `pages`** 다. 라우트를 추가·삭제하면
+  거기를 고치고 `python brand/sync_brand.py medi` 를 돌린다. `public/sitemap.xml`·`public/robots.txt` 를 직접 고치지 말 것.
 
 ### `components/navigation.tsx` 는 죽은 코드이고 링크가 전부 깨져 있다
 
 2026-09-03 확인:
 
-- **어디에서도 import 되지 않는다.** `app/layout.tsx` 는 `{children}` 만 렌더하고, `app/page.tsx` 와 `app/promo/layout.tsx` 는 `app/promo/_chrome.tsx` 의 `PromoChrome` 을 쓴다.
+- **어디에서도 import 되지 않는다.** 크롬은 `app/layout.tsx` 가 `app/_site/chrome.tsx` 의 `SiteChrome` 으로 한 번만 씌운다.
 - 이 파일이 가리키는 `/medicine` `/dentistry` `/korean-medicine` `/pharmacy` `/veterinary` `/susi-strategy` `/jonghap-strategy` `/jungsi-strategy` `/nontong` `/consulting` `/success-cases` 라우트는 **하나도 존재하지 않는다.**
 - 표기도 다르다 — 이 파일만 "TS 메디컬", 실제 사이트는 "T Medi / T메디".
 
-→ **이 파일을 살려 쓰지 말 것.** 네비게이션은 `app/promo/_chrome.tsx` 의 `NAV_ITEMS` 하나가 SSOT 다. 삭제 여부는 소유자 판단이 필요하다(**확인 필요**).
+→ **이 파일을 살려 쓰지 말 것.** 네비게이션은 `app/_site/chrome.tsx` 의 `NAV_ITEMS` 하나가 SSOT 다. 삭제 여부는 소유자 판단이 필요하다(**확인 필요**).
 
-### 네비게이션 SSOT 는 `app/promo/_chrome.tsx`
+### 네비게이션 SSOT 는 `app/_site/chrome.tsx`
 
-- `PromoChrome` 이 상단 네비 + 풋터를 담당하고, **루트(`app/page.tsx`)와 `/promo/*`(`app/promo/layout.tsx`) 양쪽이 같은 크롬을 쓴다.**
-- `NAV_ITEMS` 가 사이트맵이다. **promo 페이지를 추가하면 여기에도 등록**해야 한다(풋터 링크는 `NAV_ITEMS` 에서 홈만 뺀 목록을 그대로 쓴다).
-- 상담 CTA 앵커는 `CONTACT_ANCHOR = "#contact"` — 풋터 연락처 블록으로 스크롤한다. 모든 promo 페이지가 같은 크롬을 쓰므로 어디서든 동작한다.
+- `SiteChrome` 이 상단 네비 + 풋터를 담당하고, **`app/layout.tsx` 가 전 페이지에 한 번만 씌운다.** 개별 페이지에서 다시 감싸지 말 것.
+- `NAV_ITEMS` 가 사이트맵이다. **페이지를 추가하면 여기에도 등록**해야 한다(풋터 링크는 `NAV_ITEMS` 에서 홈만 뺀 목록을 그대로 쓴다).
+- 상담 CTA 앵커는 `CONTACT_ANCHOR = "#contact"` — 풋터 연락처 블록으로 스크롤한다. 모든 페이지가 같은 크롬을 쓰므로 어디서든 동작한다.
 
 ### 인증은 Hub에 위임 — 자체 로그인 금지
 
@@ -190,6 +201,7 @@ Vite 앱과 다르다. Next 앱에는 마커 블록이 있는 `index.html` 이 �
 | `static-export-and-deploy.md` | 빌드·수동 배포·Firebase 리라이트 설정, 서버 기능을 추가하려 할 때 |
 | `site-structure.md` | 페이지 추가·네비게이션 수정, 죽은 `navigation.tsx` 를 만났을 때 |
 | `sibling-apps-drift.md` | 형제 앱(Kwakiwon·Sakwan)과 공유하는 코드를 고칠 때 |
+| `Hub/docs/url-standard.md` (다른 리포) | URL·robots·사이트맵·canonical 을 건드릴 때 — 생태계 공통 원본 |
 
 ---
 
