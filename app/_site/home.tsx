@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import {
   Stethoscope,
   Target,
@@ -13,7 +15,6 @@ import {
   Compass,
 } from "lucide-react";
 import {
-  PromoHero,
   PromoSection,
   FeatureGrid,
   CheckList,
@@ -102,23 +103,30 @@ const STRENGTHS = [
 export default function Home() {
   return (
     <>
-      <PromoHero
-        badge="의대 진학 전문 · 의치한약수 포털"
-        title="의료인을 꿈꾸는 당신에게,"
-        highlight="가능성을 전략으로."
-        body="수시 교과·종합·논술, 정시, 그리고 해외 의대를 거쳐 국내 면허까지 — 의대로 이어지는 모든 경로를 한자리에서 비교하고 설계합니다."
-        primaryHref={CONTACT_ANCHOR}
-        primaryLabel="나에게 맞는 전략 상담"
-        secondaryHref="/susi"
-        secondaryLabel="고3 수시 전형 보기"
-        Icon={Stethoscope}
-        stats={[
-          { icon: ClipboardCheck, label: "수시 교과·종합·논술" },
-          { icon: Target, label: "정시 전략" },
-          { icon: Globe2, label: "해외 의대 경유" },
-          { icon: MessagesSquare, label: "면접·MMI" },
-        ]}
-      />
+      <section className="editorial-hero admissions-editorial">
+        <div className="editorial-copy">
+          <p className="editorial-kicker admissions-kicker">의대·치대·한의대·약대·수의대 입시 전문</p>
+          <h1 className="admissions-title">의대 진학의 꿈을,<br /><em>합격을 향한 전략으로.</em></h1>
+          <p className="editorial-intro">수험생과 학부모를 위한<br />의약학 진학 컨설팅, T Medi.</p>
+          <p className="editorial-description">수시·정시 지원 전략부터 학생부·MMI 면접 준비까지.<br />지금의 성적과 목표 대학을 바탕으로<br />나에게 필요한 입시 준비를 함께 설계합니다.</p>
+          <div className="editorial-actions"><Link href="#admissions-routes">내게 맞는 입시 전략 찾기<ArrowUpRight size={17} /></Link><Link href={CONTACT_ANCHOR}>진학 상담하기<span>→</span></Link></div>
+          <div className="editorial-signature"><span>오늘의 입시 준비, 내일의 의료인을 향해.</span><span>T MEDI</span></div>
+        </div>
+        <aside className="admissions-directory" aria-label="입시 준비 안내">
+          <p className="eyebrow">A CLEAR PATH TO MEDICINE</p>
+          <h2>목표는 선명하게.<br />준비는 체계적으로.</h2>
+          <p className="directory-intro">지금 가장 필요한 준비부터 살펴보세요.</p>
+          {[
+            { number: "01", title: "지원 전략", body: "수시·정시, 나에게 맞는 전형 찾기", href: "/susi" },
+            { number: "02", title: "입시결과", body: "대학·계열별 공시 자료 살펴보기", href: "/ipkyul" },
+            { number: "03", title: "면접 준비", body: "대학별 MMI와 면접 유형 확인하기", href: "/mmi" },
+          ].map((item) => <Link key={item.number} href={item.href}><span>{item.number}</span><div><h3>{item.title}</h3><p>{item.body}</p></div><ArrowUpRight size={18} strokeWidth={1.25} /></Link>)}
+          <span className="directory-footnote">의대 · 치대 · 한의대 · 약대 · 수의대</span>
+        </aside>
+      </section>
+      <section id="admissions-routes" className="editorial-index" aria-label="진학 프로그램 바로가기">
+        {[{href:"/susi",title:"수시 전략",sub:"학생부교과 · 종합 · 논술"},{href:"/jungsi",title:"정시 설계",sub:"성적 분석 · 지원 조합"},{href:"/mmi",title:"면접 & MMI",sub:"대학별 1:1 집중 준비"},{href:"/overseas",title:"해외 의대",sub:"또 하나의 진학 경로"}].map((item,i)=><Link href={item.href} key={item.href}><span className="index-number">0{i+1}</span><div><h2>{item.title}</h2><p>{item.sub}</p></div><ArrowUpRight size={17}/></Link>)}
+      </section>
 
 
       {/* 의대 진학 경로 — 이 사이트의 핵심 축 */}

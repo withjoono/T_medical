@@ -661,7 +661,7 @@ export function FinalCTA({
   primaryLabel?: string;
 }) {
   return (
-    <section className="grain relative isolate overflow-hidden">
+    <section className="final-consultation grain relative isolate overflow-hidden">
       <InkGround />
       <div className="relative mx-auto max-w-3xl px-6 py-24 text-center sm:px-12 sm:py-28">
         <div className="inline-flex h-14 w-14 items-center justify-center border border-white/20 text-jade-400">

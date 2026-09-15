@@ -1,5 +1,6 @@
 import { Footer } from "@/components/footer";
 import Link from "next/link";
+import { SiteNavigation } from "./navigation";
 import { Phone, Mail, Clock, LucideIcon } from "lucide-react";
 
 /** 상단 네비 = 사이트맵. 새 페이지를 추가하면 여기에도 등록한다.
@@ -117,7 +118,8 @@ export function SiteChrome({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-paper text-ink-900">
+    <div className="site-shell editorial-site min-h-screen bg-paper text-ink-900">
+      <a className="skip-link" href="#main-content">본문으로 바로가기</a>
       {/* ===== 상단 유틸리티 바 ===== */}
       <div className="hidden bg-ink text-ink-300 sm:block">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2 text-[11px] font-light tracking-wide">
@@ -142,9 +144,19 @@ export function SiteChrome({
 
       {/* ===== 헤더 ===== */}
       <header className="sticky top-0 z-40 border-b border-hair bg-paper/85 backdrop-blur-md">
+        <div className="ecosystem-bar"><nav aria-label="T스쿨 공통 메뉴" className="ecosystem-inner">
+          <a href="https://www.tskool.kr">T스쿨</a>
+          <details className="ecosystem-apps"><summary>관련 앱 <span aria-hidden="true">⌄</span></summary><ul>
+            <li><a href="https://studyplanner.kr">스터디플래너</a></li>
+            <li><a href="https://saenggiboo.kr">생기부</a></li>
+            <li><a href="https://ipsypick.kr">맞춤입시정보</a></li>
+            <li><a href="https://www.tskool.kr">T스쿨(허브)</a></li>
+          </ul></details>
+          <span className="ecosystem-label">T스쿨 · 의약학 입시 전문</span>
+        </nav></div>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link href="/" aria-label="T Medi 홈">
-            <Wordmark />
+            <span className="satellite-brand"><img src="/logo.png?v=2" width={40} height={40} alt="" /><span>T메디<small>의약학 입시 전문</small></span></span>
           </Link>
           <Link
             href={CONTACT_ANCHOR}
@@ -155,29 +167,22 @@ export function SiteChrome({
         </div>
 
         {/* 섹션 네비 — 활자만. hover 시 밑줄이 자란다. */}
-        <nav className="border-t border-hair">
-          <div className="no-scrollbar mx-auto max-w-6xl overflow-x-auto px-6">
-            <ul className="flex min-w-max items-center gap-7 py-3">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="link-underline text-[13px] font-medium tracking-tight text-ink-600 transition-colors hover:text-ink"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
+        <SiteNavigation items={NAV_ITEMS} />
       </header>
 
-      {children}
+      <main id="main-content" tabIndex={-1}>{children}</main>
 
       {/* ===== 풋터 ===== */}
       <section id="contact" className="scroll-mt-32 border-t bg-white px-6 py-10 text-slate-700">
         <div className="mx-auto max-w-6xl">
+          <div className="contact-intro">
+            <div>
+              <span className="eyebrow text-brass-600">LET’S TALK ABOUT YOUR NEXT CHAPTER</span>
+              <h2>당신의 가능성에서<br />상담을 시작합니다.</h2>
+              <p>목표 계열과 지금의 고민을 들려주세요.<br />어디서부터 준비할지 함께 정리하겠습니다.</p>
+            </div>
+            <a href="tel:010-2518-7139" aria-label="010-2518-7139 전화 상담"><Phone size={22} strokeWidth={1.25} />010-2518-7139</a>
+          </div>
           <nav aria-label="의약학 안내" className="grid gap-8 sm:grid-cols-3">
             {FOOTER_COLUMNS.map((column) => <div key={column.heading}>
               <h2 className="font-semibold">{column.heading}</h2>
