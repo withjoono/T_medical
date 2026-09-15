@@ -1,6 +1,5 @@
 import { Footer } from "@/components/footer";
 import Link from "next/link";
-import { SiteNavigation } from "./navigation";
 import { Phone, Mail, Clock, LucideIcon } from "lucide-react";
 
 /** 상단 네비 = 사이트맵. 새 페이지를 추가하면 여기에도 등록한다.
@@ -28,6 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   { href: "/jungsi", label: "정시" },
   { href: "/overseas", label: "해외 의대" },
+  { href: "/ipkyul", label: "입시결과" },
   { href: "/uidae-class", label: "의대 진학반" },
   {
     href: "/interview",
@@ -53,8 +53,11 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
       ],
     },
     {
-      heading: "정시 · 해외",
+      heading: "입시결과 · 정시",
       links: [
+        { href: "/ipkyul", label: "의치한약수 입시결과" },
+        { href: "/ipkyul/uiye", label: "의예과 입결" },
+        { href: "/ipkyul/yakhak", label: "약학과 입결" },
         { href: "/jungsi", label: "정시 전략" },
         { href: "/overseas", label: "해외 의대 경유 루트" },
       ],
@@ -62,7 +65,8 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
     {
       heading: "수업 · 자료",
       links: [
-        { href: "/uidae-class", label: "의대 진학반" },
+        { href: "/ipkyul", label: "입시결과" },
+  { href: "/uidae-class", label: "의대 진학반" },
         { href: "/interview", label: "면접 수업" },
         { href: "/mmi", label: "2027 대학별 MMI 면접 특강" },
         { href: "/tamgu", label: "탐구보고서" },
@@ -113,8 +117,7 @@ export function SiteChrome({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="site-shell min-h-screen bg-paper text-ink-900">
-      <a className="skip-link" href="#main-content">본문으로 바로가기</a>
+    <div className="min-h-screen bg-paper text-ink-900">
       {/* ===== 상단 유틸리티 바 ===== */}
       <div className="hidden bg-ink text-ink-300 sm:block">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2 text-[11px] font-light tracking-wide">
@@ -152,10 +155,25 @@ export function SiteChrome({
         </div>
 
         {/* 섹션 네비 — 활자만. hover 시 밑줄이 자란다. */}
-        <SiteNavigation items={NAV_ITEMS} />
+        <nav className="border-t border-hair">
+          <div className="no-scrollbar mx-auto max-w-6xl overflow-x-auto px-6">
+            <ul className="flex min-w-max items-center gap-7 py-3">
+              {NAV_ITEMS.map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="link-underline text-[13px] font-medium tracking-tight text-ink-600 transition-colors hover:text-ink"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </nav>
       </header>
 
-      <main id="main-content" tabIndex={-1}>{children}</main>
+      {children}
 
       {/* ===== 풋터 ===== */}
       <section id="contact" className="scroll-mt-32 border-t bg-white px-6 py-10 text-slate-700">
