@@ -23,9 +23,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: T_Medi
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: T_Medi
+
+      - name: Checkout shared satellite header
+        uses: actions/checkout@v4
+        with:
+          repository: withjoono/Music_College
+          ref: 8b245ee0532f5a2474983feb0cc7f38b463b7a1b
+          token: ${{ secrets.SATELLITE_HEADER_TOKEN }}
+          path: Music_College
+          sparse-checkout: packages/satellite-header
+          persist-credentials: false
 
       - uses: pnpm/action-setup@v4
         with:
@@ -35,6 +50,7 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+          cache-dependency-path: T_Medi/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

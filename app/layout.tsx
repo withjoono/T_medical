@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
+import "@tskool/satellite-header/styles.css"
 import { SiteChrome } from "./_site/chrome"
 
 const SITE_URL = "https://tmedi.kr"

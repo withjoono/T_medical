@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { UNIVS } from "@/lib/mmi-schedule";
+import { AdmissionsCalendar } from "./admissions-calendar";
 import { ArrowUpRight } from "lucide-react";
 import {
   Stethoscope,
@@ -130,6 +132,7 @@ export default function Home() {
 
 
       {/* 의대 진학 경로 — 이 사이트의 핵심 축 */}
+      <AdmissionsCalendar events={UNIVS.flatMap((univ) => univ.tracks.filter((track) => track.interview).map((track) => ({ id: track.id, date: track.interview!, university: univ.short, track: track.name, note: track.interviewNote, href: `/mmi/${univ.slug}`, sources: univ.sources }))).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))} pending={UNIVS.flatMap((univ) => univ.tracks.filter((track) => !track.interview).map((track) => `${univ.short} ${track.name}`))} />
       <PromoSection
         eyebrow="ROUTES"
         EyebrowIcon={Compass}
