@@ -19,7 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "홈" },
   {
     href: "/univ",
-    label: "대학별",
+    label: "대학별 안내",
     children: [
       { href: "/mmi", label: "대학별 MMI 특강" },
       { href: "/ipkyul/uiye", label: "의예과 입결" },
@@ -27,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/susi",
-    label: "수시 전형",
+    label: "수시",
     children: [
       { href: "/susi/gyogwa", label: "교과전형" },
       { href: "/susi/jonghap", label: "학생부종합" },
@@ -41,7 +41,12 @@ const NAV_ITEMS: NavItem[] = [
   {
     href: "/interview",
     label: "면접 수업",
-    children: [{ href: "/mmi", label: "대학별 MMI 특강" }],
+    children: [
+      { href: "/interview/mmi", label: "MMI 면접" },
+      { href: "/interview/injeokseong", label: "인·적성 면접" },
+      { href: "/interview/jesimun", label: "제시문 면접" },
+      { href: "/mmi", label: "대학별 MMI 특강" },
+    ],
   },
   { href: "/tamgu", label: "탐구보고서" },
   { href: "/guide", label: "사용법" },
@@ -78,6 +83,9 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
         { href: "/ipkyul", label: "입시결과" },
   { href: "/uidae-class", label: "의대 진학반" },
         { href: "/interview", label: "면접 수업" },
+        { href: "/interview/mmi", label: "MMI 면접 대비" },
+        { href: "/interview/injeokseong", label: "인·적성 면접 대비" },
+        { href: "/interview/jesimun", label: "제시문 면접 대비" },
         { href: "/mmi", label: "2027 대학별 MMI 면접 특강" },
         { href: "/tamgu", label: "탐구보고서" },
         { href: "/guide", label: "사용법" },
