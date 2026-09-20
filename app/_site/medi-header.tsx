@@ -40,9 +40,16 @@ export function MediHeader({ items }: { items: Item[] }) {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const [loginUrl, setLoginUrl] = useState(`${HUB_URL}/auth/login?redirect=${encodeURIComponent("https://tmedi.kr/")}`);
   useEffect(() => { setLoginUrl(getLoginUrl(pathname)); }, [pathname]);
-  // Flatten existing child links without losing content; the shared package owns the layout.
-  const nav = Array.from(new Map(items.flatMap((item) => [item, ...(item.children ?? [])]).map((item) => [item.href, { href: item.href, label: item.label, match: "exact" as const }])).values());
-  return <SatelliteHeader brand={{ name: "T메디", suffix: "메디", caption: "의대·치대·한의대·약대·수의대 입시", logoSrc: "/logo.png?v=2" }} groups={groups} nav={[...nav, { href: "#contact", label: "상담 문의" }]} pathname={pathname} LinkComponent={Link} utilities={{
+  // Keep the content row at one level; detail links remain on landing pages and in the footer.
+  // The logo links home. Help and articles remain accessible from the footer.
+  const nav = items
+    .filter((item) => !["/", "/guide", "/blog"].includes(item.href))
+    .map((item) => ({
+      href: item.href,
+      label: item.label,
+      match: "prefix" as const,
+    }));
+  return <SatelliteHeader brand={{ name: "T메디", suffix: "메디", caption: "의대·치대·한의대·약대·수의대 입시", logoSrc: "/logo.png?v=2" }} groups={groups} nav={[...nav, { href: "#contact", label: "상담 문의" }]} pathname={pathname} LinkComponent={Link} account={{ isAuthenticated, isLoading, userName: user?.userName, loginUrl, onLogout: logout }} utilities={{
     productsUrl: `${HUB_URL}/products`, loginUrl, accountLinkageUrl: `${HUB_URL}/account-linkage`,
     shareTitle: "의약학 진학 정보, 함께 보기", shareDescription: "현재 전형 안내를 공유하거나 T스쿨에서 선생님·학부모 계정을 연결하세요.",
     notifications: <div><p>개인 알림은 이 앱에 연결되어 있지 않습니다.</p>{isLoading ? <p>계정 확인 중…</p> : isAuthenticated ? <><p>{user?.userName || "회원"}님으로 로그인되어 있습니다.</p><a className="utility-action" href={`${HUB_URL}/notifications`}>T스쿨 알림 확인 ↗</a><button type="button" className="utility-secondary" onClick={logout}>T메디 로그아웃</button></> : <a className="utility-action" href={loginUrl}>T스쿨 로그인 ↗</a>}</div>,

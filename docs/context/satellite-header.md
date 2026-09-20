@@ -9,8 +9,8 @@
 
 ## 설치 및 CI 주의
 
-공통 패키지는 Music_College의 `codex/satellite-header` 브랜치에 있으며,
-CI는 커밋 `8b245ee0532f5a2474983feb0cc7f38b463b7a1b`를 형제 폴더에 체크아웃한다.
+공통 패키지는 Music_College의 `codex/satellite-header-account` 브랜치에 있으며,
+CI는 커밋 `94861ac84b3b55b8a1a75c04e74be2b70e3ae7d1`를 형제 폴더에 체크아웃한다.
 Music_College는 비공개 저장소이므로 해당 저장소 contents 읽기 권한을 가진
 `SATELLITE_HEADER_TOKEN` Secret이 필요하다. 배포에는 `FIREBASE_TOKEN`도 필요하다.
 2026-09-18 확인 당시 두 Secret이 없어 자동 배포는 사용할 수 없었다.
