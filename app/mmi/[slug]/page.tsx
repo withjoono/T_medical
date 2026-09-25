@@ -40,6 +40,8 @@ import {
   univDays,
   shortestWindow,
 } from "@/lib/mmi-schedule";
+import { JsonLdAll } from "@/components/json-ld";
+import { breadcrumb, course } from "@/lib/jsonld";
 
 /** 정적 export(output: 'export')라 동적 라우트에는 generateStaticParams 가 필수다. */
 export function generateStaticParams() {
@@ -85,8 +87,26 @@ export default async function UnivMmiPage({
 
   const siblings = UNIVS.filter((u) => u.slug !== univ.slug).slice(0, 8);
 
+  const lastDay = days.length > 0 ? days[days.length - 1] : undefined;
+
   return (
     <>
+      <JsonLdAll
+        items={[
+          breadcrumb([
+            { name: "대학별 MMI 면접 특강", path: "/mmi" },
+            { name: `${univ.short} 의대 면접 특강`, path: `/mmi/${univ.slug}` },
+          ]),
+          course({
+            path: `/mmi/${univ.slug}`,
+            name: `2027 ${univ.short} 의대 면접 특강 (1:1)`,
+            description: `${univ.short} 의예과 ${univ.styleLabel}. 1단계 합격자 발표일부터 면접 전날까지의 구간에 맞춘 줌 1:1 실전 수업.`,
+            price: TUITION.perSession,
+            startDate: days[0],
+            endDate: lastDay,
+          }),
+        ]}
+      />
       <PromoHero
         badge={`2027 ${univ.short} 의대 면접 특강`}
         title={`${univ.short} 면접,`}

@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import "./globals.css"
 import "@tskool/satellite-header/styles.css"
 import { SiteChrome } from "./_site/chrome"
+import { JsonLdAll } from "@/components/json-ld"
+import { organization, website } from "@/lib/jsonld"
 
 const SITE_URL = "https://tmedi.kr"
 const DESCRIPTION =
@@ -67,6 +69,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <JsonLdAll items={[organization(), website()]} />
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>

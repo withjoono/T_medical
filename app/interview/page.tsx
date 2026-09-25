@@ -36,6 +36,8 @@ import {
   typeCounts,
 } from "@/lib/interview-types";
 import { UNIV_TOTALS } from "@/lib/univ";
+import { JsonLdAll } from "@/components/json-ld";
+import { article, breadcrumb } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/interview" },
@@ -128,6 +130,17 @@ export default function InterviewPage() {
 
   return (
     <>
+      <JsonLdAll
+        items={[
+          breadcrumb([{ name: "면접 수업", path: "/interview" }]),
+          article({
+            path: "/interview",
+            headline: "의대 면접 수업 — MMI·인적성·제시문 유형별 대비",
+            description:
+              "의대 면접은 대학마다 다른 시험입니다. MMI(다중미니면접)·인적성(생기부 기반)·제시문 세 유형으로 나눠 실시 대학과 준비법을 정리했습니다.",
+          }),
+        ]}
+      />
       <PromoHero
         badge="의대 면접 수업 · 유형별 대비"
         title="의대 면접은"

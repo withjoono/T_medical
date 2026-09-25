@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { UNIVS } from "@/lib/mmi-schedule";
+import { UNIVS, formatKo } from "@/lib/mmi-schedule";
+import { ALL_DAYS, AVG_GAP, BLOCKS, RANGE_LABEL, TOTAL } from "@/lib/chuseok-class";
 import { AdmissionsCalendar } from "./admissions-calendar";
 import { ArrowUpRight } from "lucide-react";
 import {
@@ -102,6 +103,53 @@ const STRENGTHS = [
   "수시 6장 + 정시 3장 지원 조합 시뮬레이션",
 ];
 
+/** 수능 전 연휴 면접 특강 — 기간 한정 밴드.
+ *  숫자는 lib/chuseok-class.ts 에서만 온다. 특강이 끝나면 이 블록을 지운다. */
+function ChuseokBand() {
+  return (
+    <section className="grain relative isolate overflow-hidden border-y border-hair-strong">
+      <div className="absolute inset-0 bg-ink" />
+      <div className="blueprint absolute inset-0 opacity-60" />
+      <div className="brass-rule absolute inset-x-0 top-0 h-px" />
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-6 py-14 sm:px-12 lg:flex-row lg:items-center lg:justify-between">
+        <div className="max-w-2xl">
+          <p className="eyebrow text-brass-300">수능 전 연휴 한정 · {RANGE_LABEL}</p>
+          <h2 className="display mt-5 text-[1.625rem] leading-[1.35] text-white sm:text-[2rem]">
+            추석 연휴 의대 면접반
+          </h2>
+          <p className="mt-5 text-[14px] font-light leading-[1.85] text-ink-300">
+            1단계 발표에서 면접까지는 평균 {AVG_GAP}일입니다. 추석 · 개천절 · 한글날
+            연휴 {ALL_DAYS.length}일 동안 낮 타임까지 하루 5타임을 열어 1:1 로
+            진행합니다.
+          </p>
+          <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-light text-ink-200">
+            {BLOCKS.map((b) => (
+              <li key={b.id} className="tnum">
+                <span className="text-brass-300">{b.name}</span>{" "}
+                {formatKo(b.start)}~{formatKo(b.end)}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="shrink-0 lg:text-right">
+          <p className="tnum display text-[2.75rem] leading-none text-white">
+            {TOTAL.open}
+            <span className="ml-1 text-[1rem] font-light text-ink-300">회</span>
+          </p>
+          <p className="mt-2 text-[12px] font-light text-ink-300">남은 자리</p>
+          <Link
+            href="/interview/chuseok"
+            className="mt-6 inline-flex items-center gap-2 border border-white/25 px-6 py-3 text-[13px] font-medium text-white transition-colors hover:bg-white hover:text-ink-900"
+          >
+            연휴 특강 일정 보기
+            <ArrowUpRight size={16} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <>
@@ -130,6 +178,7 @@ export default function Home() {
         {[{href:"/susi",title:"수시 전략",sub:"학생부교과 · 종합 · 논술"},{href:"/jungsi",title:"정시 설계",sub:"성적 분석 · 지원 조합"},{href:"/mmi",title:"면접 & MMI",sub:"대학별 1:1 집중 준비"},{href:"/overseas",title:"해외 의대",sub:"또 하나의 진학 경로"}].map((item,i)=><Link href={item.href} key={item.href}><span className="index-number">0{i+1}</span><div><h2>{item.title}</h2><p>{item.sub}</p></div><ArrowUpRight size={17}/></Link>)}
       </section>
 
+      <ChuseokBand />
 
       {/* 의대 진학 경로 — 이 사이트의 핵심 축 */}
       <AdmissionsCalendar events={UNIVS.flatMap((univ) => univ.tracks.filter((track) => track.interview).map((track) => ({ id: track.id, date: track.interview!, university: univ.short, track: track.name, note: track.interviewNote, href: `/mmi/${univ.slug}`, sources: univ.sources }))).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))} pending={UNIVS.flatMap((univ) => univ.tracks.filter((track) => !track.interview).map((track) => `${univ.short} ${track.name}`))} />

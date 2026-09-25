@@ -35,6 +35,8 @@ import {
   univsOfType,
   type InterviewTypeKey,
 } from "@/lib/interview-types";
+import { JsonLdAll } from "@/components/json-ld";
+import { article, breadcrumb } from "@/lib/jsonld";
 
 /** 유형 3개 페이지가 공유하는 본문. 페이지 파일은 metadata 와 이 호출만 갖는다. */
 
@@ -65,6 +67,19 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
 
   return (
     <>
+      <JsonLdAll
+        items={[
+          breadcrumb([
+            { name: "면접 수업", path: "/interview" },
+            { name: type.name, path: type.href },
+          ]),
+          article({
+            path: type.href,
+            headline: type.metaTitle,
+            description: type.metaDescription,
+          }),
+        ]}
+      />
       <PromoHero
         badge={`의대 면접 유형 · ${type.short}`}
         title={type.name}
