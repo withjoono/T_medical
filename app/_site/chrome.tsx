@@ -4,15 +4,22 @@ import { MediHeader } from "./medi-header";
 import { Phone, Mail, LucideIcon } from "lucide-react";
 
 /** 상단 네비 = 사이트맵. 새 페이지를 추가하면 여기에도 등록한다.
- *  children 을 가진 항목은 상단 네비에 부모만 노출되고, 풋터에는 하위 링크까지 펼쳐진다.
+ *
+ *  children 을 가진 항목은 상단에서 드롭다운으로 열린다(@tskool/satellite-header 의 NavMenu).
+ *  ⚠️ 드롭다운이 되는 순간 부모 label 은 버튼이 되어 더 이상 이동하지 않는다.
+ *     그래서 children 첫 줄에 '전체' 링크를 반드시 넣어 랜딩 페이지 진입로를 남긴다.
+ *
+ *  group 은 드롭다운 안의 소제목이다. 값이 바뀌는 자리에 제목이 한 번 그려진다.
+ *  2단 중첩은 지원되지 않으므로 계층은 group 으로 표현한다.
  *
  *  icon 은 풋터/모바일 보조 표기에만 쓰고 상단 네비에서는 렌더하지 않는다.
  *  (아이콘이 늘어선 네비는 대시보드처럼 보인다 — 활자만으로 위계를 만든다) */
+type NavChild = { href: string; label: string; group?: string };
 type NavItem = {
   href: string;
   label: string;
   icon?: LucideIcon;
-  children?: { href: string; label: string }[];
+  children?: NavChild[];
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -21,6 +28,7 @@ const NAV_ITEMS: NavItem[] = [
     href: "/univ",
     label: "대학별 안내",
     children: [
+      { href: "/univ", label: "대학별 전형 · 면접 전체" },
       { href: "/ipkyul/uiye", label: "의예과 입결" },
     ],
   },
@@ -28,6 +36,7 @@ const NAV_ITEMS: NavItem[] = [
     href: "/susi",
     label: "수시",
     children: [
+      { href: "/susi", label: "수시 전형 총정리" },
       { href: "/susi/gyogwa", label: "교과전형" },
       { href: "/susi/jonghap", label: "학생부종합" },
       { href: "/susi/nonsul", label: "논술전형" },
@@ -42,10 +51,17 @@ const NAV_ITEMS: NavItem[] = [
     href: "/interview",
     label: "면접",
     children: [
-      { href: "/interview/mmi", label: "MMI 면접" },
-      { href: "/interview/injeokseong", label: "인·적성 면접" },
-      { href: "/interview/jesimun", label: "제시문 면접" },
-      { href: "/interview/chuseok", label: "추석 연휴 면접반" },
+      { href: "/interview", label: "의대 면접 전체", group: "의대 면접" },
+      { href: "/interview/mmi", label: "MMI 면접", group: "의대 면접" },
+      { href: "/interview/injeokseong", label: "인·적성 면접", group: "의대 면접" },
+      { href: "/interview/jesimun", label: "제시문 면접", group: "의대 면접" },
+      // 계열별 면접 페이지는 요강 실측 데이터를 채우는 대로 하나씩 연다.
+      // 페이지가 없는 상태로 링크를 걸면 드롭다운에서 404 로 떨어진다.
+      // { href: "/interview/chidae", label: "치대 면접", group: "다른 계열" },
+      // { href: "/interview/hanuidae", label: "한의대 면접", group: "다른 계열" },
+      // { href: "/interview/yakdae", label: "약대 면접", group: "다른 계열" },
+      // { href: "/interview/suuidae", label: "수의대 면접", group: "다른 계열" },
+      { href: "/interview/chuseok", label: "추석 연휴 면접반", group: "시즌" },
     ],
   },
   { href: "/tamgu", label: "탐구보고서" },

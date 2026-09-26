@@ -34,20 +34,36 @@ const groups: HeaderGroup[] = [
   ] },
 ];
 
-type Item = { href: string; label: string; children?: { href: string; label: string }[] };
+type Item = {
+  href: string;
+  label: string;
+  children?: { href: string; label: string; group?: string }[];
+};
 export function MediHeader({ items }: { items: Item[] }) {
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const [loginUrl, setLoginUrl] = useState(`${HUB_URL}/auth/login?redirect=${encodeURIComponent("https://tmedi.kr/")}`);
   useEffect(() => { setLoginUrl(getLoginUrl(pathname)); }, [pathname]);
-  // Keep the content row at one level; detail links remain on landing pages and in the footer.
-  // The logo links home. Help and articles remain accessible from the footer.
+  // children 이 있으면 공유 헤더가 드롭다운으로 그린다(NavMenu). group 은 그 안의 소제목이다.
+  // ⚠️ 드롭다운이 되면 부모는 버튼이라 이동하지 않는다 — chrome.tsx 의 children 첫 줄에
+  //    반드시 '전체' 링크를 둘 것.
+  // 로고는 홈으로, 사용법·블로그는 풋터에 남긴다.
   const nav = items
     .filter((item) => !["/", "/guide", "/blog"].includes(item.href))
     .map((item) => ({
       href: item.href,
       label: item.label,
       match: "prefix" as const,
+      ...(item.children?.length
+        ? {
+            children: item.children.map((c) => ({
+              href: c.href,
+              label: c.label,
+              group: c.group,
+              match: (c.href === item.href ? "exact" : "prefix") as "exact" | "prefix",
+            })),
+          }
+        : {}),
     }));
   return <SatelliteHeader brand={{ name: "T메디", suffix: "메디", caption: "의대·치대·한의대·약대·수의대 입시", logoSrc: "/logo.png?v=2" }} groups={groups} nav={[...nav, { href: "#contact", label: "상담 문의" }]} pathname={pathname} LinkComponent={Link} account={{ isAuthenticated, isLoading, userName: user?.userName, loginUrl, onLogout: logout }} utilities={{
     productsUrl: `${HUB_URL}/products`, loginUrl, accountLinkageUrl: `${HUB_URL}/account-linkage`,
