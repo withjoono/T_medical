@@ -1,180 +1,62 @@
-# T메디 sitemap 등록 핸드오프 (2026-09-20)
+# T메디 sitemap 등록 — 처리 완료 (2026-09-26)
 
-`public/sitemap.xml` 은 `Hub/brand/sync_brand.py` 산출물입니다. **직접 고치지 않았습니다.**
+`public/sitemap.xml` 은 `Hub/brand/sync_brand.py` 산출물입니다. **직접 고치지 마세요.**
 SSOT 는 `Hub/brand/apps.json` 의 medi `pages` 입니다.
 
-## 현재 상태
+## 처리 결과
 
-- 빌드 결과 실제 존재하는 페이지: **117개**
-- 현재 `sitemap.xml` 에 등록된 페이지: **28개**
-- **누락: 89개** — `/ipkyul` 44개, `/univ` 40개가 통째로 빠져 있고, 이번에 추가한 `/interview` 하위 4개와 `/jiyeok-uisa` 도 미등록입니다.
+| | 전 | 후 |
+|---|---|---|
+| 등록 URL | 28개 | **101개** |
+| `/mmi` 계열 | 16개 등록 | **0개** (경로 삭제 · 301 이관) |
+| 누락 | 89개 | 0개 |
 
-## 할 일
+2026-09-20 시점의 누락 89개(`/ipkyul` 44 · `/univ` 40 · `/interview` 하위 · `/jiyeok-uisa`)를 모두 등록했고,
+같은 날 정보구조 개편으로 사라진 `/mmi` · `/mmi/[slug]` 16개를 제거했습니다.
 
-1. `Hub/brand/apps.json` 의 medi `pages` 를 아래 `medi-pages.json` 내용으로 교체
-2. 아래 명령 실행
+구주소는 `firebase.json` 의 301 이 받습니다.
 
-```bash
-cd E:\Dev\github\Hub
-python brand/sync_brand.py medi
-node scripts/check-standard.mjs medi
+```
+/mmi          → /interview/mmi
+/mmi/:slug    → /univ/:slug
 ```
 
-## 전체 경로 목록 (117개)
+## 앞으로 라우트를 추가·삭제하면
 
+1. 빌드 산출물에서 실제 경로 목록을 뽑습니다.
 
-### / (1개)
+   ```bash
+   cd E:\Dev\github\T_Medi
+   pnpm build
+   # out/ 의 .html 을 경로로 환산해 docs/medi-pages.json 을 갱신
+   ```
 
-- `/`
+2. `docs/medi-pages.json` 의 내용을 `Hub/brand/apps.json` 의 medi `pages` 에 그대로 넣습니다.
 
-### /blog (1개)
+3. Hub 에서 동기화합니다.
 
-- `/blog`
+   ```powershell
+   cd E:\Dev\github\Hub
+   python brand/sync_brand.py medi
+   node scripts/check-standard.mjs medi
+   ```
 
-### /guide (1개)
+`sync_brand.py` 는 `apps.json` 의 `root`(`E:/Dev/github/T_Medi`)를 그대로 읽으므로
+**Windows 셸에서 실행**해야 합니다. 경로가 다른 환경에서 돌리면 `경로 없음` 으로 건너뜁니다.
 
-- `/guide`
+## 정렬 순서
 
-### /interview (5개)
+사이트맵은 알파벳순이 아니라 사이트 구조 순으로 넣습니다.
 
-- `/interview`
-- `/interview/chuseok`
-- `/interview/injeokseong`
-- `/interview/jesimun`
-- `/interview/mmi`
+```
+/ → 수시(+지역의사) → 정시 → 해외 → 진학반
+  → 면접(허브 → MMI → 인적성 → 제시문 → 시즌)
+  → 대학(/univ → 대학별 39)
+  → 입결(/ipkyul → 계열 5 → 계열별 대학)
+  → 탐구 → 사용법 → 블로그
+```
 
-### /ipkyul (44개)
+## 주의
 
-- `/ipkyul`
-- `/ipkyul/chiuiye`
-- `/ipkyul/hanuiye`
-- `/ipkyul/suuiye`
-- `/ipkyul/uiye`
-- `/ipkyul/uiye/ajou`
-- `/ipkyul/uiye/catholic`
-- `/ipkyul/uiye/catholic-kwandong`
-- `/ipkyul/uiye/cau`
-- `/ipkyul/uiye/cbnu`
-- `/ipkyul/uiye/chosun`
-- `/ipkyul/uiye/cnu`
-- `/ipkyul/uiye/daegu-catholic`
-- `/ipkyul/uiye/dankook`
-- `/ipkyul/uiye/donga`
-- `/ipkyul/uiye/dongguk-wise`
-- `/ipkyul/uiye/eulji`
-- `/ipkyul/uiye/ewha`
-- `/ipkyul/uiye/gachon`
-- `/ipkyul/uiye/gnu`
-- `/ipkyul/uiye/hallym`
-- `/ipkyul/uiye/hanyang`
-- `/ipkyul/uiye/inha`
-- `/ipkyul/uiye/inje`
-- `/ipkyul/uiye/jbnu`
-- `/ipkyul/uiye/jeju`
-- `/ipkyul/uiye/jnu`
-- `/ipkyul/uiye/keimyung`
-- `/ipkyul/uiye/khu`
-- `/ipkyul/uiye/knu`
-- `/ipkyul/uiye/konkuk-glocal`
-- `/ipkyul/uiye/konyang`
-- `/ipkyul/uiye/korea`
-- `/ipkyul/uiye/kosin`
-- `/ipkyul/uiye/pusan`
-- `/ipkyul/uiye/sch`
-- `/ipkyul/uiye/skku`
-- `/ipkyul/uiye/snu`
-- `/ipkyul/uiye/ulsan`
-- `/ipkyul/uiye/wonkwang`
-- `/ipkyul/uiye/yeungnam`
-- `/ipkyul/uiye/yonsei`
-- `/ipkyul/uiye/yonsei-mirae`
-- `/ipkyul/yakhak`
-
-### /jiyeok-uisa (1개)
-
-- `/jiyeok-uisa`
-
-### /jungsi (1개)
-
-- `/jungsi`
-
-### /mmi (16개)
-
-- `/mmi`
-- `/mmi/ajou`
-- `/mmi/catholic`
-- `/mmi/cau`
-- `/mmi/daegu-catholic`
-- `/mmi/hallym`
-- `/mmi/hanyang`
-- `/mmi/inje`
-- `/mmi/kangwon`
-- `/mmi/keimyung`
-- `/mmi/konyang`
-- `/mmi/korea`
-- `/mmi/skku`
-- `/mmi/snu`
-- `/mmi/ulsan`
-- `/mmi/yonsei`
-
-### /overseas (1개)
-
-- `/overseas`
-
-### /susi (4개)
-
-- `/susi`
-- `/susi/gyogwa`
-- `/susi/jonghap`
-- `/susi/nonsul`
-
-### /tamgu (1개)
-
-- `/tamgu`
-
-### /uidae-class (1개)
-
-- `/uidae-class`
-
-### /univ (40개)
-
-- `/univ`
-- `/univ/ajou`
-- `/univ/catholic`
-- `/univ/catholic-kwandong`
-- `/univ/cau`
-- `/univ/cbnu`
-- `/univ/chosun`
-- `/univ/cnu`
-- `/univ/daegu-catholic`
-- `/univ/dankook`
-- `/univ/donga`
-- `/univ/dongguk-wise`
-- `/univ/eulji`
-- `/univ/ewha`
-- `/univ/gachon`
-- `/univ/gnu`
-- `/univ/hallym`
-- `/univ/hanyang`
-- `/univ/inha`
-- `/univ/inje`
-- `/univ/jbnu`
-- `/univ/jeju`
-- `/univ/jnu`
-- `/univ/kangwon`
-- `/univ/keimyung`
-- `/univ/khu`
-- `/univ/knu`
-- `/univ/konkuk-glocal`
-- `/univ/konyang`
-- `/univ/korea`
-- `/univ/kosin`
-- `/univ/pusan`
-- `/univ/sch`
-- `/univ/skku`
-- `/univ/snu`
-- `/univ/ulsan`
-- `/univ/wonkwang`
-- `/univ/yeungnam`
-- `/univ/yonsei`
-- `/univ/yonsei-mirae`
+- `public/sitemap.xml` · `public/robots.txt` 를 손으로 고치면 다음 `sync_brand.py` 실행 때 덮어써집니다.
+- `check-standard.mjs` 의 `⚠ 루트 본문` 경고는 Next 앱에서는 오탐입니다. 체커가 빌드 산출물을 못 읽어서 나는 것이고, 실측 루트 본문은 2,636자입니다.
