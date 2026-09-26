@@ -23,7 +23,7 @@ import {
 } from "../../_site/components";
 import { FactList } from "../../univ/_univ";
 import { ClassCtaBand } from "../_interview";
-import { ChidaeUnivCards } from "./_chidae";
+import { FieldUnivCards } from "../_field";
 import {
   CHIDAE_NO_INTERVIEW,
   CHIDAE_TOTALS,
@@ -205,7 +205,7 @@ export default function ChidaePage() {
         title="대학별 면접 방식과 일정"
         subtitle="요강에서 확인된 문장만 옮겼습니다. 전형별 반영비율과 면접일이 함께 있습니다."
       >
-        <ChidaeUnivCards univs={CHIDAE_UNIVS} />
+        <FieldUnivCards univs={CHIDAE_UNIVS} />
       </PromoSection>
 
       <PromoSection

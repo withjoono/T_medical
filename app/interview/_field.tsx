@@ -1,19 +1,19 @@
 import { CalendarDays, Check } from "lucide-react";
 import { formatKo } from "@/lib/mmi-schedule";
-import type { ChidaeUniv } from "@/lib/chidae-interview";
+import type { FieldUniv } from "@/lib/field-interview";
 
 /** =========================================================================
- *  /interview/chidae 전용 블록. 전부 서버 컴포넌트다 —
+ *  계열별 면접 페이지(/interview/chidae · hanuidae · …) 공용 블록. 전부 서버 컴포넌트다 —
  *  대학·전형·일정이 HTML 에 박혀야 색인된다.
  *  ========================================================================= */
 
-const TONE: Record<ChidaeUniv["style"], string> = {
+const TONE: Record<FieldUniv["style"], string> = {
   jesimun: "border-jade-200 bg-jade-50 text-jade-700",
   injeokseong: "border-brass-200 bg-brass-50 text-brass-600",
   none: "border-hair bg-paper-100 text-ink-400",
 };
 
-export function ChidaeUnivCards({ univs }: { univs: ChidaeUniv[] }) {
+export function FieldUnivCards({ univs }: { univs: FieldUniv[] }) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {univs.map((u) => {

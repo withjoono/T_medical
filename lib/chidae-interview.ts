@@ -11,42 +11,17 @@
  *     학부 모집 여부를 입학처에서 확인한 뒤에 추가할 것. 추정으로 넣지 말 것.
  *  ========================================================================= */
 
-export type ChidaeStyle = "jesimun" | "injeokseong" | "none";
+import {
+  fieldEarliest,
+  fieldTotals,
+  type FieldTrack,
+  type FieldUniv,
+} from "./field-interview";
 
-export type ChidaeTrack = {
-  /** 요강에 적힌 전형명 */
-  name: string;
-  kind: "교과" | "종합";
-  /** 요강 기준 모집인원. 묶음 표기라 개별 인원이 없으면 null */
-  quota: number | null;
-  /** 이 전형이 면접을 실시하는가 */
-  interview: boolean;
-  /** 단계별 반영 비율 — 요강 문장에서 옮긴다 */
-  weight: string;
-  /** 1단계 합격자 발표일(ISO). 요강 미기재면 null */
-  announce: string | null;
-  /** 면접고사일(ISO). 요강 미기재면 null */
-  date: string | null;
-  minimum?: string;
-};
+export type ChidaeUniv = FieldUniv;
+export type ChidaeTrack = FieldTrack;
 
-export type ChidaeUniv = {
-  slug: string;
-  short: string;
-  name: string;
-  zone: string;
-  style: ChidaeStyle;
-  styleLabel: string;
-  headline: string;
-  /** 요강에서 확인된 면접 방식 문장 */
-  format: string[];
-  /** 이 대학을 겨냥한 훈련 포인트 */
-  drills: string[];
-  tracks: ChidaeTrack[];
-  notes?: string[];
-};
-
-export const CHIDAE_UNIVS: ChidaeUniv[] = [
+export const CHIDAE_UNIVS: FieldUniv[] = [
   {
     slug: "yonsei",
     short: "연세대",
@@ -412,23 +387,5 @@ export const CHIDAE_UNIVS: ChidaeUniv[] = [
 
 export const CHIDAE_WITH_INTERVIEW = CHIDAE_UNIVS.filter((u) => u.style !== "none");
 export const CHIDAE_NO_INTERVIEW = CHIDAE_UNIVS.filter((u) => u.style === "none");
-
-export function chidaeInterviewTracks(u: ChidaeUniv) {
-  return u.tracks.filter((t) => t.interview);
-}
-
-/** 그 대학의 가장 이른 면접일(ISO). 미공지면 null */
-export function chidaeEarliest(u: ChidaeUniv): string | null {
-  const ds = u.tracks.filter((t) => t.interview && t.date).map((t) => t.date!);
-  return ds.length ? ds.sort()[0] : null;
-}
-
-export const CHIDAE_TOTALS = {
-  univs: CHIDAE_UNIVS.length,
-  withInterview: CHIDAE_WITH_INTERVIEW.length,
-  noInterview: CHIDAE_NO_INTERVIEW.length,
-  interviewTracks: CHIDAE_UNIVS.reduce(
-    (n, u) => n + u.tracks.filter((t) => t.interview).length,
-    0,
-  ),
-};
+export const chidaeEarliest = fieldEarliest;
+export const CHIDAE_TOTALS = fieldTotals(CHIDAE_UNIVS);
