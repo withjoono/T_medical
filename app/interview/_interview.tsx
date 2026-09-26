@@ -146,41 +146,49 @@ export function TypeChooser({
   items: {
     href: string;
     name: string;
+    short: string;
     tagline: string;
     count: number;
     also: number;
   }[];
 }) {
   return (
-    <div className="link-grid grid sm:grid-cols-3">
-      {items.map((t) => (
+    <div className="type-picker grid gap-5 sm:grid-cols-3">
+      {items.map((t, i) => (
         <Link
           key={t.href}
           href={t.href}
-          className="link-card group relative flex flex-col p-8 transition-colors duration-300"
+          className="type-card group flex flex-col border border-hair-strong bg-white p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-jade-400 hover:shadow-[0_10px_30px_-18px_rgba(6,15,21,0.45)]"
         >
-          <span className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-jade-600 transition-transform duration-500 group-hover:scale-x-100" />
-          <p className="tnum display text-[2.25rem] leading-none text-ink-900">
-            {t.count}
-            <span className="ml-1.5 align-middle text-sm font-light text-ink-400">
-              개 의대
+          <div className="flex items-baseline justify-between">
+            <span className="display tnum text-sm text-brass-400">
+              {String(i + 1).padStart(2, "0")}
             </span>
-          </p>
-          <h3 className="display mt-5 flex items-center gap-2 text-[1.0625rem] leading-snug text-ink-900">
-            <span className="link-underline">{t.name}</span>
-            <ArrowRight
-              className="h-4 w-4 shrink-0 text-brass-600 transition-transform duration-300 group-hover:translate-x-1"
-              strokeWidth={1.75}
-            />
+            <span className="tnum text-[12px] font-light text-ink-400">
+              실시 <span className="font-semibold text-ink-700">{t.count}</span>개 의대
+            </span>
+          </div>
+
+          <h3 className="display mt-6 text-[1.25rem] leading-snug text-ink-900">
+            {t.name}
           </h3>
-          <p className="mt-3 text-[14px] font-light leading-[1.8] text-ink-500">
+          <p className="mt-3 grow text-[14px] font-light leading-[1.8] text-ink-500">
             {t.tagline}
           </p>
           {t.also > 0 && (
-            <p className="mt-4 text-[12px] font-light text-brass-600">
+            <p className="mt-3 text-[12px] font-light text-brass-600">
               이 방식을 함께 다루는 대학 {t.also}곳 별도
             </p>
           )}
+
+          {/* 클릭 유도 — 카드 안의 '버튼'. 실제로는 카드 전체가 링크다. */}
+          <span className="mt-7 inline-flex items-center justify-center gap-2 border border-ink bg-ink px-5 py-3 text-[13px] font-medium text-paper transition-colors duration-300 group-hover:bg-jade-700 group-hover:border-jade-700">
+            {t.short} 면접 대비 보기
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              strokeWidth={2}
+            />
+          </span>
         </Link>
       ))}
     </div>

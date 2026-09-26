@@ -48,12 +48,6 @@ export const metadata: Metadata = {
     "의대 면접은 대학마다 다른 시험입니다. MMI(다중미니면접)·인적성(생기부 기반)·제시문 세 유형으로 나눠 실시 대학과 준비법을 정리했습니다. 1:1 줌 면접 수업은 1회 2시간 30분. tmedi.kr",
 };
 
-const HERO_ICONS = {
-  mmi: Users,
-  injeokseong: HeartHandshake,
-  jesimun: ScrollText,
-} as const;
-
 /** 유형과 무관하게 모든 의대 면접에 공통인 부분. 유형별 내용은 하위 페이지로 보낸다. */
 const COMMON = [
   {
@@ -128,6 +122,7 @@ export default function InterviewPage() {
     return {
       href: t.href,
       name: t.name,
+      short: t.short,
       tagline: t.tagline,
       count: c.primary,
       also: c.also,
@@ -156,27 +151,28 @@ export default function InterviewPage() {
         body="어떤 대학은 면접실을 세 번 옮기고, 어떤 대학은 생기부만 놓고 10분 대화하며, 어떤 대학은 그 자리에서 제시문을 읽힙니다. 준비 방법이 완전히 다릅니다. 지원 대학이 어느 유형인지부터 확인하고, 그 유형에 맞춰 훈련하세요."
         primaryHref="#contact"
         primaryLabel="면접 수업 문의하기"
-        secondaryHref="/univ"
-        secondaryLabel="대학별 전형 보기"
+        secondaryHref="#types"
+        secondaryLabel="면접 유형 고르기"
         Icon={MessagesSquare}
-        stats={INTERVIEW_TYPES.map((t) => ({
-          icon: HERO_ICONS[t.key],
-          label: t.short,
-          href: t.href,
-        }))}
+        stats={[
+          { icon: GraduationCap, label: `면접 실시 ${withInterview}개 의대` },
+          { icon: ClipboardCheck, label: "요강 기준 방식 · 일정 수록" },
+          { icon: MonitorPlay, label: `1:1 줌 ${SESSION_HOURS_LABEL}` },
+        ]}
       />
 
+      <div id="types" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="TYPES"
+        eyebrow="STEP 1"
         EyebrowIcon={MessagesSquare}
-        title="어느 유형의 면접을 보나요"
-        subtitle="의대 면접은 셋 중 하나입니다. 유형을 고르면 그 방식으로 면접을 보는 대학과 전형, 준비 방법이 나옵니다."
+        title="먼저 유형을 고르세요"
+        subtitle="의대 면접은 셋 중 하나입니다. 아래에서 하나를 누르면 그 방식으로 면접을 보는 대학과 전형, 준비 방법이 모두 나옵니다."
       >
         <TypeChooser items={chooser} />
       </PromoSection>
 
       <PromoSection
-        eyebrow="FIND"
+        eyebrow="STEP 1 · 대안"
         EyebrowIcon={GraduationCap}
         title="유형을 모르겠다면 대학으로 찾으세요"
         subtitle="요강마다 부르는 이름이 달라 헷갈리는 것이 정상입니다. 지원 대학을 누르면 그 대학의 면접 방식과 일정이 바로 나옵니다."
