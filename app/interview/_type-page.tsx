@@ -8,10 +8,12 @@ import {
   MessagesSquare,
   MonitorPlay,
   ScrollText,
+  Scale,
   TriangleAlert,
   Users,
 } from "lucide-react";
 import {
+  CompareTable,
   FeatureGrid,
   FinalCTA,
   LinkCards,
@@ -116,6 +118,19 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
         <TypeUnivTable rows={main} label={`${type.name} 실시 대학`} />
         <AlsoUnivs rows={also} note={ALSO_NOTE[typeKey]} />
       </PromoSection>
+
+      {(type.tables ?? []).map((t) => (
+        <PromoSection
+          key={t.title}
+          eyebrow={t.eyebrow}
+          EyebrowIcon={Scale}
+          title={t.title}
+          subtitle={t.subtitle}
+          tone={t.tone ?? "default"}
+        >
+          <CompareTable head={t.head} rows={t.rows} caption={t.caption} />
+        </PromoSection>
+      ))}
 
       <PromoSection
         eyebrow="PREPARATION"
