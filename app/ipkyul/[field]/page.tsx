@@ -90,7 +90,7 @@ export default async function FieldPage({ params }: { params: Promise<{ field: s
             ))}
             <li>
               <Link
-                href="/mmi"
+                href="/interview/mmi"
                 className="inline-block border border-hair-strong bg-paper-50 px-4 py-2 text-[13px] font-medium tracking-tight text-ink-700 transition-colors hover:border-jade-600 hover:bg-jade-50 hover:text-jade-700"
               >
                 대학별 면접 일정

@@ -128,7 +128,7 @@ export default function UnivHubPage() {
               body: "대학·전형별 최종등록자 등급컷을 공시된 값만 모았습니다.",
             },
             {
-              href: "/mmi",
+              href: "/interview/mmi",
               icon: MessagesSquare,
               title: "대학별 MMI 특강",
               body: "면접 일정에 맞춰 짜인 대학별 커리큘럼과 예약 현황.",

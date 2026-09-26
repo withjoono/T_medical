@@ -26,7 +26,8 @@ export type UnivPage = {
   admission?: AdmissionUniv;
   /** 면접 데이터. 두 SSOT 중 어느 쪽에서 왔는지는 hasClassPage 로 구분한다 */
   interview?: InterviewUniv;
-  /** /mmi/[slug] 상세 특강(일정·예약) 페이지가 있는가 */
+  /** 대학 페이지(/univ/[slug])에 수업 일정·예약 블록을 렌더하는가.
+   *  mmi-schedule SSOT 에 일정 데이터가 있는 대학만 true 다. */
   hasClassPage: boolean;
   /** 면접을 실시하는가. 면접 데이터가 없으면 undefined(= 확인 안 됨) */
   hasInterview?: boolean;

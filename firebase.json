@@ -18,6 +18,16 @@
         "source": "/promo/:rest*",
         "destination": "/:rest*",
         "type": 301
+      },
+      {
+        "source": "/mmi/:slug",
+        "destination": "/univ/:slug",
+        "type": 301
+      },
+      {
+        "source": "/mmi",
+        "destination": "/interview/mmi",
+        "type": 301
       }
     ],
     "target": "medical-front"

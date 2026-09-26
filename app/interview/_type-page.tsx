@@ -9,7 +9,9 @@ import {
   MonitorPlay,
   ScrollText,
   Scale,
+  Repeat,
   TriangleAlert,
+  Gauge,
   Users,
 } from "lucide-react";
 import {
@@ -18,19 +20,15 @@ import {
   FinalCTA,
   LinkCards,
   NoteBox,
-  PriceCard,
   PromoHero,
   PromoSection,
   SourceNote,
-  StepList,
 } from "../_site/components";
+import { ClassCtaBand } from "./_interview";
 import { FactList } from "../univ/_univ";
 import { AlsoUnivs, TypeUnivTable } from "./_interview";
 import {
   alsoUnivsOfType,
-  CLASS_FLOW,
-  CLASS_INCLUDES,
-  CLASS_PRICE,
   getInterviewType,
   INTERVIEW_TYPES,
   SESSION_HOURS_LABEL,
@@ -66,6 +64,8 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
   const others = INTERVIEW_TYPES.filter((t) => t.key !== typeKey);
 
   const hasClassPage = main.some((r) => r.univ.hasClassPage);
+  const topTables = (type.tables ?? []).filter((t) => t.slot === "top");
+  const univTables = (type.tables ?? []).filter((t) => t.slot !== "top");
 
   return (
     <>
@@ -99,6 +99,19 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
         ]}
       />
 
+      {topTables.map((t) => (
+        <PromoSection
+          key={t.title}
+          eyebrow={t.eyebrow}
+          EyebrowIcon={Scale}
+          title={t.title}
+          subtitle={t.subtitle}
+          tone={t.tone ?? "default"}
+        >
+          <CompareTable head={t.head} rows={t.rows} caption={t.caption} />
+        </PromoSection>
+      ))}
+
       <PromoSection
         eyebrow="FORMAT"
         EyebrowIcon={Icon}
@@ -119,7 +132,7 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
         <AlsoUnivs rows={also} note={ALSO_NOTE[typeKey]} />
       </PromoSection>
 
-      {(type.tables ?? []).map((t) => (
+      {univTables.map((t) => (
         <PromoSection
           key={t.title}
           eyebrow={t.eyebrow}
@@ -158,38 +171,53 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
         />
       </PromoSection>
 
-      <PromoSection
-        eyebrow="CLASS"
-        EyebrowIcon={MonitorPlay}
-        title="면접 수업은 이렇게 진행합니다"
-        subtitle={`예약부터 과제까지 한 사이클입니다. 1회 ${SESSION_HOURS_LABEL}, 줌으로 1:1 진행합니다.`}
-      >
-        <StepList steps={CLASS_FLOW} />
-      </PromoSection>
+      {type.edges && (
+        <PromoSection
+          eyebrow="WHY 1:1"
+          EyebrowIcon={Gauge}
+          title={type.edges.title}
+          subtitle={type.edges.subtitle}
+        >
+          <FeatureGrid
+            items={type.edges.items.map((e) => ({ icon: Gauge, title: e.title, body: e.body }))}
+            columns={2}
+          />
+        </PromoSection>
+      )}
 
-      <PromoSection
-        eyebrow="CONTACT"
-        EyebrowIcon={MessagesSquare}
-        title="면접 수업 문의"
-        subtitle="지원 대학과 면접일을 알려주시면 남은 기간에 맞춰 회차와 날짜를 잡아 드립니다."
-        tone="muted"
-      >
-        <PriceCard
-          courseName={`${type.name} 대비 1:1 수업`}
-          price={CLASS_PRICE.label}
-          priceSuffix={CLASS_PRICE.suffix}
-          badge={CLASS_PRICE.unit}
-          BadgeIcon={MonitorPlay}
-          items={CLASS_INCLUDES}
-          notes={[
-            { icon: MonitorPlay, label: `줌 온라인 · 1회 ${SESSION_HOURS_LABEL}` },
-            { icon: ClipboardCheck, label: "수업 전·후 과제 포함" },
-            { icon: CalendarDays, label: "묶음·선납 없음" },
-          ]}
-          href="#contact"
-          label="면접 수업 문의하기"
-        />
-      </PromoSection>
+      {type.edges?.weakness && (
+        <PromoSection
+          eyebrow="TRADE-OFF"
+          EyebrowIcon={MessagesSquare}
+          title={type.edges.weakness.title}
+          subtitle={type.edges.weakness.subtitle}
+          tone="muted"
+        >
+          <CompareTable
+            head={type.edges.weakness.head}
+            rows={type.edges.weakness.rows}
+            caption={type.edges.weakness.caption}
+          />
+        </PromoSection>
+      )}
+
+      {type.waitlist && (
+        <PromoSection
+          eyebrow="WAITLIST"
+          EyebrowIcon={Repeat}
+          title={type.waitlist.title}
+          subtitle={type.waitlist.subtitle}
+        >
+          <NoteBox
+            title={type.waitlist.boxTitle}
+            items={type.waitlist.items}
+            tone="warn"
+            Icon={Repeat}
+          />
+        </PromoSection>
+      )}
+
+      <ClassCtaBand typeName={type.name} />
 
       <PromoSection eyebrow="MORE" EyebrowIcon={MessagesSquare} title="다른 유형도 함께 보기">
         <LinkCards
@@ -201,19 +229,16 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
               title: t.name,
               body: t.tagline,
             })),
-            hasClassPage
-              ? {
-                  href: "/mmi",
-                  icon: CalendarDays,
-                  title: "2027 대학별 MMI 특강 일정",
-                  body: "1단계 발표일에서 역산한 대학별 수업 캘린더와 남은 자리.",
-                }
-              : {
-                  href: "/univ",
-                  icon: GraduationCap,
-                  title: "대학별 전형 · 면접 안내",
-                  body: "전국 의대의 전형 구조와 면접 방식을 대학별로 한 페이지에.",
-                },
+            {
+              href: "/univ",
+              icon: hasClassPage ? CalendarDays : GraduationCap,
+              title: hasClassPage
+                ? "대학별 면접 일정 · 남은 자리"
+                : "대학별 전형 · 면접 안내",
+              body: hasClassPage
+                ? "1단계 발표일에서 역산한 수업 일정과 예약 현황을 대학 페이지에서 바로 봅니다."
+                : "전국 의대의 전형 구조와 면접 방식을 대학별로 한 페이지에.",
+            },
           ]}
         />
       </PromoSection>

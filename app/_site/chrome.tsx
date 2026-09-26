@@ -21,7 +21,6 @@ const NAV_ITEMS: NavItem[] = [
     href: "/univ",
     label: "대학별 안내",
     children: [
-      { href: "/mmi", label: "대학별 MMI 특강" },
       { href: "/ipkyul/uiye", label: "의예과 입결" },
     ],
   },
@@ -41,13 +40,12 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/uidae-class", label: "의대 진학반" },
   {
     href: "/interview",
-    label: "면접 수업",
+    label: "면접",
     children: [
-      { href: "/interview/chuseok", label: "추석 연휴 면접반" },
       { href: "/interview/mmi", label: "MMI 면접" },
       { href: "/interview/injeokseong", label: "인·적성 면접" },
       { href: "/interview/jesimun", label: "제시문 면접" },
-      { href: "/mmi", label: "대학별 MMI 특강" },
+      { href: "/interview/chuseok", label: "추석 연휴 면접반" },
     ],
   },
   { href: "/tamgu", label: "탐구보고서" },
@@ -85,12 +83,11 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
       links: [
         { href: "/ipkyul", label: "입시결과" },
   { href: "/uidae-class", label: "의대 진학반" },
-        { href: "/interview", label: "면접 수업" },
-        { href: "/interview/chuseok", label: "추석 연휴 면접 특강" },
+        { href: "/interview", label: "면접 수업 안내" },
         { href: "/interview/mmi", label: "MMI 면접 대비" },
         { href: "/interview/injeokseong", label: "인·적성 면접 대비" },
         { href: "/interview/jesimun", label: "제시문 면접 대비" },
-        { href: "/mmi", label: "2027 대학별 MMI 면접 특강" },
+        { href: "/interview/chuseok", label: "추석 연휴 면접 특강" },
         { href: "/tamgu", label: "탐구보고서" },
         { href: "/guide", label: "사용법" },
         { href: "/blog", label: "블로그" },

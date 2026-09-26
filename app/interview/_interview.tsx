@@ -1,8 +1,13 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight, CalendarDays, MonitorPlay } from "lucide-react";
 import { earliestInterview, interviewTrackCount } from "@/lib/univ";
 import { formatKo } from "@/lib/mmi-schedule";
-import type { TypedUniv } from "@/lib/interview-types";
+import {
+  CLASS_PRICE,
+  SESSION_HOURS_LABEL,
+  type FinderUniv,
+  type TypedUniv,
+} from "@/lib/interview-types";
 
 /** =========================================================================
  *  /interview 전용 블록. 전부 서버 컴포넌트다 — 대학·일정이 HTML 에 박혀야 색인된다.
@@ -85,10 +90,10 @@ export function TypeUnivTable({
                   </td>
                   <td className="border-t border-hair px-4 py-4">
                     <Link
-                      href={univ.hasClassPage ? `/mmi/${univ.slug}` : `/univ/${univ.slug}`}
+                      href={`/univ/${univ.slug}`}
                       className="group inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] font-semibold tracking-tight text-ink-700 hover:text-jade-700"
                     >
-                      {univ.hasClassPage ? "수업 일정" : "전형 보기"}
+                      {univ.hasClassPage ? "일정 · 예약" : "전형 보기"}
                       <ArrowRight
                         className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"
                         strokeWidth={2}
@@ -202,6 +207,102 @@ export function NoInterviewRow({
           <span className="ml-2 text-[12px] text-ink-400">{u.region}</span>
         </Link>
       ))}
+    </div>
+  );
+}
+
+
+/** 수업 상품 CTA 밴드 — 유형 페이지에 놓는 얇은 띠.
+ *
+ *  ⚠️ 수업 절차·포함사항·가격 상세는 /interview 한 곳에만 둔다.
+ *     유형 페이지마다 PriceCard 를 반복하면 어느 페이지를 열어도 절반이 같은 내용이 된다.
+ *     여기서는 '얼마·얼마나·어디서 자세히' 세 가지만 말하고 보낸다. */
+export function ClassCtaBand({ typeName }: { typeName: string }) {
+  return (
+    <section className="border-t border-hair bg-ink px-6 py-14 text-paper sm:px-12">
+      <div className="mx-auto flex max-w-4xl flex-col items-center gap-7 text-center">
+        <p className="eyebrow text-brass-300">{typeName} 대비 1:1 수업</p>
+        <p className="display text-[1.5rem] leading-snug sm:text-[1.75rem]">
+          줌 온라인 1:1 · 1회 {SESSION_HOURS_LABEL} ·{" "}
+          <span className="tnum text-brass-300">{CLASS_PRICE.label}</span>
+          <span className="text-[1rem] font-light text-paper/70"> {CLASS_PRICE.suffix}</span>
+        </p>
+        <p className="max-w-xl text-[14px] font-light leading-[1.85] text-paper/70">
+          지원 대학과 면접일을 알려주시면 남은 기간에 맞춰 회차와 날짜를 잡아 드립니다.
+          묶음 결제나 선납은 없습니다.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="#contact"
+            className="inline-flex items-center gap-2 border border-paper bg-paper px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper-100"
+          >
+            면접 수업 문의하기
+            <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+          </Link>
+          <Link
+            href="/interview"
+            className="inline-flex items-center gap-2 border border-paper/30 px-6 py-3 text-sm font-medium text-paper transition-colors hover:border-paper/70"
+          >
+            <MonitorPlay className="h-4 w-4" strokeWidth={1.75} />
+            수업 절차 · 포함사항 자세히
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** 대학으로 유형 찾기 — 허브의 1차 진입점.
+ *
+ *  ⚠️ 방문자는 자기 면접이 MMI 인지 모른다. 아는 것은 지원 대학 이름뿐이다.
+ *     그래서 이 블록이 TypeChooser 보다 위에 온다. 누르면 그 대학 페이지로 보낸다. */
+export function UnivFinder({
+  zones,
+}: {
+  zones: { zone: string; univs: FinderUniv[] }[];
+}) {
+  const TONE: Record<string, string> = {
+    mmi: "border-jade-200 bg-jade-50 text-jade-700",
+    injeokseong: "border-brass-200 bg-brass-50 text-brass-600",
+    jesimun: "border-hair-strong bg-paper-100 text-ink-600",
+  };
+  return (
+    <div className="mx-auto max-w-5xl space-y-9">
+      {zones.map(({ zone, univs }) => (
+        <div key={zone} className="border-t border-hair pt-6">
+          <p className="eyebrow text-brass-600">{zone}</p>
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            {univs.map((u) => (
+              <Link
+                key={u.slug}
+                href={`/univ/${u.slug}`}
+                className="group inline-flex items-center gap-2 border border-hair-strong bg-white px-3.5 py-2.5 text-[13px] transition-colors hover:border-ink-300 hover:bg-paper-50"
+              >
+                <span className="font-medium tracking-tight text-ink-900">{u.short}</span>
+                <span
+                  className={`border px-1.5 py-0.5 text-[10px] font-semibold tracking-tight ${
+                    u.type ? TONE[u.type.key] : "border-hair bg-paper-100 text-ink-400"
+                  }`}
+                >
+                  {u.type ? u.type.short : "면접 없음"}
+                </span>
+                {u.hasClassPage && (
+                  <CalendarDays
+                    className="h-3.5 w-3.5 text-brass-500"
+                    strokeWidth={1.75}
+                    aria-label="수업 일정 공개"
+                  />
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
+      <p className="text-center text-xs font-light leading-relaxed text-ink-400">
+        대학 이름을 누르면 그 대학의 전형 구조 · 면접 방식 · 면접 일정을 볼 수 있습니다.
+        <CalendarDays className="mx-1.5 inline h-3.5 w-3.5 text-brass-500" strokeWidth={1.75} />
+        표시가 있는 대학은 수업 일정과 남은 자리까지 공개합니다.
+      </p>
     </div>
   );
 }

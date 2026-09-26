@@ -59,7 +59,7 @@ export default function IpkyulHubPage() {
         body={`의예·치의예·한의예·수의예·약학 ${univs}개 대학의 2027학년도 수시 모집인원과 최종등록자 교과 등급컷을 대학·전형 단위로 정리했습니다. 대학이 공시하지 않은 전형은 빈칸으로 둡니다 — 추정치로 채우지 않습니다.`}
         primaryHref="#contact"
         primaryLabel="입결 해석 상담하기"
-        secondaryHref="/mmi"
+        secondaryHref="/interview/mmi"
         secondaryLabel="면접 일정 보기"
         Icon={BarChart3}
         stats={[

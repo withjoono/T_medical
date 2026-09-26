@@ -220,7 +220,7 @@ function PreSuneungTable() {
             {PRE_SUNEUNG.map((f) => (
               <tr key={`${f.slug}-${f.track}`} className="align-top">
                 <td className="border-t border-hair px-4 py-4 font-medium text-ink-900">
-                  <Link href={`/mmi/${f.slug}`} className="underline-offset-4 hover:underline">
+                  <Link href={`/univ/${f.slug}`} className="underline-offset-4 hover:underline">
                     {f.univ}
                   </Link>
                 </td>
@@ -273,7 +273,7 @@ export function ChuseokPage() {
         body={`1단계 발표에서 면접까지는 평균 ${AVG_GAP}일입니다. 발표를 보고 시작하면 준비가 아니라 벼락치기가 됩니다. 추석·개천절·한글날 연휴 ${ALL_DAYS.length}일 동안 낮 타임까지 열어 1:1로 골격을 먼저 만듭니다.`}
         primaryHref="#contact"
         primaryLabel="연휴 자리 문의하기"
-        secondaryHref="/mmi"
+        secondaryHref="/interview/mmi"
         secondaryLabel="대학별 면접 일정 보기"
         Icon={CalendarRange}
         stats={[
@@ -426,7 +426,7 @@ export function ChuseokPage() {
           columns={3}
           items={[
             {
-              href: "/mmi",
+              href: "/interview/mmi",
               icon: CalendarDays,
               title: "2027 대학별 MMI 특강 일정",
               body: "1단계 발표일에서 역산한 대학별 수업 캘린더와 남은 자리.",

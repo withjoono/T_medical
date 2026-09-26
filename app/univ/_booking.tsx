@@ -563,7 +563,7 @@ export function UnivCards({ univs }: { univs: Univ[] }) {
         return (
           <Link
             key={u.slug}
-            href={`/mmi/${u.slug}`}
+            href={`/univ/${u.slug}`}
             className="link-card group relative flex flex-col p-7 transition-colors duration-300"
           >
             <span className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-jade-600 transition-transform duration-500 group-hover:scale-x-100" />

@@ -25,11 +25,13 @@ import {
   StepList,
 } from "../_site/components";
 import { UnivStatRow } from "../univ/_univ";
-import { NoInterviewRow, TypeChooser } from "./_interview";
+import { NoInterviewRow, TypeChooser, UnivFinder } from "./_interview";
+import { TeacherCards } from "../univ/_booking";
 import {
   CLASS_FLOW,
   CLASS_INCLUDES,
   CLASS_PRICE,
+  finderByZone,
   INTERVIEW_TYPES,
   noInterviewUnivs,
   SESSION_HOURS_LABEL,
@@ -159,10 +161,20 @@ export default function InterviewPage() {
       />
 
       <PromoSection
+        eyebrow="FIND"
+        EyebrowIcon={GraduationCap}
+        title="지원 대학부터 찾으세요"
+        subtitle="내 면접이 무슨 유형인지 모르는 것이 정상입니다. 대학을 누르면 그 대학의 면접 방식과 일정이 나옵니다."
+      >
+        <UnivFinder zones={finderByZone()} />
+      </PromoSection>
+
+      <PromoSection
         eyebrow="TYPES"
         EyebrowIcon={MessagesSquare}
-        title="지원 대학은 어느 유형인가요"
+        title="유형부터 보고 싶다면"
         subtitle="세 유형 중 하나를 고르면 그 방식으로 면접을 보는 대학과 전형, 준비 방법을 볼 수 있습니다."
+        tone="muted"
       >
         <TypeChooser items={chooser} />
       </PromoSection>
@@ -202,7 +214,6 @@ export default function InterviewPage() {
         EyebrowIcon={ClipboardCheck}
         title="유형과 상관없이 공통인 것"
         subtitle="어느 대학을 쓰든 먼저 확인해야 하는 여섯 가지입니다."
-        tone="muted"
       >
         <FeatureGrid items={COMMON} columns={3} />
       </PromoSection>
@@ -212,6 +223,7 @@ export default function InterviewPage() {
         EyebrowIcon={Brain}
         title="준비 순서"
         subtitle="유형 확인에서 실전 모의면접까지, 다섯 단계로 쌓습니다."
+        tone="muted"
       >
         <StepList steps={PREP_STEPS} />
       </PromoSection>
@@ -220,8 +232,7 @@ export default function InterviewPage() {
         eyebrow="CLASS"
         EyebrowIcon={MonitorPlay}
         title="면접 수업은 이렇게 진행합니다"
-        subtitle={`예약부터 과제까지 한 사이클입니다. 1회 ${SESSION_HOURS_LABEL}, 줌으로 1:1 진행합니다.`}
-        tone="muted"
+        subtitle={`예약부터 과제까지 한 사이클입니다. 1회 ${SESSION_HOURS_LABEL}, 줌으로 1:1 진행합니다. 수업 안내는 이 페이지 한 곳에 모아 두었습니다.`}
       >
         <StepList steps={CLASS_FLOW} />
         <div className="mt-16">
@@ -244,6 +255,16 @@ export default function InterviewPage() {
       </PromoSection>
 
       <PromoSection
+        eyebrow="INSTRUCTORS"
+        EyebrowIcon={Users}
+        title="담당 강사"
+        subtitle="스테이션·문항 성격에 따라 담당을 나눕니다. 두 강사가 같은 학생을 번갈아 보는 구조입니다."
+        tone="muted"
+      >
+        <TeacherCards />
+      </PromoSection>
+
+      <PromoSection
         eyebrow="NO INTERVIEW"
         EyebrowIcon={TriangleAlert}
         title="2027학년도에 면접이 없는 의대"
@@ -257,10 +278,10 @@ export default function InterviewPage() {
           columns={3}
           items={[
             {
-              href: "/mmi",
+              href: "/interview/mmi",
               icon: CalendarDays,
-              title: "2027 대학별 MMI 특강 일정",
-              body: "1단계 발표일에서 역산한 15개 의대 수업 캘린더와 남은 자리를 그대로 공개합니다.",
+              title: "MMI 면접 대비",
+              body: "실시 대학과 방식, 최저점 관리 훈련, 대학별 수업 일정까지 한 페이지에.",
             },
             {
               href: "/univ",

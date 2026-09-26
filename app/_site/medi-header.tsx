@@ -24,7 +24,7 @@ const groups: HeaderGroup[] = [
   ] },
   { id: "information", label: "입시정보", title: "의대·치대·한의대·약대·수의대 입시 정보", description: "대학별 전형과 입결, 면접 일정을 함께 살펴보세요.", guide: { label: "대학별 안내", href: "/univ" }, tools: [
     { title: "계열별 입시결과", description: "공시된 대학·전형별 입결 자료를 비교하세요.", app: "T메디 입시결과", url: "/ipkyul" },
-    { title: "대학별 MMI 면접", description: "면접 일정과 대학별 준비 포인트를 확인하세요.", app: "T메디 MMI", url: "/mmi" },
+    { title: "대학별 MMI 면접", description: "면접 일정과 대학별 준비 포인트를 확인하세요.", app: "T메디 MMI", url: "/interview/mmi" },
     { title: "입시 소식 모아보기", description: "관심 분야의 정보를 모으는 서비스를 알아보세요.", app: "맞춤 입시 정보", url: intro("infocast"), intro: true },
   ] },
   { id: "users", label: "사용자별", title: "수험생을 중심으로 함께 준비하는 의약학 입시", description: "학생·학부모·선생님이 준비 과정과 학습 현황을 함께 살펴보세요.", guide: { label: "T메디 이용 안내", href: "/guide" }, tools: [

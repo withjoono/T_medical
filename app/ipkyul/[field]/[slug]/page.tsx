@@ -99,7 +99,7 @@ export default async function UnivIpkyulPage({
           <LinkCards
             items={[
               {
-                href: `/mmi/${u.slug}`,
+                href: `/univ/${u.slug}`,
                 icon: CalendarDays,
                 title: `${u.name} 면접 일정과 대비`,
                 body: `${mmi.styleLabel}. ${mmi.headline}`,

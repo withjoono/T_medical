@@ -8,8 +8,10 @@ import {
   CalendarDays,
   ClipboardCheck,
   GraduationCap,
+  Clock,
   ListChecks,
   MessagesSquare,
+  Repeat,
   Scale,
   Target,
   Users,
@@ -31,7 +33,19 @@ import {
   InterviewDates,
 } from "../_univ";
 import { UNIV_PAGES, getUnivPage, quotaByType } from "@/lib/univ";
-import { formatKo } from "@/lib/mmi-schedule";
+import {
+  BookingBoard,
+  LeakageNotice,
+  ScheduleCalendar,
+  Timetable,
+} from "../_booking";
+import { ClassCtaBand } from "../../interview/_interview";
+import {
+  formatKo,
+  getUniv as getMmiUniv,
+  summarize,
+  univDays,
+} from "@/lib/mmi-schedule";
 
 /** 정적 export(output: 'export')라 동적 라우트에는 generateStaticParams 가 필수다. */
 export function generateStaticParams() {
@@ -78,6 +92,9 @@ export default async function UnivPage({
   const tracks = iv?.tracks ?? [];
   const groups = quotaByType(u);
   const noInterview = u.hasInterview === false;
+  /** 특강 일정·예약 블록은 mmi-schedule SSOT 에 데이터가 있는 대학만 렌더한다. */
+  const mmiUniv = u.hasClassPage ? getMmiUniv(u.slug) : undefined;
+  const booking = mmiUniv ? summarize(univDays(mmiUniv)) : undefined;
   const unverified = u.confidence === "low";
 
   const interviewDays = [
@@ -211,23 +228,16 @@ export default async function UnivPage({
           <div className="space-y-12">
             <FactList items={iv.drills} />
 
-            {u.hasClassPage ? (
+            {u.hasClassPage && mmiUniv ? (
               <div className="mx-auto max-w-3xl border border-hair-strong bg-paper-50 p-8 text-center">
-                <p className="eyebrow text-brass-600">대학별 MMI 특강</p>
+                <p className="eyebrow text-brass-600">대학별 1:1 특강</p>
                 <h3 className="display mt-4 text-[1.375rem] leading-snug text-ink-900">
                   {u.short} 전용 커리큘럼이 열려 있습니다
                 </h3>
                 <p className="mt-3 text-[14px] font-light leading-[1.85] text-ink-500">
-                  1단계 발표일부터 면접일까지의 일정에 맞춰 짜인 커리큘럼입니다. 담당 강사, 수업 일정,
-                  예약 현황, 수강료를 별도 페이지에서 확인하실 수 있습니다.
+                  1단계 발표일부터 면접 전날까지의 구간에 맞춰 짜인 커리큘럼입니다. 아래에 이 대학의
+                  수업 캘린더와 남은 자리를 그대로 공개합니다.
                 </p>
-                <Link
-                  href={`/mmi/${u.slug}`}
-                  className="mt-7 inline-flex items-center gap-2 border border-ink bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-800"
-                >
-                  <CalendarDays className="h-4 w-4" strokeWidth={1.75} />
-                  {u.short} 면접 특강 일정 보기
-                </Link>
               </div>
             ) : noInterview ? (
               <NoteBox
@@ -274,6 +284,51 @@ export default async function UnivPage({
       </PromoSection>
 
       {/* ===== 이어보기 ===== */}
+      {mmiUniv && booking && (
+        <>
+          <PromoSection
+            eyebrow="CALENDAR"
+            EyebrowIcon={CalendarDays}
+            title="수업 캘린더"
+            subtitle="1차 발표일부터 면접 전날까지 열려 있는 자리입니다. 숫자는 그 날의 잔여 회차입니다."
+            tone="muted"
+          >
+            <ScheduleCalendar univ={mmiUniv} />
+          </PromoSection>
+
+          <PromoSection
+            eyebrow="AVAILABILITY"
+            EyebrowIcon={Clock}
+            title="예약 현황"
+            subtitle={`${u.short} 구간 전체 ${booking.total}회 중 ${
+              booking.booked + booking.waitlist
+            }회가 찼습니다. 남은 자리는 아래와 같습니다.`}
+          >
+            <BookingBoard univ={mmiUniv} />
+          </PromoSection>
+
+          <PromoSection
+            eyebrow="TIMETABLE"
+            EyebrowIcon={ListChecks}
+            title="수업 일정표"
+            subtitle="세로가 타임, 가로가 날짜입니다. 칸 안의 박·강이 강사별 예약 상태입니다."
+            tone="muted"
+          >
+            <Timetable univ={mmiUniv} />
+          </PromoSection>
+
+          <PromoSection
+            eyebrow="WAITLIST"
+            EyebrowIcon={Repeat}
+            title="1차 불합격으로 풀리는 자리"
+          >
+            <LeakageNotice univ={mmiUniv} />
+          </PromoSection>
+
+          <ClassCtaBand typeName={`${u.short} 면접`} />
+        </>
+      )}
+
       <PromoSection eyebrow="MORE" EyebrowIcon={BarChart3} title="이어서 보기" tone="muted">
         <LinkCards
           items={[

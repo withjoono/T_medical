@@ -169,19 +169,19 @@ export default function Home() {
           {[
             { number: "01", title: "지원 전략", body: "수시·정시, 나에게 맞는 전형 찾기", href: "/susi" },
             { number: "02", title: "입시결과", body: "대학·계열별 공시 자료 살펴보기", href: "/ipkyul" },
-            { number: "03", title: "면접 준비", body: "대학별 MMI와 면접 유형 확인하기", href: "/mmi" },
+            { number: "03", title: "면접 준비", body: "대학별 MMI와 면접 유형 확인하기", href: "/interview" },
           ].map((item) => <Link key={item.number} href={item.href}><span>{item.number}</span><div><h3>{item.title}</h3><p>{item.body}</p></div><ArrowUpRight size={18} strokeWidth={1.25} /></Link>)}
           <span className="directory-footnote">의대 · 치대 · 한의대 · 약대 · 수의대</span>
         </aside>
       </section>
       <section id="admissions-routes" className="editorial-index" aria-label="진학 프로그램 바로가기">
-        {[{href:"/susi",title:"수시 전략",sub:"학생부교과 · 종합 · 논술"},{href:"/jungsi",title:"정시 설계",sub:"성적 분석 · 지원 조합"},{href:"/mmi",title:"면접 & MMI",sub:"대학별 1:1 집중 준비"},{href:"/overseas",title:"해외 의대",sub:"또 하나의 진학 경로"}].map((item,i)=><Link href={item.href} key={item.href}><span className="index-number">0{i+1}</span><div><h2>{item.title}</h2><p>{item.sub}</p></div><ArrowUpRight size={17}/></Link>)}
+        {[{href:"/susi",title:"수시 전략",sub:"학생부교과 · 종합 · 논술"},{href:"/jungsi",title:"정시 설계",sub:"성적 분석 · 지원 조합"},{href:"/interview",title:"면접 & MMI",sub:"대학별 1:1 집중 준비"},{href:"/overseas",title:"해외 의대",sub:"또 하나의 진학 경로"}].map((item,i)=><Link href={item.href} key={item.href}><span className="index-number">0{i+1}</span><div><h2>{item.title}</h2><p>{item.sub}</p></div><ArrowUpRight size={17}/></Link>)}
       </section>
 
       <ChuseokBand />
 
       {/* 의대 진학 경로 — 이 사이트의 핵심 축 */}
-      <AdmissionsCalendar events={UNIVS.flatMap((univ) => univ.tracks.filter((track) => track.interview).map((track) => ({ id: track.id, date: track.interview!, university: univ.short, track: track.name, note: track.interviewNote, href: `/mmi/${univ.slug}`, sources: univ.sources }))).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))} pending={UNIVS.flatMap((univ) => univ.tracks.filter((track) => !track.interview).map((track) => `${univ.short} ${track.name}`))} />
+      <AdmissionsCalendar events={UNIVS.flatMap((univ) => univ.tracks.filter((track) => track.interview).map((track) => ({ id: track.id, date: track.interview!, university: univ.short, track: track.name, note: track.interviewNote, href: `/univ/${univ.slug}`, sources: univ.sources }))).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))} pending={UNIVS.flatMap((univ) => univ.tracks.filter((track) => !track.interview).map((track) => `${univ.short} ${track.name}`))} />
       <PromoSection
         eyebrow="ROUTES"
         EyebrowIcon={Compass}
