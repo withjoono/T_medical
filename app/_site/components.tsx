@@ -122,7 +122,8 @@ export function PromoHero({
   secondaryHref?: string;
   secondaryLabel?: string;
   Icon?: LucideIcon;
-  stats?: { icon?: LucideIcon; label: string }[];
+  /** href 를 주면 링크가 된다. 안 주면 지표 표시용 정적 칸. */
+  stats?: { icon?: LucideIcon; label: string; href?: string }[];
 }) {
   return (
     <section className="promo-hero grain relative isolate overflow-hidden">
@@ -187,15 +188,12 @@ export function PromoHero({
           >
             {stats.map((s, i) => {
               const SIcon = s.icon;
-              return (
-                <div
-                  key={s.label}
-                  className={`flex items-center justify-center gap-2 px-4 py-5 text-[13px] font-medium text-ink-200 ${
-                    i % 2 === 1 ? "border-l border-white/10" : ""
-                  } ${
-                    i >= 2 ? "border-t border-white/10 sm:border-t-0" : ""
-                  } ${i >= 2 ? "sm:border-l sm:border-white/10" : ""}`}
-                >
+              const edges = `${i % 2 === 1 ? "border-l border-white/10" : ""} ${
+                i >= 2 ? "border-t border-white/10 sm:border-t-0" : ""
+              } ${i >= 2 ? "sm:border-l sm:border-white/10" : ""}`;
+              const base = `flex items-center justify-center gap-2 px-4 py-5 text-[13px] font-medium text-ink-200 ${edges}`;
+              const inner = (
+                <>
                   {SIcon && (
                     <SIcon
                       className="h-4 w-4 shrink-0 text-jade-400"
@@ -203,6 +201,25 @@ export function PromoHero({
                     />
                   )}
                   <span className="text-center">{s.label}</span>
+                  {s.href && (
+                    <ArrowRight
+                      className="h-3.5 w-3.5 shrink-0 text-white/40 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:text-jade-400"
+                      strokeWidth={2}
+                    />
+                  )}
+                </>
+              );
+              return s.href ? (
+                <Link
+                  key={s.label}
+                  href={s.href}
+                  className={`group transition-colors duration-300 hover:bg-white/5 hover:text-white ${base}`}
+                >
+                  {inner}
+                </Link>
+              ) : (
+                <div key={s.label} className={base}>
+                  {inner}
                 </div>
               );
             })}

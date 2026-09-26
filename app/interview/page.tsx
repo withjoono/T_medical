@@ -48,6 +48,12 @@ export const metadata: Metadata = {
     "의대 면접은 대학마다 다른 시험입니다. MMI(다중미니면접)·인적성(생기부 기반)·제시문 세 유형으로 나눠 실시 대학과 준비법을 정리했습니다. 1:1 줌 면접 수업은 1회 2시간 30분. tmedi.kr",
 };
 
+const HERO_ICONS = {
+  mmi: Users,
+  injeokseong: HeartHandshake,
+  jesimun: ScrollText,
+} as const;
+
 /** 유형과 무관하게 모든 의대 면접에 공통인 부분. 유형별 내용은 하위 페이지로 보낸다. */
 const COMMON = [
   {
@@ -153,30 +159,30 @@ export default function InterviewPage() {
         secondaryHref="/univ"
         secondaryLabel="대학별 전형 보기"
         Icon={MessagesSquare}
-        stats={[
-          { icon: Users, label: "MMI" },
-          { icon: HeartHandshake, label: "인·적성" },
-          { icon: ScrollText, label: "제시문" },
-        ]}
+        stats={INTERVIEW_TYPES.map((t) => ({
+          icon: HERO_ICONS[t.key],
+          label: t.short,
+          href: t.href,
+        }))}
       />
-
-      <PromoSection
-        eyebrow="FIND"
-        EyebrowIcon={GraduationCap}
-        title="지원 대학부터 찾으세요"
-        subtitle="내 면접이 무슨 유형인지 모르는 것이 정상입니다. 대학을 누르면 그 대학의 면접 방식과 일정이 나옵니다."
-      >
-        <UnivFinder zones={finderByZone()} />
-      </PromoSection>
 
       <PromoSection
         eyebrow="TYPES"
         EyebrowIcon={MessagesSquare}
-        title="유형부터 보고 싶다면"
-        subtitle="세 유형 중 하나를 고르면 그 방식으로 면접을 보는 대학과 전형, 준비 방법을 볼 수 있습니다."
-        tone="muted"
+        title="어느 유형의 면접을 보나요"
+        subtitle="의대 면접은 셋 중 하나입니다. 유형을 고르면 그 방식으로 면접을 보는 대학과 전형, 준비 방법이 나옵니다."
       >
         <TypeChooser items={chooser} />
+      </PromoSection>
+
+      <PromoSection
+        eyebrow="FIND"
+        EyebrowIcon={GraduationCap}
+        title="유형을 모르겠다면 대학으로 찾으세요"
+        subtitle="요강마다 부르는 이름이 달라 헷갈리는 것이 정상입니다. 지원 대학을 누르면 그 대학의 면접 방식과 일정이 바로 나옵니다."
+        tone="muted"
+      >
+        <UnivFinder zones={finderByZone()} />
       </PromoSection>
 
       <UnivStatRow
