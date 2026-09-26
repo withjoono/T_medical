@@ -55,9 +55,9 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/interview/mmi", label: "MMI 면접", group: "의대 면접" },
       { href: "/interview/injeokseong", label: "인·적성 면접", group: "의대 면접" },
       { href: "/interview/jesimun", label: "제시문 면접", group: "의대 면접" },
-      // 계열별 면접 페이지는 요강 실측 데이터를 채우는 대로 하나씩 연다.
+      { href: "/interview/chidae", label: "치대 면접", group: "다른 계열" },
+      // 나머지 계열은 요강 실측 데이터를 채우는 대로 하나씩 연다.
       // 페이지가 없는 상태로 링크를 걸면 드롭다운에서 404 로 떨어진다.
-      // { href: "/interview/chidae", label: "치대 면접", group: "다른 계열" },
       // { href: "/interview/hanuidae", label: "한의대 면접", group: "다른 계열" },
       // { href: "/interview/yakdae", label: "약대 면접", group: "다른 계열" },
       // { href: "/interview/suuidae", label: "수의대 면접", group: "다른 계열" },
@@ -103,6 +103,7 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
         { href: "/interview/mmi", label: "MMI 면접 대비" },
         { href: "/interview/injeokseong", label: "인·적성 면접 대비" },
         { href: "/interview/jesimun", label: "제시문 면접 대비" },
+        { href: "/interview/chidae", label: "치대 면접 대비" },
         { href: "/interview/chuseok", label: "추석 연휴 면접 특강" },
         { href: "/tamgu", label: "탐구보고서" },
         { href: "/guide", label: "사용법" },
