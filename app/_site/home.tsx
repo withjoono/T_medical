@@ -181,7 +181,7 @@ export default function Home() {
       <ChuseokBand />
 
       {/* 의대 진학 경로 — 이 사이트의 핵심 축 */}
-      <AdmissionsCalendar events={UNIVS.flatMap((univ) => univ.tracks.filter((track) => track.interview).map((track) => ({ id: track.id, date: track.interview!, university: univ.short, track: track.name, note: track.interviewNote, href: `/univ/${univ.slug}`, sources: univ.sources }))).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))} pending={UNIVS.flatMap((univ) => univ.tracks.filter((track) => !track.interview).map((track) => `${univ.short} ${track.name}`))} />
+      <AdmissionsCalendar />
       <PromoSection
         eyebrow="ROUTES"
         EyebrowIcon={Compass}

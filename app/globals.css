@@ -432,7 +432,18 @@
 .calendar-month h3 { font-size: 21px; font-family: var(--font-serif); }
 .calendar-controls button { min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid #d8d1c2; }
 .calendar-controls button:disabled { opacity: .3; }
-.calendar-filters button[aria-pressed=true] { background: #292d29; color: #fff; }
+.calendar-filters { flex-wrap: wrap; }
+.calendar-filters button[aria-pressed=true] { background: #292d29; color: #fff; border-color: #292d29; }
+.calendar-filters-kind { padding: 0 0 20px; border-bottom: 1px solid #cfc8b8; margin-bottom: 4px; }
+.calendar-filters-kind button { min-height: 40px; padding: 6px 14px; border: 1px solid #d8d1c2; font-size: 13px; }
+.calendar-filters-kind button[aria-pressed=true] { background: #292d29; color: #fff; border-color: #292d29; }
+/* 일정 종류 색 — 달력 칸의 칩과 목록 배지가 같은 색을 쓴다 */
+.calendar-chips { display: flex; flex-direction: column; gap: 3px; }
+.calendar-chip { font-size: 10px; font-weight: 600; padding: 1px 5px; white-space: nowrap; align-self: flex-start; }
+.cal-kind-announce { background: #e6ecf4; color: #2f4a6b; }
+.cal-kind-interview { background: #dcece2; color: #22543c; }
+.cal-kind-final { background: #f2e7d5; color: #6d5326; }
+.cal-kind-common { background: #292d29; color: #fff; }
 .calendar-notice { padding: 16px; background: #eeeadf; font-size: 13px; line-height: 1.8; margin-bottom: 20px; }
 .calendar-notice a { text-decoration: underline; text-underline-offset: 4px; }
 .calendar-week,.calendar-days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); }
@@ -459,6 +470,16 @@
 .calendar-type { font-size: 11px; padding: 2px 8px; background: #eeeadf; white-space: nowrap; }
 .calendar-disclaimer { margin-top: 24px; }
 .calendar-no-events { padding: 24px 0; font-size: 14px; color: #676b60; }
+/* 날짜 미선택 시의 날짜별 한 줄 요약 */
+.calendar-summary li { display: flex; align-items: start; gap: 18px; padding: 14px 0; border-top: 1px solid #ded8ca; }
+.calendar-summary time { min-width: 58px; font-family: Georgia,serif; font-size: 15px; color: #7d684b; display: flex; gap: 5px; align-items: baseline; }
+.calendar-summary time span { font-size: 11px; font-family: inherit; color: #9a9384; }
+.calendar-summary li > div { min-width: 0; flex: 1; }
+.calendar-summary li p { font-size: 12px; line-height: 1.7; color: #676b60; margin-top: 5px; }
+.calendar-summary .calendar-common { color: #6d5326; font-weight: 600; }
+.calendar-summary li button { min-height: 40px; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; color: #4a5a50; white-space: nowrap; }
+.calendar-chips-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.calendar-hint { margin-top: 16px; font-size: 12px; color: #8b8676; }
 @media(max-width:767px) {
  .admissions-calendar { margin-block: 48px; padding-inline: 20px; }
  .calendar-heading { align-items: start; flex-direction: column; }
@@ -466,7 +487,7 @@
  .calendar-day,.calendar-empty { min-height: 72px; }
  .calendar-day { padding: 8px 3px; }
  .calendar-date { font-size: 15px; }
- .calendar-count { font-size: 9px; }
+ .calendar-count,.calendar-chip { font-size: 9px; padding: 1px 3px; }
  .calendar-names { display: none; }
  .calendar-agenda li { gap: 10px; font-size: 13px; }
 }
