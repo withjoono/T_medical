@@ -1,3 +1,4 @@
+import { ClipboardList, GraduationCap, MonitorPlay, Target, type LucideIcon } from "lucide-react";
 import { SESSION_MINUTES, TUITION } from "./mmi-schedule";
 import { UNIV_PAGES, type UnivPage } from "./univ";
 
@@ -153,7 +154,7 @@ export const INTERVIEW_TYPES: InterviewType[] = [
           [
             "실전 긴장이 재현 안 됨",
             "익숙한 선생님, 익숙한 방에서 봅니다. 처음 보는 면접관 앞에 앉는 압박과 같지 않습니다.",
-            "마지막 1~2회는 처음 보는 강사로 배치합니다(박은우 ↔ 강정규 교차). 복장을 갖춰 입고 타이머를 강제하며, 화면을 끄고 시작해 입실하듯 켭니다.",
+            "마지막 1~2회는 실전 리허설로 돌립니다. 복장을 갖춰 입고 타이머를 강제하며, 화면을 끄고 시작해 입실하듯 켭니다.",
           ],
           [
             "또래 비교가 없음",
@@ -322,6 +323,7 @@ export const INTERVIEW_TYPES: InterviewType[] = [
       "숙지 시간(보통 10분) → 면접 시간(5~10분)의 2단계 구조",
       "연세대 미래는 숙지 10분 + 면접 10분이다(같은 대학 타 모집단위는 면접 5분)",
       "제시문은 생명윤리 · 의료 상황 · 사회 쟁점이거나, 자료 · 그래프 해석이다",
+      "고려대 의학과는 예외로 수학 · 과학 교과 제시문이 나온다 — 인·적성 MMI 2회와 별도로 자연계 공통 제시문 면접(준비 21분 · 면접 7분)을 보며, 출제범위가 수학Ⅰ·Ⅱ·미적분·확률과 통계·기하와 물리·화학·생명과학·지구과학 Ⅰ·Ⅱ다. 과목을 고르지 않고, 지식보다 제시문을 읽고 연결 · 적용하는 힘을 본다",
       "서울대처럼 제시문 여러 개를 스테이션으로 이어 약 60분간 진행하는 대학도 있다 — 지구력이 별개 변수로 붙는다",
       "기출이 공개된 유일한 유형이다 — 연세대 미래는 입학처가 면접 기출문제와 선행학습영향평가결과보고서를 공개한다",
       "제시문만으로 끝나지 않는 대학이 있다. 서류확인 면접과 함께 보거나, 전형에 따라 준비물이 갈린다",
@@ -547,6 +549,34 @@ export const UNCLASSIFIED = UNIV_PAGES.filter(
 export const SESSION_HOURS_LABEL = `${Math.floor(SESSION_MINUTES / 60)}시간 ${
   SESSION_MINUTES % 60
 }분`;
+
+/** T메디 면접 수업의 특징 4가지 (사용자 확정, 2026-09-30). /interview · /interview/chuseok 에서 쓴다. */
+export const CLASS_FEATURES: { icon: LucideIcon; title: string; body: string }[] = [
+  {
+    icon: ClipboardList,
+    title: "예상문제를 먼저 과제로 받습니다",
+    body:
+      "수업 전에 지원 대학의 기출·후기로 뽑은 예상문제를 과제로 드리고 답변을 먼저 받아 둡니다. 수업은 설명이 아니라 첨삭과 다시 답하기로 바로 시작합니다.",
+  },
+  {
+    icon: Target,
+    title: "1:1로 약점을 메워 갑니다",
+    body:
+      "강사 1명이 학생 1명만 봅니다. 그날 드러난 약점은 다음 수업 과제가 되고, 다음 수업은 그 과제를 확인하는 데서 시작하므로 같은 실수가 쌓이지 않습니다.",
+  },
+  {
+    icon: GraduationCap,
+    title: "그 분야 전문 선생님이 수업합니다",
+    body:
+      "의대 면접은 이화여대 의대 출신 이세인 선생님이 맡습니다. 약대·치대·수의대·한의대 면접은 각 분야 전문 선생님이 수업합니다.",
+  },
+  {
+    icon: MonitorPlay,
+    title: "줌 온라인이라 어디서든 받습니다",
+    body:
+      "지방이나 기숙학교에 있어도 이동 없이 같은 수업을 받습니다. 오가는 데 드는 시간을 그대로 면접 준비에 씁니다.",
+  },
+];
 
 export const CLASS_FLOW: { title: string; body: string }[] = [
   {

@@ -36,6 +36,7 @@ import {
   UNIV_COUNT,
 } from "@/lib/chuseok-class";
 import {
+  CLASS_FEATURES,
   CLASS_FLOW,
   CLASS_INCLUDES,
   CLASS_PRICE,
@@ -133,7 +134,7 @@ function BlockTable() {
         </table>
       </div>
       <p className="mt-4 text-center text-[12px] font-light text-ink-500">
-        남은 자리는 강사 2명 기준입니다. 같은 날짜의 잔여는 대학별 MMI 페이지와 같은 값입니다.
+        남은 자리는 강사 {TEACHERS.length}명 기준입니다. 같은 날짜의 잔여는 대학별 MMI 페이지와 같은 값입니다.
       </p>
     </div>
   );
@@ -376,7 +377,10 @@ export function ChuseokPage() {
         subtitle={`예약부터 과제까지 한 사이클입니다. 1회 ${SESSION_HOURS_LABEL}, 줌으로 1:1 진행합니다.`}
         tone="muted"
       >
-        <StepList steps={CLASS_FLOW} />
+        <FeatureGrid items={CLASS_FEATURES} columns={2} />
+        <div className="mt-16">
+          <StepList steps={CLASS_FLOW} />
+        </div>
       </PromoSection>
 
       <PromoSection
@@ -389,7 +393,7 @@ export function ChuseokPage() {
           items={[
             `연휴 ${ALL_DAYS.length}일 전체가 휴일 시간표(5타임)입니다. 2026년 추석은 토요일과만 겹쳐 대체공휴일이 없어 9월 28일(월)은 평일 시간표로 돌아갑니다.`,
             "1:1 개인지도이며 묶음·선납이 없습니다. 필요한 회차만 잡습니다.",
-            "강사가 2명이라 같은 타임에 최대 2명입니다. 남은 자리는 대학별 MMI 페이지의 잔여와 같은 값입니다.",
+            `강사가 ${TEACHERS.length}명이라 같은 타임에 최대 ${TEACHERS.length}명입니다. 남은 자리는 대학별 MMI 페이지의 잔여와 같은 값입니다.`,
             "1단계 발표 전이라도 결과를 기다리는 자리로 먼저 잡아 둘 수 있습니다.",
           ]}
           tone="warn"

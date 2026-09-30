@@ -311,7 +311,7 @@ export default async function UnivPage({
             eyebrow="TIMETABLE"
             EyebrowIcon={ListChecks}
             title="수업 일정표"
-            subtitle="세로가 타임, 가로가 날짜입니다. 칸 안의 박·강이 강사별 예약 상태입니다."
+            subtitle="세로가 타임, 가로가 날짜입니다. 칸 안의 표시가 강사별 예약 상태입니다."
             tone="muted"
           >
             <Timetable univ={mmiUniv} />

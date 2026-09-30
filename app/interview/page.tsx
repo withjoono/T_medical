@@ -28,6 +28,7 @@ import { UnivStatRow } from "../univ/_univ";
 import { NoInterviewRow, TypeChooser, UnivFinder } from "./_interview";
 import { TeacherCards } from "../univ/_booking";
 import {
+  CLASS_FEATURES,
   CLASS_FLOW,
   CLASS_INCLUDES,
   CLASS_PRICE,
@@ -236,7 +237,10 @@ export default function InterviewPage() {
         title="면접 수업은 이렇게 진행합니다"
         subtitle={`예약부터 과제까지 한 사이클입니다. 1회 ${SESSION_HOURS_LABEL}, 줌으로 1:1 진행합니다. 수업 안내는 이 페이지 한 곳에 모아 두었습니다.`}
       >
-        <StepList steps={CLASS_FLOW} />
+        <FeatureGrid items={CLASS_FEATURES} columns={2} />
+        <div className="mt-16">
+          <StepList steps={CLASS_FLOW} />
+        </div>
         <div className="mt-16">
           <PriceCard
             courseName="의대 면접 1:1 수업"
@@ -260,7 +264,7 @@ export default function InterviewPage() {
         eyebrow="INSTRUCTORS"
         EyebrowIcon={Users}
         title="담당 강사"
-        subtitle="스테이션·문항 성격에 따라 담당을 나눕니다. 두 강사가 같은 학생을 번갈아 보는 구조입니다."
+        subtitle="의대 면접은 이화여대 의대 출신 이세인 선생님이 맡습니다. 고려대 의학과 제시문 면접(수학·과학)만 박은우 선생님이 따로 맡습니다."
         tone="muted"
       >
         <TeacherCards />

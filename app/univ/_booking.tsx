@@ -3,6 +3,7 @@ import { ArrowRight, CalendarDays, Check, Clock, UserRound } from "lucide-react"
 import {
   type Track,
   type Univ,
+  KOREA_JESIMUN_TEACHER,
   TEACHERS,
   addDays,
   announcesOn,
@@ -292,7 +293,7 @@ export function ScheduleCalendar({ univ }: { univ: Univ }) {
 /* -------------------------------------------------------------------------
  * 수업 일정표 — 주 단위 시간표 격자
  *   세로축 = 타임(1회 2시간 30분), 가로축 = 날짜.
- *   칸마다 강사 두 명의 예약 상태를 그대로 보여 준다.
+ *   칸마다 강사별 예약 상태를 그대로 보여 준다.
  * ---------------------------------------------------------------------- */
 
 /** 일요일 시작 주 단위로 쪼갠다.
@@ -338,11 +339,11 @@ export function TimetableLegend() {
     <div className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
       {items.map((i) => (
         <span key={i.label} className="inline-flex items-center gap-2.5 text-[12px] font-light text-ink-500">
-          <span className={`inline-flex h-5 w-5 items-center justify-center border text-[10px] font-semibold ${i.cls}`}>박</span>
+          <span className={`inline-flex h-5 w-5 items-center justify-center border text-[10px] font-semibold ${i.cls}`}>{TEACHERS[0].name.slice(0, 1)}</span>
           {i.label}
         </span>
       ))}
-      <span className="text-[12px] font-light text-ink-400">박 = 박은우 · 강 = 강정규</span>
+      <span className="text-[12px] font-light text-ink-400">{TEACHERS.map((t) => `${t.name.slice(0, 1)} = ${t.name}`).join(" · ")}</span>
     </div>
   );
 }
@@ -529,9 +530,10 @@ export function LeakageNotice({ univ }: { univ: Univ }) {
  * ---------------------------------------------------------------------- */
 
 export function TeacherCards() {
+  const cards = [...TEACHERS, KOREA_JESIMUN_TEACHER];
   return (
     <div className="feature-grid grid sm:grid-cols-2">
-      {TEACHERS.map((t) => (
+      {cards.map((t) => (
         <div key={t.id} className="feature-card p-8">
           <div className="flex items-start justify-between">
             <span className="flex h-11 w-11 items-center justify-center border border-hair-strong bg-white text-jade-600">
