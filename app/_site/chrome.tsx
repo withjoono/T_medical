@@ -10,7 +10,9 @@ import { Phone, Mail, LucideIcon } from "lucide-react";
  *     그래서 children 첫 줄에 '전체' 링크를 반드시 넣어 랜딩 페이지 진입로를 남긴다.
  *
  *  group 은 드롭다운 안의 소제목이다. 값이 바뀌는 자리에 제목이 한 번 그려진다.
- *  2단 중첩은 지원되지 않으므로 계층은 group 으로 표현한다.
+ *  2단 중첩은 지원되지 않는다. 면접 메뉴의 '의대 면접 > MMI·인적성·제시문' 같은 하위 단계는
+ *  목록 순서로 두고, globals.css 의 '면접 메뉴 하위 단계' 규칙이 href 로 골라 들여쓴다.
+ *  (공유 헤더 패키지는 다른 위성앱도 쓰므로 고치지 않는다)
  *
  *  icon 은 풋터/모바일 보조 표기에만 쓰고 상단 네비에서는 렌더하지 않는다.
  *  (아이콘이 늘어선 네비는 대시보드처럼 보인다 — 활자만으로 위계를 만든다) */
@@ -51,15 +53,17 @@ const NAV_ITEMS: NavItem[] = [
     href: "/interview",
     label: "면접",
     children: [
-      { href: "/interview", label: "의대 면접 전체", group: "의대 면접" },
-      { href: "/interview/mmi", label: "MMI 면접", group: "의대 면접" },
-      { href: "/interview/injeokseong", label: "인·적성 면접", group: "의대 면접" },
-      { href: "/interview/jesimun", label: "제시문 면접", group: "의대 면접" },
-      { href: "/interview/chidae", label: "치대 면접", group: "다른 계열" },
-      { href: "/interview/hanuidae", label: "한의대 면접", group: "다른 계열" },
-      { href: "/interview/yakdae", label: "약대 면접", group: "다른 계열" },
-      { href: "/interview/suuidae", label: "수의대 면접", group: "다른 계열" },
-      { href: "/interview/chuseok", label: "추석 연휴 면접반", group: "시즌" },
+      { href: "/interview", label: "의대 면접" },
+      // ↓ 의대 면접의 하위 단계 — globals.css 가 들여쓴다(href 를 바꾸면 거기도 고칠 것)
+      { href: "/interview/mmi", label: "MMI 면접" },
+      { href: "/interview/injeokseong", label: "인·적성 면접" },
+      { href: "/interview/jesimun", label: "제시문 면접" },
+      { href: "/interview/chidae", label: "치대 면접" },
+      { href: "/interview/hanuidae", label: "한의대 면접" },
+      { href: "/interview/yakdae", label: "약대 면접" },
+      { href: "/interview/suuidae", label: "수의대 면접" },
+      { href: "/interview/chuseok", label: "추석/10월 연휴 면접", group: "시즌 특강" },
+      { href: "/interview/ai", label: "AI 모의면접", group: "혼자 연습" },
     ],
   },
   { href: "/tamgu", label: "탐구보고서" },
@@ -105,7 +109,8 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
         { href: "/interview/hanuidae", label: "한의대 면접 대비" },
         { href: "/interview/yakdae", label: "약대 면접 대비" },
         { href: "/interview/suuidae", label: "수의대 면접 대비" },
-        { href: "/interview/chuseok", label: "추석 연휴 면접 특강" },
+        { href: "/interview/chuseok", label: "추석/10월 연휴 면접 특강" },
+        { href: "/interview/ai", label: "AI 모의면접" },
         { href: "/tamgu", label: "탐구보고서" },
         { href: "/guide", label: "사용법" },
         { href: "/blog", label: "블로그" },

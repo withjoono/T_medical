@@ -255,11 +255,11 @@ export function ChuseokPage() {
         items={[
           breadcrumb([
             { name: "면접 수업", path: "/interview" },
-            { name: "추석 연휴 의대 면접반", path: "/interview/chuseok" },
+            { name: "추석/10월 연휴 의대 면접반", path: "/interview/chuseok" },
           ]),
           course({
             path: "/interview/chuseok",
-            name: "추석 연휴 의대 면접반 — 수능 전 연휴 면접 특강 (1:1)",
+            name: "추석/10월 연휴 의대 면접반 — 수능 전 연휴 면접 특강 (1:1)",
             description: `추석·개천절·한글날 연휴 ${ALL_DAYS.length}일 동안 하루 5타임을 여는 줌 1:1 의대 면접 특강.`,
             price: TUITION.perSession,
             startDate: ALL_DAYS[0],
@@ -269,7 +269,7 @@ export function ChuseokPage() {
       />
       <PromoHero
         badge={`수능 전 연휴 특강 · ${RANGE_LABEL}`}
-        title="추석 연휴 의대 면접반"
+        title="추석/10월 연휴 의대 면접반"
         highlight="수능 전에 끝내는 면접 준비"
         body={`1단계 발표에서 면접까지는 평균 ${AVG_GAP}일입니다. 발표를 보고 시작하면 준비가 아니라 벼락치기가 됩니다. 추석·개천절·한글날 연휴 ${ALL_DAYS.length}일 동안 낮 타임까지 열어 1:1로 골격을 먼저 만듭니다.`}
         primaryHref="#contact"

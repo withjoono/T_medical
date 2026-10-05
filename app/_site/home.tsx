@@ -115,7 +115,7 @@ function ChuseokBand() {
         <div className="max-w-2xl">
           <p className="eyebrow text-brass-300">수능 전 연휴 한정 · {RANGE_LABEL}</p>
           <h2 className="display mt-5 text-[1.625rem] leading-[1.35] text-white sm:text-[2rem]">
-            추석 연휴 의대 면접반
+            추석/10월 연휴 의대 면접반
           </h2>
           <p className="mt-5 text-[14px] font-light leading-[1.85] text-ink-300">
             1단계 발표에서 면접까지는 평균 {AVG_GAP}일입니다. 추석 · 개천절 · 한글날

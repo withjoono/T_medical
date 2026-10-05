@@ -31,3 +31,6 @@ next-env.d.ts
 /Claude outputs/
 
 /Claude outputs/
+
+# AI 모의면접 빌드 결과 — Interview 저장소 tools/sync-coach-to-tmedi.mjs 가 만든다(약 70MB)
+/public/ai-interview/
