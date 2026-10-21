@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "node scripts/check-ai-interview.mjs && next build",
+    "build": "node scripts/check-ai-interview.mjs && next build && node scripts/prepare-static-chunks.mjs",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
