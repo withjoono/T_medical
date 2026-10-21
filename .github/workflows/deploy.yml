@@ -72,6 +72,37 @@ jobs:
           NEXT_PUBLIC_STUDYPLANNER_URL: ${{ vars.NEXT_PUBLIC_STUDYPLANNER_URL }}
           NEXT_PUBLIC_SANGGIBOOK_URL: ${{ vars.NEXT_PUBLIC_SANGGIBOOK_URL }}
 
+      # 지난 배포들의 _next/static 청크를 14일간 함께 올린다 (2026-10-21 추가).
+      # Firebase 배포는 파일 세트를 통째로 바꿔서 옛 해시 청크가 즉시 사라진다.
+      # 그 사이 옛 HTML 을 렌더링한 구글봇·열려 있던 탭은 청크 404 →
+      # "Application error: a client-side exception" 이 뜨고, 실제로 /univ/cau 가
+      # 구글에 이 화면("제목없음")으로 색인됐다. 해시 파일명이라 새 파일과 겹치지 않는다.
+      - name: Restore previous static chunks
+        uses: actions/cache/restore@v4
+        with:
+          path: T_Medi/.static-archive
+          key: next-static-${{ github.run_id }}
+          restore-keys: next-static-
+
+      - name: Merge previous static chunks into out/
+        run: |
+          mkdir -p .static-archive
+          # 이번 빌드 파일을 보관소에 넣는다. cp(-p 없음)는 mtime 을 지금으로 찍으므로
+          # 이번 빌드에도 있는 파일은 보존 기간이 새로 시작된다.
+          cp -R out/_next/static/. .static-archive/
+          # 14일 넘게 어느 빌드에도 없던 파일은 버린다
+          find .static-archive -type f -mtime +14 -delete
+          find .static-archive -type d -empty -delete
+          # 옛 파일만 out/ 에 채운다(같은 이름은 이번 빌드 것이 우선)
+          cp -R --update=none .static-archive/. out/_next/static/
+          echo "보관 청크 $(find .static-archive -type f | wc -l)개, 배포 청크 $(find out/_next/static -type f | wc -l)개"
+
+      - name: Save static chunks archive
+        uses: actions/cache/save@v4
+        with:
+          path: T_Medi/.static-archive
+          key: next-static-${{ github.run_id }}
+
       # ⚠️ `--only hosting:medical-front` 단독 금지. 반드시 site 이름(medical-front)까지 지정한다.
       # .firebaserc 에 targets 매핑이 없어 target 이 아니라 site 이름을 그대로 쓴다.
       # target 없는 배포는 2026-05-16 에 Hub(www.tskool.kr)를 위성앱 빌드로

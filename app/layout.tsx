@@ -34,6 +34,12 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     images: [{ url: "/og-image.png?v=2", width: 1200, height: 630, alt: "T메디" }],
   },
+  // 검색엔진 소유 확인 — 확인이 끝난 뒤에도 지우면 안 된다(지우면 소유권이 풀림).
+  // Google Search Console: URL 접두어 속성 https://tmedi.kr/ (withjoono@gmail.com, 2026-10-21 추가)
+  // 네이버 서치어드바이저 코드를 받으면 other 에 "naver-site-verification" 으로 넣는다.
+  verification: {
+    google: "ff7rI_E64kro7B5jeIBF79vHdcpUngH5Q-RaaH6g7s8",
+  },
   twitter: {
     card: "summary_large_image",
     title: "T메디 - 의대 입시 (수시·정시·해외 의대)",

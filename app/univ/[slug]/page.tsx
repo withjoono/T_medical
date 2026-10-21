@@ -63,19 +63,44 @@ export async function generateMetadata({
 
   const tracks = u.interview?.tracks ?? [];
   const first = tracks.find((t) => t.interview);
-  const when = first?.interview ? ` 면접 ${formatKo(first.interview)}.` : "";
-  const quota = u.admission ? `수시 ${u.admission.units.length}개 전형 ${u.admission.quota}명.` : "";
-  const iv =
-    u.hasInterview === false
-      ? " 2027학년도 면접 미실시."
-      : tracks.length > 0
-        ? ` 면접 실시 ${tracks.length}개 전형.`
-        : "";
+  const noInterview = u.hasInterview === false;
+
+  // 문장을 배열로 모아 join — 값이 빠진 대학(예: 강원대 admission 없음)도 공백이 겹치지 않게.
+  const sentences = [
+    `${u.name} 2027학년도 수시 전형·면접 안내.`,
+    u.admission ? `수시 ${u.admission.units.length}개 전형 ${u.admission.quota}명.` : "",
+    noInterview ? "2027학년도 면접 미실시." : tracks.length > 0 ? `면접 실시 ${tracks.length}개 전형.` : "",
+    first?.interview ? `면접 ${formatKo(first.interview)}.` : "",
+    "전형별 모집인원·수능최저·선발모형과 면접 방식, 면접 수업까지 한 페이지에 정리했습니다.",
+  ].filter(Boolean);
+  const description = sentences.join(" ");
+
+  // 실제 검색어는 "○○대 의대 면접" — 제목 앞머리에 그대로 둔다(2026-10-21 노출 점검).
+  const title = noInterview
+    ? `${u.short} 의대 2027 수시 전형 — 면접 미실시 | T Medi`
+    : `${u.short} 의대 면접 2027 — 방식·일정·전형 | T Medi`;
+  const url = `/univ/${u.slug}`;
 
   return {
-    alternates: { canonical: `/univ/${u.slug}` },
-    title: `${u.short} 의예과 전형·면접 안내 | T Medi`,
-    description: `${u.name} 2027학년도 전형 안내. ${quota}${iv}${when} 전형별 모집인원·수능최저·선발모형과 면접 방식, 면접 수업까지 한 페이지에 정리했습니다. tmedi.kr`,
+    alternates: { canonical: url },
+    title,
+    description,
+    // openGraph 는 layout 과 얕게 병합된다 — 하위에서 쓰면 통째로 바뀌므로 images 등도 다시 적는다.
+    openGraph: {
+      type: "website",
+      siteName: "T메디",
+      locale: "ko_KR",
+      title,
+      description,
+      url,
+      images: [{ url: "/og-image.png?v=2", width: 1200, height: 630, alt: "T메디" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og-image.png?v=2"],
+    },
   };
 }
 
