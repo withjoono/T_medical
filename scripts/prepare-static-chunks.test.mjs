@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { initialChunks, prepareHtml, prepareExport } from './prepare-static-chunks.mjs'
+import { initialChunks, prepareHtml, prepareExport, inlineInitialAssets } from './prepare-static-chunks.mjs'
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -28,7 +28,26 @@ test('export gate rejects missing chunks, accepts complete export', async () => 
     await mkdir(join(root, '_next/static/chunks'), { recursive: true })
     await writeFile(join(root, '_next/static/chunks/shared-abc.js'), '/* test */')
     await prepareExport(root)
-    assert.equal(await readFile(join(root, 'index.html'), 'utf8'), prepareHtml(html))
+    const output = await readFile(join(root, 'index.html'), 'utf8')
+    assert.ok(output.includes('<script data-static-src="/_next/static/chunks/shared-abc.js">/* test */</script>'))
+    assert.ok(!output.includes('<script src="/_next/static/chunks/shared-abc.js"'))
+  } finally {
+    await rm(root, { recursive: true })
+  }
+})
+test('inlines CSS with rebased URLs and escapes script closing tags', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'tmedi-chunks-test-'))
+  try {
+    await mkdir(join(root, '_next/static/chunks'), { recursive: true })
+    await mkdir(join(root, '_next/static/css'), { recursive: true })
+    await writeFile(join(root, '_next/static/chunks/a.js'), 'console.log("</script>", "$&", "$$")')
+    await writeFile(join(root, '_next/static/css/a.css'), 'body{background:url(../media/a.png)}')
+    const input = '<head><link rel="stylesheet" href="/_next/static/css/a.css"/><link rel="preload" as="script" href="/_next/static/chunks/a.js"/><script src="/_next/static/chunks/a.js" async=""></script></head>'
+    const output = await inlineInitialAssets(input, root)
+    assert.ok(output.includes('url(/_next/static/media/a.png)'))
+    assert.ok(output.includes('console.log("<\\/script>", "$&", "$$")'))
+    assert.ok(!output.includes('rel="preload"'))
+    assert.equal(await inlineInitialAssets(output, root), output)
   } finally {
     await rm(root, { recursive: true })
   }

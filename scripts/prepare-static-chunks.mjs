@@ -34,6 +34,33 @@ async function walk(directory) {
   return files
 }
 
+// The public pages must remain renderable when a crawler skips subresources.
+// Inline only this build's first-load scripts/styles; keep the original hashed
+// files for client navigation and old documents. This is identical for all UAs.
+export async function inlineInitialAssets(html, root) {
+  const readAsset = async src => {
+    const path = resolve(root, '.' + decodeURIComponent(src))
+    if (relative(root, path).startsWith('..')) throw new Error(`Unsafe asset: ${src}`)
+    return readFile(path, 'utf8')
+  }
+  for (const match of [...html.matchAll(/<script\b([^>]*\bsrc="(\/_next\/static\/[^"?]+\.js)"[^>]*)><\/script>/gi)]) {
+    if (/\bnomodule\b/i.test(match[1])) continue
+    const source = (await readAsset(match[2])).replace(/<\/script/gi, '<\\/script')
+    html = html.replace(match[0], () => `<script data-static-src="${match[2]}">${source}</script>`)
+  }
+  for (const match of [...html.matchAll(/<link\b[^>]*\bhref="(\/_next\/static\/[^"?]+\.css)"[^>]*\/?\s*>/gi)]) {
+    let css = await readAsset(match[1])
+    // Relative CSS assets are relative to the stylesheet, not the HTML page.
+    css = css.replace(/url\((['"]?)([^)'"\s]+)\1\)/g, (all, quote, url) => {
+      if (/^(?:[a-z]+:|\/|#)/i.test(url)) return all
+      return `url(${quote}${new URL(url, 'https://static.invalid' + match[1]).pathname}${quote})`
+    })
+    html = html.replace(match[0], () => `<style data-static-href="${match[1]}">${css.replace(/<\/style/gi, '<\\/style')}</style>`)
+  }
+  // Avoid duplicate network work for scripts now delivered with the document.
+  return html.replace(/<link\b(?=[^>]*\brel="preload")(?=[^>]*\bas="script")(?=[^>]*\bhref="\/_next\/static\/)[^>]*\/?\s*>/gi, '')
+}
+
 export async function prepareExport(root) {
   let updated = 0
   for (const path of await walk(root)) {
@@ -46,13 +73,13 @@ export async function prepareExport(root) {
         throw new Error(`Missing or unsafe chunk in ${path}: ${src}`)
       }
     }
-    const prepared = prepareHtml(html)
+    const prepared = await inlineInitialAssets(prepareHtml(html), root)
     if (prepared !== html) {
       await writeFile(path, prepared)
       updated++
     }
   }
-  console.log(`[static-chunks] validated export; added initial scripts to ${updated} pages`)
+  console.log(`[static-chunks] validated export; prepared self-contained initial assets for ${updated} pages`)
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
