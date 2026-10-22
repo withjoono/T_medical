@@ -21,15 +21,11 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldTypeSections } from "../_field-univ";
+import { FieldUnivGrid } from "../_field-univ";
 import { FIELD_PAGES } from "@/lib/field-registry";
 import {
-  YAKDAE_NO_INTERVIEW_NAMES,
   YAKDAE_TOTALS,
-  YAKDAE_UNIVS,
-  YAKDAE_WITH_INTERVIEW,
   yakdaeBeforeSuneung,
-  yakdaeEarliest,
 } from "@/lib/yakdae-interview";
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
 import { formatKo } from "@/lib/mmi-schedule";
@@ -130,16 +126,6 @@ const PITFALLS = [
 ];
 
 export default function YakdaePage() {
-  const rows = YAKDAE_WITH_INTERVIEW.map((u) => {
-    const d = yakdaeEarliest(u);
-    return [
-      u.short,
-      u.zone,
-      u.styleLabel,
-      `${u.tracks.filter((t) => t.interview).length}개 전형`,
-      d ? formatKo(d) : "미공지",
-    ];
-  });
   const early = yakdaeBeforeSuneung();
 
   return (
@@ -175,17 +161,15 @@ export default function YakdaePage() {
         ]}
       />
 
+      <div id="univ" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="AT A GLANCE"
-        EyebrowIcon={Scale}
-        title="약학과 면접 한눈에"
-        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다."
+        eyebrow="UNIVERSITIES"
+        EyebrowIcon={GraduationCap}
+        title="지원 대학부터 고르십시오"
+        subtitle="약대는 면접 반영이 20% 에서 60% 까지 벌어집니다. 면접일이 이른 순서로 놓았습니다. 대학을 누르면 요강에서 확인된 면접 방식과 전형별 반영비율·일정이 전부 나옵니다."
+        tone="muted"
       >
-        <CompareTable
-          head={["대학", "권역", "요강에 적힌 면접 방식", "면접 전형", "가장 이른 면접일"]}
-          rows={rows}
-          caption={`면접을 실시하지 않는 대학(${YAKDAE_NO_INTERVIEW_NAMES.length}곳): ${YAKDAE_NO_INTERVIEW_NAMES.join(" · ")}`}
-        />
+        <FieldUnivGrid field={FIELD_PAGES.yakdae} />
       </PromoSection>
 
       <PromoSection
@@ -215,17 +199,6 @@ export default function YakdaePage() {
         subtitle="의대 면접과 겹치지 않는 부분만 골랐습니다."
       >
         <FeatureGrid items={COMMON} columns={3} />
-      </PromoSection>
-
-      <div id="univ" className="scroll-mt-24" />
-      <PromoSection
-        eyebrow="INTERVIEW TYPES"
-        EyebrowIcon={GraduationCap}
-        title="약대 면접은 두 유형으로 갈립니다"
-        subtitle="제시문을 읽고 답하는 대학은 연세대 하나이고, 나머지는 전부 제출서류를 놓고 묻는 면접입니다. 대신 평가 배점이 대학마다 크게 다릅니다."
-        tone="muted"
-      >
-        <FieldTypeSections field={FIELD_PAGES.yakdae} />
       </PromoSection>
 
       <PromoSection

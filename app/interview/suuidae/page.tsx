@@ -12,7 +12,6 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import {
-  CompareTable,
   FeatureGrid,
   FinalCTA,
   LinkCards,
@@ -22,18 +21,13 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldTypeSections } from "../_field-univ";
+import { FieldUnivGrid } from "../_field-univ";
 import { FIELD_PAGES } from "@/lib/field-registry";
 import {
-  SUUIDAE_NO_INTERVIEW,
   SUUIDAE_TOTALS,
-  SUUIDAE_UNIVS,
   SUUIDAE_UNVERIFIED,
-  SUUIDAE_WITH_INTERVIEW,
-  suuidaeEarliest,
 } from "@/lib/suuidae-interview";
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
-import { formatKo } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
 import { article, breadcrumb } from "@/lib/jsonld";
 
@@ -131,16 +125,6 @@ const PITFALLS = [
 ];
 
 export default function SuuidaePage() {
-  const rows = SUUIDAE_WITH_INTERVIEW.map((u) => {
-    const d = suuidaeEarliest(u);
-    return [
-      u.short,
-      u.zone,
-      u.styleLabel,
-      `${u.tracks.filter((t) => t.interview).length}개 전형`,
-      d ? formatKo(d) : "미공지",
-    ];
-  });
 
   return (
     <>
@@ -175,37 +159,14 @@ export default function SuuidaePage() {
         ]}
       />
 
-      <PromoSection
-        eyebrow="AT A GLANCE"
-        EyebrowIcon={Scale}
-        title="수의예과 면접 한눈에"
-        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다."
-      >
-        <CompareTable
-          head={["대학", "권역", "요강에 적힌 면접 방식", "면접 전형", "가장 이른 면접일"]}
-          rows={rows}
-          caption={`요강 확인 범위에서 면접을 실시하지 않는 대학: ${SUUIDAE_NO_INTERVIEW.map((u) => u.short).join(" · ")}`}
-        />
-      </PromoSection>
-
-      <PromoSection
-        eyebrow="COMMON"
-        EyebrowIcon={ClipboardCheck}
-        title="수의대 면접에서 먼저 확인할 것"
-        subtitle="의대·약대 면접과 겹치지 않는 부분만 골랐습니다."
-        tone="muted"
-      >
-        <FeatureGrid items={COMMON} columns={3} />
-      </PromoSection>
-
       <div id="univ" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="INTERVIEW TYPES"
+        eyebrow="UNIVERSITIES"
         EyebrowIcon={GraduationCap}
-        title="수의대 면접은 전부 서류 기반입니다"
-        subtitle="요강에 제시문이나 현장 문항이 적힌 수의대는 없습니다. 갈리는 것은 평가 배점과 면접 반영비율입니다. 지원 대학을 누르면 그 대학의 요강 전부가 나옵니다."
+        title="지원 대학부터 고르십시오"
+        subtitle="수의대 면접은 대학마다 다른 시험입니다. 면접일이 이른 순서로 놓았습니다. 대학을 누르면 요강에서 확인된 면접 방식과 전형별 반영비율·일정이 전부 나옵니다."
       >
-        <FieldTypeSections field={FIELD_PAGES.suuidae} />
+        <FieldUnivGrid field={FIELD_PAGES.suuidae} />
         <div className="mt-12">
           <NoteBox
             title="요강에서 확인하지 못한 대학"
@@ -218,6 +179,16 @@ export default function SuuidaePage() {
             ]}
           />
         </div>
+      </PromoSection>
+
+      <PromoSection
+        eyebrow="COMMON"
+        EyebrowIcon={ClipboardCheck}
+        title="수의대 면접에서 먼저 확인할 것"
+        subtitle="의대·약대 면접과 겹치지 않는 부분만 골랐습니다."
+        tone="muted"
+      >
+        <FeatureGrid items={COMMON} columns={3} />
       </PromoSection>
 
       <PromoSection

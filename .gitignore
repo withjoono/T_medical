@@ -34,3 +34,6 @@ next-env.d.ts
 
 # AI 모의면접 빌드 결과 — Interview 저장소 tools/sync-coach-to-tmedi.mjs 가 만든다(약 70MB)
 /public/ai-interview/
+
+# 면접 카드 이미지 생성 중간 산출물 (scripts/interview-og)
+.cache/

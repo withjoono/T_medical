@@ -12,7 +12,6 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import {
-  CompareTable,
   FeatureGrid,
   FinalCTA,
   LinkCards,
@@ -21,19 +20,13 @@ import {
   PromoSection,
   SourceNote,
 } from "../../_site/components";
-import { FactList } from "../../univ/_univ";
 import { ClassCtaBand } from "../_interview";
-import { FieldTypeSections } from "../_field-univ";
+import { FieldUnivGrid } from "../_field-univ";
 import { FIELD_PAGES } from "@/lib/field-registry";
 import {
-  CHIDAE_NO_INTERVIEW,
   CHIDAE_TOTALS,
-  CHIDAE_UNIVS,
-  CHIDAE_WITH_INTERVIEW,
-  chidaeEarliest,
 } from "@/lib/chidae-interview";
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
-import { formatKo } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
 import { article, breadcrumb } from "@/lib/jsonld";
 
@@ -132,16 +125,6 @@ const PITFALLS = [
 ];
 
 export default function ChidaePage() {
-  const rows = CHIDAE_WITH_INTERVIEW.map((u) => {
-    const d = chidaeEarliest(u);
-    return [
-      u.short,
-      u.zone,
-      u.styleLabel,
-      `${u.tracks.filter((t) => t.interview).length}개 전형`,
-      d ? formatKo(d) : "미공지",
-    ];
-  });
 
   return (
     <>
@@ -176,17 +159,14 @@ export default function ChidaePage() {
         ]}
       />
 
+      <div id="univ" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="AT A GLANCE"
-        EyebrowIcon={Scale}
-        title="치의예과 면접 한눈에"
-        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다."
+        eyebrow="UNIVERSITIES"
+        EyebrowIcon={GraduationCap}
+        title="지원 대학부터 고르십시오"
+        subtitle="치대 면접은 대학마다 다른 시험입니다. 면접일이 이른 순서로 놓았습니다. 대학을 누르면 요강에서 확인된 면접 방식과 전형별 반영비율·1단계 발표일·면접일이 전부 나옵니다."
       >
-        <CompareTable
-          head={["대학", "권역", "요강에 적힌 면접 방식", "면접 전형", "가장 이른 면접일"]}
-          rows={rows}
-          caption={`면접을 실시하지 않는 대학: ${CHIDAE_NO_INTERVIEW.map((u) => u.short).join(" · ")}`}
-        />
+        <FieldUnivGrid field={FIELD_PAGES.chidae} />
       </PromoSection>
 
       <PromoSection
@@ -197,16 +177,6 @@ export default function ChidaePage() {
         tone="muted"
       >
         <FeatureGrid items={COMMON} columns={3} />
-      </PromoSection>
-
-      <div id="univ" className="scroll-mt-24" />
-      <PromoSection
-        eyebrow="INTERVIEW TYPES"
-        EyebrowIcon={GraduationCap}
-        title="치대 면접은 두 유형으로 갈립니다"
-        subtitle="제시문을 읽고 답하는 대학과, 내 학교생활기록부를 놓고 묻는 대학입니다. 유형을 먼저 고르고 지원 대학을 누르면 그 대학의 요강 전부가 나옵니다."
-      >
-        <FieldTypeSections field={FIELD_PAGES.chidae} />
       </PromoSection>
 
       <PromoSection

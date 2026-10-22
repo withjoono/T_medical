@@ -21,16 +21,12 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldTypeSections } from "../_field-univ";
+import { FieldUnivGrid } from "../_field-univ";
 import { FIELD_PAGES } from "@/lib/field-registry";
 import {
   beforeSuneung,
-  HANUIDAE_NO_INTERVIEW,
   HANUIDAE_TOTALS,
-  HANUIDAE_UNIVS,
   HANUIDAE_UNVERIFIED,
-  HANUIDAE_WITH_INTERVIEW,
-  hanuidaeEarliest,
 } from "@/lib/hanuidae-interview";
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
 import { formatKo } from "@/lib/mmi-schedule";
@@ -131,16 +127,6 @@ const PITFALLS = [
 ];
 
 export default function HanuidaePage() {
-  const rows = HANUIDAE_WITH_INTERVIEW.map((u) => {
-    const d = hanuidaeEarliest(u);
-    return [
-      u.short,
-      u.zone,
-      u.styleLabel,
-      `${u.tracks.filter((t) => t.interview).length}개 전형`,
-      d ? formatKo(d) : "미공지",
-    ];
-  });
   const early = beforeSuneung();
 
   return (
@@ -176,6 +162,25 @@ export default function HanuidaePage() {
         ]}
       />
 
+      <div id="univ" className="scroll-mt-24" />
+      <PromoSection
+        eyebrow="UNIVERSITIES"
+        EyebrowIcon={GraduationCap}
+        title="지원 대학부터 고르십시오"
+        subtitle="한의대 면접은 대학마다 다른 시험이고, 수능 전에 끝나는 대학도 있습니다. 면접일이 이른 순서로 놓았습니다. 대학을 누르면 요강에서 확인된 내용이 전부 나옵니다."
+        tone="muted"
+      >
+        <FieldUnivGrid field={FIELD_PAGES.hanuidae} />
+        <div className="mt-12">
+          <NoteBox
+            title="요강에서 확인하지 못한 대학"
+            tone="warn"
+            Icon={TriangleAlert}
+            items={HANUIDAE_UNVERIFIED.map((u) => `${u.short} — ${u.note}`)}
+          />
+        </div>
+      </PromoSection>
+
       <PromoSection
         eyebrow="BEFORE 수능"
         EyebrowIcon={CalendarDays}
@@ -196,45 +201,12 @@ export default function HanuidaePage() {
       </PromoSection>
 
       <PromoSection
-        eyebrow="AT A GLANCE"
-        EyebrowIcon={Scale}
-        title="한의예과 면접 한눈에"
-        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다."
-        tone="muted"
-      >
-        <CompareTable
-          head={["대학", "권역", "요강에 적힌 면접 방식", "면접 전형", "가장 이른 면접일"]}
-          rows={rows}
-          caption={`면접을 실시하지 않는 대학: ${HANUIDAE_NO_INTERVIEW.map((u) => u.short).join(" · ")}`}
-        />
-      </PromoSection>
-
-      <PromoSection
         eyebrow="COMMON"
         EyebrowIcon={ClipboardCheck}
         title="한의대 면접에서 먼저 확인할 것"
         subtitle="의대·치대 면접과 겹치지 않는 부분만 골랐습니다."
       >
         <FeatureGrid items={COMMON} columns={3} />
-      </PromoSection>
-
-      <div id="univ" className="scroll-mt-24" />
-      <PromoSection
-        eyebrow="INTERVIEW TYPES"
-        EyebrowIcon={GraduationCap}
-        title="한의대 면접은 두 유형으로 갈립니다"
-        subtitle="면접 직전에 문항을 받는 대학과, 내 학교생활기록부를 놓고 묻는 대학입니다. 한의대는 면접을 아예 보지 않는 대학이 더 많다는 점도 함께 보십시오."
-        tone="muted"
-      >
-        <FieldTypeSections field={FIELD_PAGES.hanuidae} />
-        <div className="mt-12">
-          <NoteBox
-            title="요강에서 확인하지 못한 대학"
-            tone="warn"
-            Icon={TriangleAlert}
-            items={HANUIDAE_UNVERIFIED.map((u) => `${u.short} — ${u.note}`)}
-          />
-        </div>
       </PromoSection>
 
       <PromoSection

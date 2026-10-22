@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import {
   Brain,
   CalendarDays,
+  Image as ImageIcon,
   ClipboardCheck,
   GraduationCap,
   MessagesSquare,
@@ -35,7 +36,7 @@ import {
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
 import { formatKo } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
-import { article, breadcrumb } from "@/lib/jsonld";
+import { abs, article, breadcrumb } from "@/lib/jsonld";
 
 /** =========================================================================
  *  계열 × 대학 상세 페이지의 공용 본문.
@@ -47,6 +48,26 @@ import { article, breadcrumb } from "@/lib/jsonld";
  *  ⚠️ 여기에 요강에 없는 값을 쓰지 말 것. 평가 배점이 공개되지 않은 대학은
  *     '요강 미기재' 로 보여 주는 것이 맞다. 추정값은 이 사이트의 신뢰를 깎는다.
  *  ========================================================================= */
+
+/** 대학별 면접 요약 카드 이미지. 네이버가 이미지 중심으로 노출하기 때문에
+ *  OG 이미지로만 두지 않고 본문에도 실제로 띄운다(검색 색인 대상이 된다).
+ *  이미지는 scripts/interview-og 로 생성해 public/og/interview 에 커밋돼 있다. */
+export function fieldUnivCard(field: FieldPage, u: FieldUniv) {
+  const src = `/og/interview/${field.key}/${u.slug}.png`;
+  const first = fieldEarliest(u);
+  const bits = [
+    u.styleLabel,
+    u.style === "none"
+      ? "면접 미실시"
+      : first
+        ? `면접일 ${formatKo(first)}`
+        : "면접일 미공지",
+    u.source ? `질문 출처 ${u.source.label}` : "",
+    u.scoring ? `평가 배점 ${u.scoring.label}` : "",
+  ].filter(Boolean);
+  const alt = `${u.short} ${field.unitLabel} 2027학년도 면접 요약 — ${bits.join(", ")}`;
+  return { src, alt, bits };
+}
 
 export function fieldUnivMetadata(field: FieldPage, u: FieldUniv): Metadata {
   const url = `${field.base}/${u.slug}`;
@@ -80,6 +101,20 @@ export function fieldUnivMetadata(field: FieldPage, u: FieldUniv): Metadata {
       description,
       siteName: "T메디",
       locale: "ko_KR",
+      images: [
+        {
+          url: abs(fieldUnivCard(field, u).src),
+          width: 1200,
+          height: 630,
+          alt: fieldUnivCard(field, u).alt,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [abs(fieldUnivCard(field, u).src)],
     },
   };
 }
@@ -92,6 +127,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   // 면접 미실시 대학은 문구가 통째로 달라진다 — '이 대학의 질문 출처에 맞춰' 같은
   // 문장을 그대로 두면 없는 시험을 파는 페이지가 된다.
   const none = u.style === "none";
+  const card = fieldUnivCard(field, u);
   const title = fieldUnivMetadata(field, u).title as string;
   const description = fieldUnivMetadata(field, u).description as string;
 
@@ -131,6 +167,29 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
           { icon: GraduationCap, label: `면접 전형 ${iv.length}개` },
         ]}
       />
+
+      <PromoSection
+        eyebrow="SUMMARY"
+        EyebrowIcon={ImageIcon}
+        title={`${u.short} ${field.unitLabel} 면접 한 장 요약`}
+        subtitle="저장하거나 공유해서 쓰십시오. 요강에서 확인된 값만 담았습니다."
+      >
+        <figure className="mx-auto max-w-4xl">
+          {/* next/image 를 쓰지 않는다 — output:'export' 에서 굳이 거칠 이유가 없고,
+              네이버 이미지 검색은 평범한 <img> 의 alt·주변 텍스트를 읽는다. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={card.src}
+            alt={card.alt}
+            width={1200}
+            height={630}
+            className="w-full border border-hair-strong"
+          />
+          <figcaption className="mt-4 text-center text-[12px] font-light leading-relaxed text-ink-400">
+            {u.name} · {card.bits.join(" · ")}
+          </figcaption>
+        </figure>
+      </PromoSection>
 
       {(u.source || u.scoring) && (
         <PromoSection
