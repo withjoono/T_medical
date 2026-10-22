@@ -22,7 +22,8 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldUnivCards } from "../_field";
+import { FieldTypeSections } from "../_field-univ";
+import { FIELD_PAGES } from "@/lib/field-registry";
 import {
   SUUIDAE_NO_INTERVIEW,
   SUUIDAE_TOTALS,
@@ -199,12 +200,12 @@ export default function SuuidaePage() {
 
       <div id="univ" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="UNIVERSITIES"
+        eyebrow="INTERVIEW TYPES"
         EyebrowIcon={GraduationCap}
-        title="대학별 면접 방식과 일정"
-        subtitle="요강에서 확인된 문장만 옮겼습니다. 면접을 실시하지 않는 대학도 함께 넣었습니다."
+        title="수의대 면접은 전부 서류 기반입니다"
+        subtitle="요강에 제시문이나 현장 문항이 적힌 수의대는 없습니다. 갈리는 것은 평가 배점과 면접 반영비율입니다. 지원 대학을 누르면 그 대학의 요강 전부가 나옵니다."
       >
-        <FieldUnivCards univs={SUUIDAE_UNIVS} />
+        <FieldTypeSections field={FIELD_PAGES.suuidae} />
         <div className="mt-12">
           <NoteBox
             title="요강에서 확인하지 못한 대학"

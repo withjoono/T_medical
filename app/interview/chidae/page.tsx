@@ -23,7 +23,8 @@ import {
 } from "../../_site/components";
 import { FactList } from "../../univ/_univ";
 import { ClassCtaBand } from "../_interview";
-import { FieldUnivCards } from "../_field";
+import { FieldTypeSections } from "../_field-univ";
+import { FIELD_PAGES } from "@/lib/field-registry";
 import {
   CHIDAE_NO_INTERVIEW,
   CHIDAE_TOTALS,
@@ -200,12 +201,12 @@ export default function ChidaePage() {
 
       <div id="univ" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="UNIVERSITIES"
+        eyebrow="INTERVIEW TYPES"
         EyebrowIcon={GraduationCap}
-        title="대학별 면접 방식과 일정"
-        subtitle="요강에서 확인된 문장만 옮겼습니다. 전형별 반영비율과 면접일이 함께 있습니다."
+        title="치대 면접은 두 유형으로 갈립니다"
+        subtitle="제시문을 읽고 답하는 대학과, 내 학교생활기록부를 놓고 묻는 대학입니다. 유형을 먼저 고르고 지원 대학을 누르면 그 대학의 요강 전부가 나옵니다."
       >
-        <FieldUnivCards univs={CHIDAE_UNIVS} />
+        <FieldTypeSections field={FIELD_PAGES.chidae} />
       </PromoSection>
 
       <PromoSection

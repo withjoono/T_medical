@@ -21,7 +21,8 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldUnivCards } from "../_field";
+import { FieldTypeSections } from "../_field-univ";
+import { FIELD_PAGES } from "@/lib/field-registry";
 import {
   beforeSuneung,
   HANUIDAE_NO_INTERVIEW,
@@ -219,13 +220,13 @@ export default function HanuidaePage() {
 
       <div id="univ" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="UNIVERSITIES"
+        eyebrow="INTERVIEW TYPES"
         EyebrowIcon={GraduationCap}
-        title="대학별 면접 방식과 일정"
-        subtitle="요강에서 확인된 문장만 옮겼습니다. 면접을 실시하지 않는 대학도 함께 넣었습니다."
+        title="한의대 면접은 두 유형으로 갈립니다"
+        subtitle="면접 직전에 문항을 받는 대학과, 내 학교생활기록부를 놓고 묻는 대학입니다. 한의대는 면접을 아예 보지 않는 대학이 더 많다는 점도 함께 보십시오."
         tone="muted"
       >
-        <FieldUnivCards univs={HANUIDAE_UNIVS} />
+        <FieldTypeSections field={FIELD_PAGES.hanuidae} />
         <div className="mt-12">
           <NoteBox
             title="요강에서 확인하지 못한 대학"

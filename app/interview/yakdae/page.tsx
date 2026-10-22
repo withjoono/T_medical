@@ -21,7 +21,8 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldUnivCards } from "../_field";
+import { FieldTypeSections } from "../_field-univ";
+import { FIELD_PAGES } from "@/lib/field-registry";
 import {
   YAKDAE_NO_INTERVIEW_NAMES,
   YAKDAE_TOTALS,
@@ -218,13 +219,13 @@ export default function YakdaePage() {
 
       <div id="univ" className="scroll-mt-24" />
       <PromoSection
-        eyebrow="UNIVERSITIES"
+        eyebrow="INTERVIEW TYPES"
         EyebrowIcon={GraduationCap}
-        title="대학별 면접 방식과 일정"
-        subtitle="요강에서 확인된 문장만 옮겼습니다. 전형별 반영비율과 면접일이 함께 있습니다."
+        title="약대 면접은 두 유형으로 갈립니다"
+        subtitle="제시문을 읽고 답하는 대학은 연세대 하나이고, 나머지는 전부 제출서류를 놓고 묻는 면접입니다. 대신 평가 배점이 대학마다 크게 다릅니다."
         tone="muted"
       >
-        <FieldUnivCards univs={YAKDAE_UNIVS} />
+        <FieldTypeSections field={FIELD_PAGES.yakdae} />
       </PromoSection>
 
       <PromoSection
