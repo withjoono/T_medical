@@ -131,7 +131,7 @@ export default function ChidaePage() {
       <JsonLdAll
         items={[
           breadcrumb([
-            { name: "면접 수업", path: "/interview" },
+            { name: "의약학 면접", path: "/interview" },
             { name: "치대 면접", path: "/interview/chidae" },
           ]),
           article({
@@ -218,7 +218,7 @@ export default function ChidaePage() {
           columns={3}
           items={[
             {
-              href: "/interview",
+              href: "/interview/uidae",
               icon: MessagesSquare,
               title: "의대 면접 — 유형별 대비",
               body: "MMI · 인·적성 · 제시문 세 유형과 실시 대학. 치대 면접도 같은 틀로 준비합니다.",

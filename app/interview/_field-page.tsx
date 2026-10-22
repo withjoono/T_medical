@@ -138,7 +138,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
       <JsonLdAll
         items={[
           breadcrumb([
-            { name: "면접 수업", path: "/interview" },
+            { name: "의약학 면접", path: "/interview" },
             { name: field.label, path: field.base },
             { name: `${u.short} ${field.unitLabel}`, path: `${field.base}/${u.slug}` },
           ]),

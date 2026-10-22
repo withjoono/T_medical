@@ -224,7 +224,7 @@ export default function JonghapPage() {
               href: "/interview",
               icon: MessagesSquare,
               title: "면접 수업",
-              body: "MMI·인적성·제시문 면접을 유형별로 훈련합니다.",
+              body: "의·치·한·약·수 계열별, 대학별 면접을 1:1로 훈련합니다.",
             },
             {
               href: "/susi/gyogwa",

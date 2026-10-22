@@ -53,7 +53,8 @@ const NAV_ITEMS: NavItem[] = [
     href: "/interview",
     label: "면접",
     children: [
-      { href: "/interview", label: "의대 면접" },
+      { href: "/interview", label: "의약학 면접 전체" },
+      { href: "/interview/uidae", label: "의대 면접" },
       // ↓ 의대 면접의 하위 단계 — globals.css 가 들여쓴다(href 를 바꾸면 거기도 고칠 것)
       { href: "/interview/mmi", label: "MMI 면접" },
       { href: "/interview/injeokseong", label: "인·적성 면접" },
@@ -101,7 +102,8 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
       links: [
         { href: "/ipkyul", label: "입시결과" },
   { href: "/uidae-class", label: "의대 진학반" },
-        { href: "/interview", label: "면접 수업 안내" },
+        { href: "/interview", label: "의약학 면접 수업 안내" },
+        { href: "/interview/uidae", label: "의대 면접 대비" },
         { href: "/interview/mmi", label: "MMI 면접 대비" },
         { href: "/interview/injeokseong", label: "인·적성 면접 대비" },
         { href: "/interview/jesimun", label: "제시문 면접 대비" },

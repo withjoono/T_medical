@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import {
-  BarChart3,
+  BotMessageSquare,
   Brain,
   CalendarDays,
   ClipboardCheck,
-  FileText,
   GraduationCap,
-  HeartHandshake,
   MessagesSquare,
   MonitorPlay,
-  Scale,
-  ScrollText,
-  TriangleAlert,
   Users,
 } from "lucide-react";
 import {
@@ -24,8 +19,7 @@ import {
   SourceNote,
   StepList,
 } from "../_site/components";
-import { UnivStatRow } from "../univ/_univ";
-import { MedGlanceTable, NoInterviewRow, TypeChooser, UnivFinder } from "./_interview";
+import { FieldChooser } from "./_interview";
 import { TeacherCards } from "../univ/_booking";
 import { UNIV_TEACHERS } from "@/lib/mmi-schedule";
 import {
@@ -33,79 +27,46 @@ import {
   CLASS_FLOW,
   CLASS_INCLUDES,
   CLASS_PRICE,
-  finderByZone,
-  medGlanceRows,
-  INTERVIEW_TYPES,
-  noInterviewUnivs,
   SESSION_HOURS_LABEL,
-  typeCounts,
 } from "@/lib/interview-types";
-import { UNIV_TOTALS } from "@/lib/univ";
+import { UNIV_PAGES, UNIV_TOTALS } from "@/lib/univ";
+import { FIELD_PAGES } from "@/lib/field-registry";
+import { fieldTotals } from "@/lib/field-interview";
 import { JsonLdAll } from "@/components/json-ld";
 import { article, breadcrumb } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/interview" },
-  title: "의대 면접 수업 | T Medi — MMI·인적성·제시문 유형별 대비",
+  title: "의대·치대·한의대·약대·수의대 면접 수업 | T Medi — 의약학 면접 대학별 대비",
   description:
-    "의대 면접은 대학마다 다른 시험입니다. MMI(다중미니면접)·인적성(생기부 기반)·제시문 세 유형으로 나눠 실시 대학과 준비법을 정리했습니다. 1:1 줌 면접 수업은 1회 2시간 30분. tmedi.kr",
+    "의대 면접부터 치대·한의대·약대·수의대 면접까지, 2027학년도 수시 면접을 실시하는 대학과 면접일을 계열별로 정리했습니다. 계열을 고르면 대학별 면접 방식·1차 발표일·면접일이 나옵니다. 1:1 줌 면접 수업은 1회 2시간 30분. tmedi.kr",
 };
 
-/** 유형과 무관하게 모든 의대 면접에 공통인 부분. 유형별 내용은 하위 페이지로 보낸다. */
-const COMMON = [
-  {
-    icon: Scale,
-    title: "면접 비중이 곧 역전 폭입니다",
-    body:
-      "면접 5%인 대학과 50%인 대학이 함께 있습니다. 1단계 성적을 뒤집을 수 있는 폭이 대학마다 몇 배씩 차이 나므로, 지원 조합을 짤 때 반영비율부터 봐야 합니다.",
-  },
-  {
-    icon: TriangleAlert,
-    title: "과락 규정이 있는 대학이 있습니다",
-    body:
-      "전남대·제주대·계명대·경북대처럼 특정 영역에서 최하 등급을 받거나 기준 점수에 못 미치면 전형총점과 관계없이 불합격시키는 대학이 있습니다.",
-  },
-  {
-    icon: FileText,
-    title: "블라인드가 기본입니다",
-    body:
-      "교복 착용, 출신 고교·부모 직업·거주 지역 언급이 대부분의 대학에서 금지됩니다. 습관적으로 학교 이름을 말하면 그 자체로 감점됩니다.",
-  },
-  {
-    icon: CalendarDays,
-    title: "1차 발표와 면접일 사이가 준비 기간의 전부입니다",
-    body:
-      "대부분 일주일에서 열흘입니다. 그 기간에 처음 시작하면 유형을 익히다 끝나므로, 1차 발표 전에 유형별 기본기를 만들어 두어야 합니다.",
-  },
-  {
-    icon: Brain,
-    title: "아는 것과 말할 수 있는 것은 다릅니다",
-    body:
-      "내용을 알아도 두괄식으로 5분 안에 정리해 말하는 것은 별개의 기술입니다. 말로 꺼내 보는 횟수가 그대로 점수가 됩니다.",
-  },
-  {
-    icon: ClipboardCheck,
-    title: "결시는 곧 불합격입니다",
-    body:
-      "면접 결시자를 불합격 처리한다고 요강에 명시한 대학이 대부분입니다. 같은 날 다른 대학 면접과 겹치는지 지원 전에 확인해야 합니다.",
-  },
-];
+/** 계열 카드 소개 문구. 대학 수·면접일은 데이터에서 계산한다. */
+const TAGLINES: Record<string, string> = {
+  uidae: "MMI · 인적성 · 제시문 세 유형이 대학마다 갈립니다. 유형부터 확인해야 하는 계열입니다.",
+  chidae: "같은 대학이라도 의예과와 평가영역·배점이 따로입니다. 제시문은 연세대 하나뿐입니다.",
+  hanuidae: "면접이 없는 대학이 절반 가까이 됩니다. 실시 대학은 현장 문항형과 생기부 기반으로 나뉘고, 수능 전에 끝나는 면접도 있습니다.",
+  yakdae: "면접 반영이 20~60%로 갈리고, 면접일이 10월부터 12월까지 퍼져 있습니다. 대부분 생기부를 놓고 묻습니다.",
+  suuidae: "면접 반영은 20~30%로 좁고, 생기부 기반 면접이 대부분입니다. 면접이 없는 대학도 있습니다.",
+};
 
+/** 계열과 무관하게 같은 준비 순서. 계열별 차이는 각 계열 메인에 있다. */
 const PREP_STEPS = [
   {
-    title: "지원 대학의 면접 유형 확인",
+    title: "계열과 지원 대학 확정",
     body:
-      "같은 '학생부종합 면접'이라도 대학마다 형식이 다릅니다. 지원할 대학이 MMI인지, 생기부 기반 인·적성인지, 제시문인지부터 확정합니다.",
+      "같은 대학이라도 의예과·치의예과·한의예과·약학과·수의예과의 면접 방식과 배점이 따로 정해져 있습니다. 계열을 고르고, 그 안에서 지원 대학의 면접 형식부터 확인합니다.",
   },
   {
     title: "유형별 기본기",
     body:
-      "유형에 맞는 답변 골격을 먼저 만듭니다. 제시문 독해 루틴, MMI 스테이션 대응, 생기부 예상 질문 정리 — 유형이 다르면 훈련도 다릅니다.",
+      "제시문 독해 루틴, MMI 스테이션 대응, 생기부 예상 질문 정리 — 유형이 다르면 훈련도 다릅니다. 유형에 맞는 답변 골격을 먼저 만듭니다.",
   },
   {
     title: "생기부 전수 점검",
     body:
-      "어떤 유형이든 생기부 질문은 나옵니다. 3년치 기재 내용을 문장 단위로 끊어 예상 질문과 답변 근거를 만들어 둡니다.",
+      "어떤 계열이든 생기부 질문은 나옵니다. 3년치 기재 내용을 문장 단위로 끊어 예상 질문과 답변 근거를 만들어 둡니다.",
   },
   {
     title: "대학별 빈출 문항 실전 연습",
@@ -119,124 +80,82 @@ const PREP_STEPS = [
   },
 ];
 
-export default function InterviewPage() {
-  const chooser = INTERVIEW_TYPES.map((t) => {
-    const c = typeCounts(t.key);
-    return {
-      href: t.href,
-      name: t.name,
-      short: t.short,
-      tagline: t.tagline,
-      count: c.primary,
-      also: c.also,
-    };
-  });
-  const noInterview = noInterviewUnivs();
-  const withInterview = UNIV_TOTALS.withInterview - UNIV_TOTALS.noInterview;
+function range(days: string[]) {
+  const s = [...days].sort();
+  return { first: s[0] ?? null, last: s[s.length - 1] ?? null };
+}
+
+export default function InterviewHubPage() {
+  const uidae = {
+    href: "/interview/uidae",
+    name: "의대 면접",
+    unitLabel: "의예과",
+    tagline: TAGLINES.uidae,
+    count: UNIV_TOTALS.withInterview - UNIV_TOTALS.noInterview,
+    ...range(
+      UNIV_PAGES.flatMap((u) => (u.interview?.tracks ?? []).map((t) => t.interview)).filter(
+        (d): d is string => Boolean(d),
+      ),
+    ),
+  };
+  const fields = Object.values(FIELD_PAGES).map((f) => ({
+    href: f.base,
+    name: f.label,
+    unitLabel: f.unitLabel,
+    tagline: TAGLINES[f.key],
+    count: fieldTotals(f.univs).withInterview,
+    ...range(
+      f.univs.flatMap((u) => u.tracks.filter((t) => t.interview && t.date).map((t) => t.date!)),
+    ),
+  }));
+  const items = [uidae, ...fields];
+  const totalUnivs = items.reduce((n, f) => n + f.count, 0);
 
   return (
     <>
       <JsonLdAll
         items={[
-          breadcrumb([{ name: "면접 수업", path: "/interview" }]),
+          breadcrumb([{ name: "의약학 면접", path: "/interview" }]),
           article({
             path: "/interview",
-            headline: "의대 면접 수업 — MMI·인적성·제시문 유형별 대비",
+            headline: "의대·치대·한의대·약대·수의대 면접 — 계열별 대학 면접 대비",
             description:
-              "의대 면접은 대학마다 다른 시험입니다. MMI(다중미니면접)·인적성(생기부 기반)·제시문 세 유형으로 나눠 실시 대학과 준비법을 정리했습니다.",
+              "2027학년도 수시 의·치·한·약·수 면접을 실시하는 대학과 면접일을 계열별로 정리했습니다. 계열을 고르면 대학별 면접 방식과 일정이 나옵니다.",
           }),
         ]}
       />
       <PromoHero
-        badge="의대 면접 수업 · 유형별 대비"
-        title="의대 면접은"
-        highlight="대학마다 다른 시험입니다"
-        body="어떤 대학은 면접실을 세 번 옮기고, 어떤 대학은 생기부만 놓고 10분 대화하며, 어떤 대학은 그 자리에서 제시문을 읽힙니다. 준비 방법이 완전히 다릅니다. 지원 대학이 어느 유형인지부터 확인하고, 그 유형에 맞춰 훈련하세요."
-        primaryHref="#contact"
-        primaryLabel="면접 수업 문의하기"
-        secondaryHref="#types"
-        secondaryLabel="면접 유형 고르기"
+        badge="의약학 면접 수업 · 의·치·한·약·수"
+        title="의약학 면접은"
+        highlight="계열마다, 대학마다 다른 시험입니다"
+        body="같은 대학 안에서도 의예과와 치의예과, 한의예과의 면접 방식과 배점이 따로 정해져 있습니다. 계열을 먼저 고르세요. 그 계열의 면접 실시 대학이 면접일 순으로 나오고, 대학을 누르면 요강 기준 면접 방식과 일정이 전부 나옵니다."
+        primaryHref="#fields"
+        primaryLabel="계열 고르기"
+        secondaryHref="#contact"
+        secondaryLabel="면접 수업 문의하기"
         Icon={MessagesSquare}
         stats={[
-          { icon: GraduationCap, label: `면접 실시 ${withInterview}개 의대` },
+          { icon: GraduationCap, label: `5개 계열 · 면접 실시 ${totalUnivs}개 모집단위` },
           { icon: ClipboardCheck, label: "요강 기준 방식 · 일정 수록" },
           { icon: MonitorPlay, label: `1:1 줌 ${SESSION_HOURS_LABEL}` },
         ]}
       />
 
-      <div id="types" className="scroll-mt-24" />
+      <div id="fields" className="scroll-mt-24" />
       <PromoSection
         eyebrow="STEP 1"
-        EyebrowIcon={MessagesSquare}
-        title="먼저 유형을 고르세요"
-        subtitle="의대 면접은 셋 중 하나입니다. 아래에서 하나를 누르면 그 방식으로 면접을 보는 대학과 전형, 준비 방법이 모두 나옵니다."
-      >
-        <TypeChooser items={chooser} />
-      </PromoSection>
-
-      <PromoSection
-        eyebrow="STEP 1 · 대안"
         EyebrowIcon={GraduationCap}
-        title="유형을 모르겠다면 대학으로 찾으세요"
-        subtitle="요강마다 부르는 이름이 달라 헷갈리는 것이 정상입니다. 지원 대학을 누르면 그 대학의 면접 방식과 일정이 바로 나옵니다."
-        tone="muted"
+        title="계열을 고르세요"
+        subtitle="계열을 누르면 면접을 실시하는 대학이 면접일 순으로 나옵니다. 거기서 지원 대학을 고르면 전형별 면접 방식·1차 발표일·면접일이 나옵니다."
       >
-        <UnivFinder zones={finderByZone()} />
-      </PromoSection>
-
-      <PromoSection
-        eyebrow="AT A GLANCE"
-        EyebrowIcon={CalendarDays}
-        title="의예과 면접 한눈에"
-        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다. 면접일이 이른 순서이고, 1차 발표일을 면접일 앞에 두었습니다."
-      >
-        <MedGlanceTable rows={medGlanceRows()} />
-      </PromoSection>
-
-      <UnivStatRow
-        items={[
-          {
-            label: "면접 정리 대학",
-            value: String(UNIV_TOTALS.withInterview),
-            unit: "개교",
-            sub: "요강 기준 면접 방식·일정 수록",
-          },
-          {
-            label: "면접 실시",
-            value: String(withInterview),
-            unit: "개교",
-            sub: "2027학년도 수시 의예과",
-          },
-          {
-            label: "면접 미실시",
-            value: String(UNIV_TOTALS.noInterview),
-            unit: "개교",
-            sub: "면접 준비가 필요 없는 대학",
-          },
-          {
-            label: "MMI 특강 개설",
-            value: String(UNIV_TOTALS.withClass),
-            unit: "개교",
-            sub: "1단계 발표일 기준 수업 캘린더 운영",
-          },
-        ]}
-        caption="2027학년도 수시 모집요강 기준. 대학별 근거와 출처는 각 대학 페이지 하단에 있습니다."
-      />
-
-      <PromoSection
-        eyebrow="COMMON"
-        EyebrowIcon={ClipboardCheck}
-        title="유형과 상관없이 공통인 것"
-        subtitle="어느 대학을 쓰든 먼저 확인해야 하는 여섯 가지입니다."
-      >
-        <FeatureGrid items={COMMON} columns={3} />
+        <FieldChooser items={items} />
       </PromoSection>
 
       <PromoSection
         eyebrow="PROCESS"
         EyebrowIcon={Brain}
         title="준비 순서"
-        subtitle="유형 확인에서 실전 모의면접까지, 다섯 단계로 쌓습니다."
+        subtitle="계열이 달라도 쌓는 순서는 같습니다. 계열 확인에서 실전 모의면접까지 다섯 단계입니다."
         tone="muted"
       >
         <StepList steps={PREP_STEPS} />
@@ -246,7 +165,7 @@ export default function InterviewPage() {
         eyebrow="CLASS"
         EyebrowIcon={MonitorPlay}
         title="면접 수업은 이렇게 진행합니다"
-        subtitle={`예약부터 과제까지 한 사이클입니다. 1회 ${SESSION_HOURS_LABEL}, 줌으로 1:1 진행합니다. 수업 안내는 이 페이지 한 곳에 모아 두었습니다.`}
+        subtitle={`예약부터 과제까지 한 사이클입니다. 1회 ${SESSION_HOURS_LABEL}, 줌으로 1:1 진행합니다. 의·치·한·약·수 모든 계열의 수업 안내는 이 페이지 한 곳에 모아 두었습니다.`}
       >
         <FeatureGrid items={CLASS_FEATURES} columns={2} />
         <div className="mt-16">
@@ -254,7 +173,7 @@ export default function InterviewPage() {
         </div>
         <div className="mt-16">
           <PriceCard
-            courseName="의대 면접 1:1 수업"
+            courseName="의약학 면접 1:1 수업"
             price={CLASS_PRICE.label}
             priceSuffix={CLASS_PRICE.suffix}
             badge={CLASS_PRICE.unit}
@@ -281,24 +200,15 @@ export default function InterviewPage() {
         <TeacherCards teachers={[UNIV_TEACHERS.general, UNIV_TEACHERS.jesimun]} />
       </PromoSection>
 
-      <PromoSection
-        eyebrow="NO INTERVIEW"
-        EyebrowIcon={TriangleAlert}
-        title="2027학년도에 면접이 없는 의대"
-        subtitle="이 두 대학은 의예과 수시 전 전형에서 면접을 실시하지 않습니다. 준비의 무게중심이 교과·서류로 완전히 옮겨 갑니다."
-      >
-        <NoInterviewRow univs={noInterview} />
-      </PromoSection>
-
-      <PromoSection eyebrow="MORE" EyebrowIcon={BarChart3} title="함께 보기" tone="muted">
+      <PromoSection eyebrow="MORE" EyebrowIcon={MessagesSquare} title="함께 보기">
         <LinkCards
           columns={3}
           items={[
             {
-              href: "/interview/mmi",
-              icon: CalendarDays,
-              title: "MMI 면접 대비",
-              body: "실시 대학과 방식, 최저점 관리 훈련, 대학별 수업 일정까지 한 페이지에.",
+              href: "/interview/ai",
+              icon: BotMessageSquare,
+              title: "AI 모의면접",
+              body: "혼자 말로 꺼내 보는 연습. 질문을 받고 답한 뒤 바로 피드백을 받습니다.",
             },
             {
               href: "/univ",
@@ -307,10 +217,10 @@ export default function InterviewPage() {
               body: "전국 의대의 전형 구조, 모집인원, 수능최저, 전형별 면접 일정을 대학별로.",
             },
             {
-              href: "/susi",
+              href: "/ipkyul",
               icon: ClipboardCheck,
-              title: "수시 전형 총정리",
-              body: "교과·종합·논술 전형별 구조와 지원 전략. 면접이 어느 전형에서 반영되는지부터.",
+              title: "의치한약수 입시결과",
+              body: "계열·대학·전형별 모집인원과 공시된 입결을 한 곳에.",
             },
           ]}
         />
@@ -318,16 +228,15 @@ export default function InterviewPage() {
 
       <SourceNote
         lines={[
-          "면접 방식·일정은 각 대학 2027학년도 수시 모집요강에서 정리했습니다. 대학별 근거와 출처는 각 대학 페이지 하단에 있습니다.",
-          "유형 분류는 요강에 적힌 면접 방식 문장을 기준으로 했습니다. 한 대학이 두 방식을 함께 쓰는 경우 주된 형식으로 분류하고, 나머지 유형 페이지에는 '함께 보는 대학'으로 실었습니다.",
-          "요강에서 확인되지 않은 날짜·시간·면접위원 수는 비워 두었습니다. 추정치로 채우지 않습니다.",
+          "계열별 면접 실시 대학 수와 면접일 범위는 각 대학 2027학년도 수시 모집요강에서 정리한 자료로 계산했습니다. 대학별 근거와 출처는 각 대학 페이지 하단에 있습니다.",
+          "면접일이 요강에 기재되지 않은 대학은 면접일 범위 계산에서 빠집니다. 추정치로 채우지 않습니다.",
           "모집인원과 일정은 대학 사정에 따라 변경될 수 있습니다. 지원 판단은 반드시 해당 대학 최종 모집요강을 근거로 하세요.",
         ]}
       />
 
       <FinalCTA
         title="면접장에서 흔들리지 않도록"
-        body={`지원 대학의 면접 유형에 맞춰 과제와 모의면접을 설계합니다. 1회 ${SESSION_HOURS_LABEL}, 줌 1:1 수업입니다.`}
+        body={`지원 계열과 대학의 면접 방식에 맞춰 과제와 모의면접을 설계합니다. 1회 ${SESSION_HOURS_LABEL}, 줌 1:1 수업입니다.`}
         Icon={MessagesSquare}
         primaryHref="#contact"
         primaryLabel="면접 수업 문의하기"

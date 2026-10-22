@@ -254,7 +254,7 @@ export function ChuseokPage() {
       <JsonLdAll
         items={[
           breadcrumb([
-            { name: "면접 수업", path: "/interview" },
+            { name: "의약학 면접", path: "/interview" },
             { name: "추석/10월 연휴 의대 면접반", path: "/interview/chuseok" },
           ]),
           course({
@@ -436,7 +436,7 @@ export function ChuseokPage() {
               body: "1단계 발표일에서 역산한 대학별 수업 캘린더와 남은 자리.",
             },
             {
-              href: "/interview",
+              href: "/interview/uidae",
               icon: MessagesSquare,
               title: "의대 면접 유형",
               body: "MMI · 인적성 · 제시문 — 어느 방식으로 보는지부터 확인하세요.",

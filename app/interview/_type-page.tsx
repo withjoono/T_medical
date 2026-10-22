@@ -72,7 +72,8 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
       <JsonLdAll
         items={[
           breadcrumb([
-            { name: "면접 수업", path: "/interview" },
+            { name: "의약학 면접", path: "/interview" },
+            { name: "의대 면접", path: "/interview/uidae" },
             { name: type.name, path: type.href },
           ]),
           article({
@@ -89,8 +90,8 @@ export function InterviewTypePage({ typeKey }: { typeKey: InterviewTypeKey }) {
         body={type.lede}
         primaryHref="#contact"
         primaryLabel="면접 수업 문의하기"
-        secondaryHref="/interview"
-        secondaryLabel="면접 유형 전체 보기"
+        secondaryHref="/interview/uidae#types"
+        secondaryLabel="의대 면접 유형 전체 보기"
         Icon={Icon}
         stats={[
           { icon: GraduationCap, label: `${main.length}개 의대` },

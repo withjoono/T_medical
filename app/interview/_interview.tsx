@@ -395,3 +395,61 @@ export function MedGlanceTable({ rows }: { rows: MedGlanceRow[] }) {
     </div>
   );
 }
+
+/** 의·치·한·약·수 계열 카드 — /interview 허브의 1차 진입점.
+ *  허브 → 계열 메인(대학 그리드) → 대학 페이지 3단 중 첫 단이다. 계열 메인에 있는 내용(대학 목록·일정표)은 여기 다시 싣지 않는다. */
+export function FieldChooser({
+  items,
+}: {
+  items: {
+    href: string;
+    name: string;
+    unitLabel: string;
+    tagline: string;
+    count: number;
+    first: string | null;
+    last: string | null;
+  }[];
+}) {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((f, i) => (
+        <Link
+          key={f.href}
+          href={f.href}
+          className="group flex flex-col border border-hair-strong bg-white p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-jade-400 hover:shadow-[0_10px_30px_-18px_rgba(6,15,21,0.45)]"
+        >
+          <div className="flex items-baseline justify-between">
+            <span className="display tnum text-sm text-brass-400">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="tnum text-[12px] font-light text-ink-400">
+              면접 실시 <span className="font-semibold text-ink-700">{f.count}</span>개교
+            </span>
+          </div>
+
+          <h3 className="display mt-6 text-[1.25rem] leading-snug text-ink-900">{f.name}</h3>
+          <p className="mt-1 text-[12px] font-light text-ink-400">{f.unitLabel}</p>
+          <p className="mt-3 grow text-[14px] font-light leading-[1.8] text-ink-500">
+            {f.tagline}
+          </p>
+          {f.first && (
+            <p className="tnum mt-4 flex items-center gap-1.5 text-[13px] font-medium text-jade-700">
+              <CalendarDays className="h-3.5 w-3.5" strokeWidth={1.75} />
+              면접일 {formatKo(f.first)}
+              {f.last && f.last !== f.first && ` ~ ${formatKo(f.last)}`}
+            </p>
+          )}
+
+          <span className="mt-7 inline-flex items-center justify-center gap-2 border border-ink bg-ink px-5 py-3 text-[13px] font-medium text-paper transition-colors duration-300 group-hover:bg-jade-700 group-hover:border-jade-700">
+            대학별로 보기
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              strokeWidth={2}
+            />
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}

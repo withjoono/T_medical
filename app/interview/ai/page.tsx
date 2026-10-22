@@ -28,7 +28,7 @@ export default function Page() {
       <JsonLdAll
         items={[
           breadcrumb([
-            { name: "면접 수업", path: "/interview" },
+            { name: "의약학 면접", path: "/interview" },
             { name: "AI 모의면접", path: "/interview/ai" },
           ]),
         ]}

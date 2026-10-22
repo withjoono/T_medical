@@ -318,7 +318,7 @@ export function JiyeokUisaPage() {
               body: "대학별 전형별 입결을 실측 자료로만 정리했습니다.",
             },
             {
-              href: "/interview",
+              href: "/interview/uidae",
               icon: MessagesSquare,
               title: "의대 면접 유형",
               body: "지역의사전형도 면접이 있는 대학이 있습니다. 방식부터 확인하세요.",

@@ -132,7 +132,7 @@ export default function HanuidaePage() {
       <JsonLdAll
         items={[
           breadcrumb([
-            { name: "면접 수업", path: "/interview" },
+            { name: "의약학 면접", path: "/interview" },
             { name: "한의대 면접", path: "/interview/hanuidae" },
           ]),
           article({
@@ -239,7 +239,7 @@ export default function HanuidaePage() {
               body: "대학·전형별 모집인원과 공시된 입결을 한 페이지에.",
             },
             {
-              href: "/interview",
+              href: "/interview/uidae",
               icon: ClipboardCheck,
               title: "의대 면접 — 유형별 대비",
               body: "MMI · 인·적성 · 제시문 세 유형과 실시 대학.",
