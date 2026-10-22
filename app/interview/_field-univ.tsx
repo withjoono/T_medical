@@ -191,6 +191,115 @@ export function FieldUnivGrid({ field }: { field: FieldPage }) {
 }
 
 /* -------------------------------------------------------------------------
+ * 허브 — 한눈에 표 (대학 · 방식 · 1차 발표 · 면접일)
+ *
+ *  대학 그리드가 '어디로 들어갈까' 라면 이 표는 '일정이 어떻게 겹치나' 를 본다.
+ *  1차 발표일은 가장 이른 면접 전형의 발표일이다 — 면접일과 같은 전형에서 읽어야
+ *  두 칸이 서로 다른 전형을 가리키지 않는다.
+ * ---------------------------------------------------------------------- */
+
+/** 2027학년도 수능일. 이보다 앞선 면접은 표에 '수능 전' 을 붙인다. */
+const SUNEUNG_2027 = "2026-11-19";
+
+/** 가장 이른 면접 전형 — 면접일 · 1차 발표일을 같은 전형에서 읽는다. */
+function earliestTrack(u: FieldUniv) {
+  const iv = u.tracks.filter((t) => t.interview && t.date);
+  if (iv.length === 0) return null;
+  return [...iv].sort((a, b) =>
+    a.date! !== b.date!
+      ? a.date! < b.date!
+        ? -1
+        : 1
+      : (a.announce ?? "9999") < (b.announce ?? "9999")
+        ? -1
+        : 1,
+  )[0];
+}
+
+export function FieldGlanceTable({ field }: { field: FieldPage }) {
+  const rows = sortForHub(field.univs).filter((u) => u.style !== "none");
+  const none = field.univs.filter((u) => u.style === "none");
+  const head = ["대학", "권역", "요강에 적힌 면접 방식", "면접 전형", "1차 발표", "면접일"];
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div
+        role="region"
+        aria-label={`${field.unitLabel} 면접 한눈에`}
+        tabIndex={0}
+        className="comparison-scroll overflow-x-auto border border-hair-strong bg-paper-50"
+      >
+        <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+          <thead>
+            <tr className="bg-ink text-paper">
+              {head.map((h, i) => (
+                <th
+                  key={h}
+                  className={`px-5 py-4 text-[13px] font-semibold tracking-tight ${
+                    i > 0 ? "border-l border-white/10" : ""
+                  }`}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((u, i) => {
+              const t = earliestTrack(u);
+              const ivCount = u.tracks.filter((x) => x.interview).length;
+              const early = t?.date ? t.date < SUNEUNG_2027 : false;
+              return (
+                <tr
+                  key={u.slug}
+                  className={`align-top transition-colors hover:bg-jade-50 ${
+                    i % 2 === 1 ? "bg-paper-100/60" : ""
+                  }`}
+                >
+                  <td className="border-t border-hair px-5 py-4 font-medium text-ink-900">
+                    <Link href={`${field.base}/${u.slug}`} className="link-underline">
+                      {u.short}
+                    </Link>
+                  </td>
+                  <td className="border-t border-l border-hair px-5 py-4 text-[13px] font-light text-ink-500">
+                    {u.zone}
+                  </td>
+                  <td className="border-t border-l border-hair px-5 py-4 text-[13px] font-light leading-relaxed text-ink-700">
+                    {u.styleLabel}
+                  </td>
+                  <td className="tnum border-t border-l border-hair px-5 py-4 text-ink-500">
+                    {ivCount}개 전형
+                  </td>
+                  <td className="tnum border-t border-l border-hair px-5 py-4 text-ink-600">
+                    {t?.announce ? (
+                      formatKo(t.announce)
+                    ) : (
+                      <span className="text-ink-300">미공지</span>
+                    )}
+                  </td>
+                  <td className="tnum border-t border-l border-hair px-5 py-4 font-medium text-jade-700">
+                    {t?.date ? formatKo(t.date) : <span className="font-normal text-ink-300">미공지</span>}
+                    {early && (
+                      <span className="ml-2 border border-brass-200 bg-brass-50 px-1.5 py-0.5 text-[10px] font-semibold tracking-tight text-brass-600">
+                        수능 전
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-[12px] font-light leading-relaxed text-ink-400">
+        1차 발표·면접일은 대학별로 가장 이른 면접 전형 기준입니다. 전형별 일정은 대학을 누르면 나옵니다.
+        {none.length > 0 && ` 면접을 실시하지 않는 대학: ${none.map((u) => u.short).join(" · ")}`}
+      </p>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------
  * 대학 상세 — 두 축 블록
  * ---------------------------------------------------------------------- */
 

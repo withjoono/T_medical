@@ -4,6 +4,7 @@ import {
   type Track,
   type Univ,
   KOREA_JESIMUN_TEACHER,
+  type TeacherCard,
   TEACHERS,
   addDays,
   announcesOn,
@@ -529,10 +530,12 @@ export function LeakageNotice({ univ }: { univ: Univ }) {
  * 강사
  * ---------------------------------------------------------------------- */
 
-export function TeacherCards() {
-  const cards = [...TEACHERS, KOREA_JESIMUN_TEACHER];
+export function TeacherCards({ teachers }: { teachers?: readonly TeacherCard[] } = {}) {
+  const cards: readonly TeacherCard[] = teachers ?? [...TEACHERS, KOREA_JESIMUN_TEACHER];
   return (
-    <div className="feature-grid grid sm:grid-cols-2">
+    <div
+      className={`feature-grid grid ${cards.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-xl"}`}
+    >
       {cards.map((t) => (
         <div key={t.id} className="feature-card p-8">
           <div className="flex items-start justify-between">

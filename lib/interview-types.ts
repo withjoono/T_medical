@@ -490,6 +490,59 @@ const ASSIGN: Record<string, Assign> = {
   wonkwang: { primary: "injeokseong", tag: "서류확인 개별면접 · 의예과 3인 1조" },
 };
 
+/** 의대 대학 페이지의 담당 강사 (2026-10-22 사용자 확정).
+ *  주 형식이 제시문인 대학 → 박은우, 그 밖(MMI·인적성) → 이세인.
+ *  고려대는 제시문 면접(수학·과학)과 인·적성 MMI 를 함께 보므로 두 사람이 나눠 맡는다.
+ *  분류되지 않았거나 면접이 없는 대학은 빈 배열. */
+export function univTeacherKeys(slug: string): ("general" | "jesimun")[] {
+  const a = ASSIGN[slug];
+  if (!a) return [];
+  if (slug === "korea") return ["general", "jesimun"];
+  return a.primary === "jesimun" ? ["jesimun"] : ["general"];
+}
+
+/** 의예과 면접 한눈에 — 면접을 보는 의대를 가장 이른 면접일 순으로.
+ *  1차 발표일은 그 면접일과 같은 전형에서 읽는다(서로 다른 전형을 한 줄에 섞지 않는다). */
+export type MedGlanceRow = {
+  univ: UnivPage;
+  tag: string;
+  tracks: number;
+  announce: string | null;
+  date: string | null;
+};
+
+export function medGlanceRows(): MedGlanceRow[] {
+  const rows: MedGlanceRow[] = [];
+  for (const u of UNIV_PAGES) {
+    const a = ASSIGN[u.slug];
+    if (!a || u.hasInterview === false || !u.interview) continue;
+    const dated = u.interview.tracks
+      .filter((t) => t.interview)
+      .sort((x, y) =>
+        x.interview! !== y.interview!
+          ? x.interview! < y.interview!
+            ? -1
+            : 1
+          : (x.announce ?? "9999") < (y.announce ?? "9999")
+            ? -1
+            : 1,
+      );
+    const t = dated[0];
+    rows.push({
+      univ: u,
+      tag: a.tag ?? u.interview.styleLabel,
+      tracks: u.interview.tracks.length,
+      announce: t?.announce ?? null,
+      date: t?.interview ?? null,
+    });
+  }
+  return rows.sort((x, y) => {
+    if (x.date && y.date && x.date !== y.date) return x.date < y.date ? -1 : 1;
+    if (!x.date !== !y.date) return x.date ? -1 : 1;
+    return x.univ.short.localeCompare(y.univ.short, "ko");
+  });
+}
+
 /** 2027학년도에 의예과 면접을 실시하지 않는 대학. */
 export const NO_INTERVIEW_SLUGS = ["catholic-kwandong", "cbnu"] as const;
 
@@ -568,7 +621,7 @@ export const CLASS_FEATURES: { icon: LucideIcon; title: string; body: string }[]
     icon: GraduationCap,
     title: "그 분야 전문 선생님이 수업합니다",
     body:
-      "의대 면접은 이화여대 의대 출신 이세인 선생님이 맡습니다. 약대·치대·수의대·한의대 면접은 각 분야 전문 선생님이 수업합니다.",
+      "제시문 면접은 박은우 선생님, 그 밖의 면접(인성·서류 기반·MMI)은 이화여대 의대 출신 이세인 선생님이 맡습니다. 의대·치대·한의대·약대·수의대 모두 같은 기준입니다.",
   },
   {
     icon: MonitorPlay,

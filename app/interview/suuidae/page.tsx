@@ -21,7 +21,7 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldUnivGrid } from "../_field-univ";
+import { FieldGlanceTable, FieldUnivGrid } from "../_field-univ";
 import { FIELD_PAGES } from "@/lib/field-registry";
 import {
   SUUIDAE_TOTALS,
@@ -158,6 +158,15 @@ export default function SuuidaePage() {
           { icon: MonitorPlay, label: `1:1 줌 ${SESSION_HOURS_LABEL}` },
         ]}
       />
+
+      <PromoSection
+        eyebrow="AT A GLANCE"
+        EyebrowIcon={CalendarDays}
+        title={`${FIELD_PAGES.suuidae.unitLabel} 면접 한눈에`}
+        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다. 면접일이 이른 순서이고, 1차 발표일을 면접일 앞에 두었습니다."
+      >
+        <FieldGlanceTable field={FIELD_PAGES.suuidae} />
+      </PromoSection>
 
       <div id="univ" className="scroll-mt-24" />
       <PromoSection

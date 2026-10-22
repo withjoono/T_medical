@@ -10,6 +10,7 @@ import {
   Scale,
   ScrollText,
   Stethoscope,
+  Users,
 } from "lucide-react";
 import {
   FinalCTA,
@@ -34,7 +35,8 @@ import {
   type FieldPage,
 } from "@/lib/field-registry";
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
-import { formatKo } from "@/lib/mmi-schedule";
+import { formatKo, UNIV_TEACHERS } from "@/lib/mmi-schedule";
+import { TeacherCards } from "../univ/_booking";
 import { JsonLdAll } from "@/components/json-ld";
 import { abs, article, breadcrumb } from "@/lib/jsonld";
 
@@ -239,6 +241,24 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
             items={u.notes}
             tone="warn"
             Icon={Brain}
+          />
+        </PromoSection>
+      )}
+
+      {!none && (
+        <PromoSection
+          eyebrow="INSTRUCTOR"
+          EyebrowIcon={Users}
+          title="담당 강사"
+          subtitle={
+            u.style === "jesimun"
+              ? `${u.short} ${field.unitLabel} 면접은 제시문 면접이라 박은우 선생님이 맡습니다.`
+              : `${u.short} ${field.unitLabel} 면접은 제시문이 없는 면접이라 이세인 선생님이 맡습니다.`
+          }
+          tone="muted"
+        >
+          <TeacherCards
+            teachers={[u.style === "jesimun" ? UNIV_TEACHERS.jesimun : UNIV_TEACHERS.general]}
           />
         </PromoSection>
       )}

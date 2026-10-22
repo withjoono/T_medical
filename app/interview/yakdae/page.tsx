@@ -11,7 +11,6 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import {
-  CompareTable,
   FeatureGrid,
   FinalCTA,
   LinkCards,
@@ -21,14 +20,12 @@ import {
   SourceNote,
 } from "../../_site/components";
 import { ClassCtaBand } from "../_interview";
-import { FieldUnivGrid } from "../_field-univ";
+import { FieldGlanceTable, FieldUnivGrid } from "../_field-univ";
 import { FIELD_PAGES } from "@/lib/field-registry";
 import {
   YAKDAE_TOTALS,
-  yakdaeBeforeSuneung,
 } from "@/lib/yakdae-interview";
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
-import { formatKo } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
 import { article, breadcrumb } from "@/lib/jsonld";
 
@@ -126,7 +123,6 @@ const PITFALLS = [
 ];
 
 export default function YakdaePage() {
-  const early = yakdaeBeforeSuneung();
 
   return (
     <>
@@ -161,6 +157,15 @@ export default function YakdaePage() {
         ]}
       />
 
+      <PromoSection
+        eyebrow="AT A GLANCE"
+        EyebrowIcon={CalendarDays}
+        title={`${FIELD_PAGES.yakdae.unitLabel} 면접 한눈에`}
+        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다. 면접일이 이른 순서이고, 1차 발표일을 면접일 앞에 두었습니다."
+      >
+        <FieldGlanceTable field={FIELD_PAGES.yakdae} />
+      </PromoSection>
+
       <div id="univ" className="scroll-mt-24" />
       <PromoSection
         eyebrow="UNIVERSITIES"
@@ -170,26 +175,6 @@ export default function YakdaePage() {
         tone="muted"
       >
         <FieldUnivGrid field={FIELD_PAGES.yakdae} />
-      </PromoSection>
-
-      <PromoSection
-        eyebrow="BEFORE 수능"
-        EyebrowIcon={CalendarDays}
-        title="수능 전에 치르는 면접"
-        subtitle="2027 수능은 2026년 11월 19일입니다. 아래 전형은 그보다 앞서 면접이 끝납니다."
-        tone="muted"
-      >
-        <CompareTable
-          head={["면접일", "대학", "전형", "면접 반영", "1단계 발표"]}
-          rows={early.map(({ univ, track }) => [
-            formatKo(track.date!),
-            univ.short,
-            track.name,
-            track.weight,
-            track.announce ? formatKo(track.announce) : "미공지",
-          ])}
-          caption="수능 공부와 면접 준비가 겹치는 구간입니다. 삼육대는 면접이 10월에 끝나도 최종합격은 수능 최저를 적용해 12월에 나옵니다."
-        />
       </PromoSection>
 
       <PromoSection

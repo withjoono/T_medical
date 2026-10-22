@@ -37,6 +37,7 @@ import {
   BookingBoard,
   LeakageNotice,
   ScheduleCalendar,
+  TeacherCards,
   Timetable,
 } from "../_booking";
 import { ClassCtaBand } from "../../interview/_interview";
@@ -45,7 +46,9 @@ import {
   getUniv as getMmiUniv,
   summarize,
   univDays,
+  UNIV_TEACHERS,
 } from "@/lib/mmi-schedule";
+import { univTeacherKeys } from "@/lib/interview-types";
 
 /** 정적 export(output: 'export')라 동적 라우트에는 generateStaticParams 가 필수다. */
 export function generateStaticParams() {
@@ -307,6 +310,24 @@ export default async function UnivPage({
           </div>
         ) : null}
       </PromoSection>
+
+      {/* ===== 담당 강사 — 제시문 → 박은우, 그 밖 → 이세인 ===== */}
+      {!noInterview && univTeacherKeys(u.slug).length > 0 && (
+        <PromoSection
+          eyebrow="INSTRUCTOR"
+          EyebrowIcon={Users}
+          title="담당 강사"
+          subtitle={
+            univTeacherKeys(u.slug).length > 1
+              ? `${u.short} 면접은 제시문 면접은 박은우 선생님, 그 밖의 면접은 이세인 선생님이 나눠 맡습니다.`
+              : univTeacherKeys(u.slug)[0] === "jesimun"
+                ? `${u.short} 면접은 제시문 면접이라 박은우 선생님이 맡습니다.`
+                : `${u.short} 면접은 이세인 선생님이 맡습니다.`
+          }
+        >
+          <TeacherCards teachers={univTeacherKeys(u.slug).map((k) => UNIV_TEACHERS[k])} />
+        </PromoSection>
+      )}
 
       {/* ===== 이어보기 ===== */}
       {mmiUniv && booking && (

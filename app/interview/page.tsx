@@ -25,14 +25,16 @@ import {
   StepList,
 } from "../_site/components";
 import { UnivStatRow } from "../univ/_univ";
-import { NoInterviewRow, TypeChooser, UnivFinder } from "./_interview";
+import { MedGlanceTable, NoInterviewRow, TypeChooser, UnivFinder } from "./_interview";
 import { TeacherCards } from "../univ/_booking";
+import { UNIV_TEACHERS } from "@/lib/mmi-schedule";
 import {
   CLASS_FEATURES,
   CLASS_FLOW,
   CLASS_INCLUDES,
   CLASS_PRICE,
   finderByZone,
+  medGlanceRows,
   INTERVIEW_TYPES,
   noInterviewUnivs,
   SESSION_HOURS_LABEL,
@@ -182,6 +184,15 @@ export default function InterviewPage() {
         <UnivFinder zones={finderByZone()} />
       </PromoSection>
 
+      <PromoSection
+        eyebrow="AT A GLANCE"
+        EyebrowIcon={CalendarDays}
+        title="의예과 면접 한눈에"
+        subtitle="각 대학 2027학년도 수시 모집요강에서 확인된 내용만 정리했습니다. 면접일이 이른 순서이고, 1차 발표일을 면접일 앞에 두었습니다."
+      >
+        <MedGlanceTable rows={medGlanceRows()} />
+      </PromoSection>
+
       <UnivStatRow
         items={[
           {
@@ -264,10 +275,10 @@ export default function InterviewPage() {
         eyebrow="INSTRUCTORS"
         EyebrowIcon={Users}
         title="담당 강사"
-        subtitle="의대 면접은 이화여대 의대 출신 이세인 선생님이 맡습니다. 고려대 의학과 제시문 면접(수학·과학)만 박은우 선생님이 따로 맡습니다."
+        subtitle="제시문 면접은 박은우 선생님, 그 밖의 면접(인성·서류 기반·MMI)은 이세인 선생님이 맡습니다. 의·치·한·약·수 모두 같은 기준이며, 대학별 담당은 각 대학 페이지에 있습니다."
         tone="muted"
       >
-        <TeacherCards />
+        <TeacherCards teachers={[UNIV_TEACHERS.general, UNIV_TEACHERS.jesimun]} />
       </PromoSection>
 
       <PromoSection

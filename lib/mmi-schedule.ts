@@ -100,6 +100,37 @@ export const KOREA_JESIMUN_TEACHER = {
     "고려대 계열적합전형 의학과의 자연계 제시문 면접(수학·과학 교과, 준비 21분 · 면접 7분)을 맡습니다. 처음 보는 소재의 제시문을 읽고 제시문끼리 연결해 설명하는 훈련을 합니다.",
 } as const;
 
+/** 대학별 페이지의 담당 강사 (2026-10-22 사용자 확정 — 의·치·한·약·수 공통).
+ *    · 제시문 면접 → 박은우
+ *    · 그 밖의 면접(인성·서류 기반·MMI) → 이세인
+ *  예약 슬롯(TEACHERS)과는 별개다. 대학 페이지에 '누가 맡는가' 를 보여 줄 때만 쓴다. */
+export const UNIV_TEACHERS = {
+  general: {
+    id: "lsi",
+    name: "이세인",
+    role: "인성 · 서류 기반 · MMI 면접",
+    credential: "이화여자대학교 의과대학",
+    focus:
+      "생활기록부를 놓고 묻는 질문과 인성·상황·의료윤리 문항의 답변 골격을 잡고, 지원 대학 형식 그대로 모의면접을 돌린 뒤 표현·태도·시선까지 그 자리에서 교정합니다.",
+  },
+  jesimun: {
+    id: "pew",
+    name: "박은우",
+    role: "제시문 면접 전담",
+    credential: "서강대학교 공과대학 졸업 · 現 과학고 수학·과학(물리·화학·생명) AP 수업 담당",
+    focus:
+      "처음 보는 소재의 제시문을 읽고 쟁점을 세운 뒤, 제시문끼리 연결해 근거와 함께 설명하는 훈련을 합니다. 수학·과학 제시문까지 직접 다룹니다.",
+  },
+} as const;
+
+export type TeacherCard = {
+  id: string;
+  name: string;
+  role: string;
+  credential: string;
+  focus: string;
+};
+
 export const TUITION = {
   perSession: 380000,
   perSessionLabel: "38만원",
