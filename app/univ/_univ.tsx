@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, Check, TriangleAlert } from "lucide-react";
 import type { UnivPage } from "@/lib/univ";
-import { quotaByType } from "@/lib/univ";
+import { quotaByType, isMixedUnit } from "@/lib/univ";
 import { formatKo } from "@/lib/mmi-schedule";
 
 /** =========================================================================
@@ -83,6 +83,11 @@ export function AdmissionTables({ univ }: { univ: UnivPage }) {
               </h3>
               <p className="tnum text-[13px] font-light text-ink-500">
                 {g.programs}개 전형 · {g.quota}명
+                {g.mixed > 0 && (
+                  <span className="ml-1.5 font-normal text-ink-400">
+                    (타 계열 합산 {g.mixed}행 제외)
+                  </span>
+                )}
               </p>
             </div>
             <div
@@ -123,7 +128,16 @@ export function AdmissionTables({ univ }: { univ: UnivPage }) {
                         )}
                       </td>
                       <td className="tnum border-t border-hair px-4 py-3.5 text-ink-700">
-                        {u.quota ? `${u.quota}명` : "—"}
+                        {isMixedUnit(u.unit) ? (
+                          <span className="text-[12px] font-light text-ink-400">
+                            {u.quota ? `${u.quota}명` : "—"}
+                            <span className="mt-0.5 block">타 계열 합산</span>
+                          </span>
+                        ) : u.quota ? (
+                          `${u.quota}명`
+                        ) : (
+                          "—"
+                        )}
                       </td>
                       <td className="border-t border-hair px-4 py-3.5 text-ink-500">
                         {dash(u.model)}

@@ -110,15 +110,28 @@ export function byZone(): { zone: Zone; univs: UnivPage[] }[] {
   })).filter((g) => g.univs.length > 0);
 }
 
-/** 전형 유형별 모집인원 합계 — 대학 페이지 상단 숫자줄. */
-export function quotaByType(u: UnivPage): { type: string; quota: number; programs: number }[] {
+/** 모집단위가 의예과 단독이 아니라 다른 계열과 합산된 행인가.
+ *  (예: 대구가톨릭대 "의예과, 약학부" 358명 — 의예과만의 숫자가 아니다)
+ *  이런 행의 quota 를 합계에 넣으면 대학 모집인원이 통째로 부풀려진다. */
+export function isMixedUnit(unit?: string): boolean {
+  return /약학|간호|치의|한의|수의/.test(unit ?? "");
+}
+
+/** 전형 유형별 모집인원 합계 — 대학 페이지 상단 숫자줄.
+ *  다계열 합산 행은 programs 에만 세고 quota 합계에서는 뺀다. */
+export function quotaByType(u: UnivPage): { type: string; quota: number; programs: number; mixed: number }[] {
   if (!u.admission) return [];
   const order = ["교과", "종합", "논술", "실기", "기타"];
-  const map = new Map<string, { quota: number; programs: number }>();
+  const map = new Map<string, { quota: number; programs: number; mixed: number }>();
   for (const unit of u.admission.units) {
     const t = unit.type ?? "기타";
-    const cur = map.get(t) ?? { quota: 0, programs: 0 };
-    map.set(t, { quota: cur.quota + (unit.quota || 0), programs: cur.programs + 1 });
+    const cur = map.get(t) ?? { quota: 0, programs: 0, mixed: 0 };
+    const mixed = isMixedUnit(unit.unit);
+    map.set(t, {
+      quota: cur.quota + (mixed ? 0 : unit.quota || 0),
+      programs: cur.programs + 1,
+      mixed: cur.mixed + (mixed ? 1 : 0),
+    });
   }
   return [...map.entries()]
     .sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]))

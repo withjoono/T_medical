@@ -21,8 +21,21 @@ export function CoachFrame() {
       }
     };
     window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, []);
+
+    // iframe 은 정적 HTML 에 들어 있어 하이드레이션 전에 이미 높이를 보냈을 수 있다(그 메시지는 놓친다).
+    // 같은 출처라 직접 잴 수 있으니, 붙는 즉시 + load 때 한 번 더 잰다. 이후 변화는 메시지로 받는다.
+    const frame = frameRef.current;
+    const measure = () => {
+      const h = frame?.contentDocument?.documentElement.scrollHeight;
+      if (h) setHeight(Math.max(600, h));
+    };
+    measure();
+    frame?.addEventListener("load", measure);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      frame?.removeEventListener("load", measure);
+    };
+  }, [current.key]);
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -53,7 +66,8 @@ export function CoachFrame() {
         title="AI 모의면접"
         allow="camera; microphone; autoplay"
         className="block w-full rounded-2xl border border-ink-100 bg-white"
-        style={{ height }}
+        // 테두리(위아래 1px)만큼 더한다 — 빼먹으면 iframe 안에 2px 스크롤바가 생긴다
+        style={{ height: height + 2 }}
       />
     </div>
   );
