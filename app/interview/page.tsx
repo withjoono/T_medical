@@ -22,7 +22,7 @@ import {
   SourceNote,
   StepList,
 } from "../_site/components";
-import { FieldChooser, PriceTiers } from "./_interview";
+import { ConceptStrip, FieldChooser, PricePlans, ShareCard } from "./_interview";
 import { TeacherCards } from "../univ/_booking";
 import { UNIV_TEACHERS } from "@/lib/mmi-schedule";
 import {
@@ -40,6 +40,22 @@ import { article, breadcrumb } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/interview" },
+  // 블로그·메신저 공유와 네이버 노출용. 본문에도 같은 이미지를 띄운다(ShareCard).
+  openGraph: {
+    type: "website",
+    url: "/interview",
+    siteName: "T메디",
+    locale: "ko_KR",
+    images: [
+      {
+        url: "https://tmedi.kr/og/concept/concept.png",
+        width: 1200,
+        height: 630,
+        alt: "면접은 공부가 아니라 훈련입니다 — 반복은 AI 가, 판단은 선생님이, 선생님 수업 2회로 완성",
+      },
+    ],
+  },
+  twitter: { card: "summary_large_image", images: ["https://tmedi.kr/og/concept/concept.png"] },
   title: "의대·치대·한의대·약대·수의대 면접 수업 | T Medi — 의약학 면접 대학별 대비",
   description:
     "의대 면접부터 치대·한의대·약대·수의대 면접까지, 2027학년도 수시 면접을 실시하는 대학과 면접일을 계열별로 정리했습니다. 계열을 고르면 대학별 면접 방식·1차 발표일·면접일이 나옵니다. 1:1 줌 면접 수업은 1회 1시간 40분. tmedi.kr",
@@ -147,6 +163,8 @@ export default function InterviewHubPage() {
         ]}
       />
 
+      <ConceptStrip sessionLabel={SESSION_HOURS_LABEL} />
+
       <div id="fields" className="scroll-mt-24" />
       <PromoSection
         eyebrow="STEP 1"
@@ -220,9 +238,23 @@ export default function InterviewHubPage() {
         eyebrow="PRICING"
         EyebrowIcon={Wallet}
         title="비용"
-        subtitle="AI 가 반복을, 선생님이 판단을 맡으면 회차가 줄고 비용이 내려갑니다. 대치동 의대 MMI 특강은 6시간 180만원, 1:1 12시간은 240만원 선입니다."
+        subtitle="AI 가 반복을, 선생님이 판단을 맡으면 회차가 줄고 비용이 내려갑니다. 대치동 의대 MMI 특강은 6시간 180만원, 1:1 12시간은 240만원 선입니다. 묶음 결제나 선납은 없습니다."
       >
-        <PriceTiers sessionLabel={SESSION_HOURS_LABEL} />
+        <PricePlans sessionLabel={SESSION_HOURS_LABEL} />
+        <div className="mt-16">
+          <ShareCard
+            src="/og/concept/compare.png"
+            alt="의약학 면접 수업 비교 — 대형 학원 1:1 은 12시간 240만원 묶음 결제, T메디는 선생님 100분 1회 38만원에 AI 모의면접 무제한. 1회씩 결제해 직접 비교할 수 있습니다"
+            caption="묶음도 선납도 없습니다. 1회만 해 보고 판단하셔도 됩니다 · 비교 수치는 2026년 언론 보도 기준"
+          />
+        </div>
+        <div className="mt-16">
+          <ShareCard
+            src="/og/concept/pricing.png"
+            alt="T메디 의약학 면접 수업 비용 — 선생님 1회 + AI 무제한 38만원, AI 모의면접은 현재 전부 무료, 선생님 1:1 100분 35만원"
+            caption="비용 한 장 요약 · 저장하거나 공유해서 쓰십시오"
+          />
+        </div>
       </PromoSection>
 
       <PromoSection

@@ -541,3 +541,233 @@ export function PriceTiers({ sessionLabel }: { sessionLabel: string }) {
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------
+ * 컨셉 한 줄 — 히어로 바로 아래. 본문을 읽기 전에 구조가 보여야 한다.
+ * ---------------------------------------------------------------------- */
+
+const CONCEPT_PANELS = [
+  {
+    no: "01",
+    title: "반복은 AI 가",
+    body: "무제한 모의면접으로 훈련의 임계량을 채웁니다. 선생님이 회차를 처방하고, 부족하면 더 보냅니다.",
+  },
+  {
+    no: "02",
+    title: "판단은 선생님이",
+    body: "생기부에서 쓸 소재를 고르고, 지원 대학의 평가축에 맞춰 답변 뼈대를 설계합니다.",
+  },
+  {
+    no: "03",
+    title: "그래서 2회로",
+    body: "1회차는 진단과 설계, 2회차는 실전 점검. 반복을 선생님 시간으로 사지 않습니다.",
+  },
+];
+
+export function ConceptStrip({ sessionLabel }: { sessionLabel: string }) {
+  return (
+    <section className="border-t border-hair bg-ink px-6 py-20 text-paper sm:px-12 sm:py-24">
+      <div className="mx-auto max-w-5xl">
+        <p className="eyebrow text-center text-brass-300">왜 2회로 끝나는가</p>
+        <h2 className="display mt-6 text-center text-[1.75rem] leading-[1.3] sm:text-[2.25rem]">
+          면접은 공부가 아니라 <span className="text-brass-300">훈련</span>입니다
+        </h2>
+        <p className="mx-auto mt-5 max-w-2xl text-center text-[15px] font-light leading-[1.85] text-paper/70">
+          아는 것을 늘려서 되는 일이 아니라, 압박 속에서 같은 구조를 반복해 몸에 붙이는 일입니다.
+          그래서 반복과 판단을 갈라 놓았습니다.
+        </p>
+
+        <div className="mt-14 grid gap-px bg-paper/15 sm:grid-cols-3">
+          {CONCEPT_PANELS.map((p) => (
+            <div key={p.no} className="bg-ink px-7 py-8">
+              <p className="tnum text-[12px] font-semibold tracking-[0.2em] text-brass-300">{p.no}</p>
+              <h3 className="display mt-4 text-[1.0625rem] leading-snug">{p.title}</h3>
+              <p className="mt-3 text-[13px] font-light leading-[1.8] text-paper/70">{p.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-14">
+          <ShareCard
+            tone="ink"
+            src="/og/concept/concept.png"
+            alt="면접은 공부가 아니라 훈련입니다 — 반복은 AI 가, 판단은 선생님이, 그래서 선생님 수업 2회로 끝납니다"
+            caption="컨셉 한 장 요약 · 저장하거나 공유해서 쓰십시오"
+          />
+        </div>
+
+        <p className="mt-12 text-center text-[15px] font-light text-paper/80">
+          선생님 1회 + AI 무제한{" "}
+          <span className="tnum font-semibold text-brass-300">{BUNDLE.priceLabel}</span>
+          <span className="text-paper/50"> · 줌 1:1 {sessionLabel}</span>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------
+ * 가격 도식 — AI · 선생님 두 카드가 양옆, 묶음이 아래 가운데.
+ * ---------------------------------------------------------------------- */
+
+function PlanCard({
+  eyebrow,
+  title,
+  price,
+  priceNote,
+  lines,
+  tone = "default",
+}: {
+  eyebrow: string;
+  title: string;
+  price: string;
+  priceNote?: string;
+  lines: { label: string; value: string; muted?: boolean }[];
+  tone?: "default" | "ink";
+}) {
+  const ink = tone === "ink";
+  return (
+    <div
+      className={`flex flex-col border ${
+        ink ? "border-ink bg-ink text-paper" : "border-hair-strong bg-white"
+      }`}
+    >
+      <div className={`px-7 py-6 ${ink ? "border-b border-paper/15" : "border-b border-hair"}`}>
+        <p className={`eyebrow ${ink ? "text-brass-300" : "text-brass-600"}`}>{eyebrow}</p>
+        <h3 className={`display mt-4 text-[1.125rem] leading-snug ${ink ? "" : "text-ink-900"}`}>
+          {title}
+        </h3>
+        <p className="mt-5 flex items-baseline gap-2">
+          <span
+            className={`tnum display text-[1.75rem] ${ink ? "text-brass-300" : "text-ink-900"}`}
+          >
+            {price}
+          </span>
+          {priceNote && (
+            <span className={`text-[12px] font-light ${ink ? "text-paper/60" : "text-ink-400"}`}>
+              {priceNote}
+            </span>
+          )}
+        </p>
+      </div>
+      <ul className="flex-1 px-7 py-5">
+        {lines.map((l) => (
+          <li
+            key={l.label}
+            className={`flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 py-2 text-[13px] ${
+              ink ? "text-paper/80" : "text-ink-700"
+            }`}
+          >
+            <span className={`font-light ${l.muted ? (ink ? "text-paper/45" : "text-ink-400") : ""}`}>
+              {l.label}
+            </span>
+            <span
+              className={`tnum font-medium ${
+                l.muted ? (ink ? "text-paper/45" : "text-ink-400") : ""
+              }`}
+            >
+              {l.value}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function PricePlans({ sessionLabel }: { sessionLabel: string }) {
+  const paid = AI_TIERS.filter((t) => t.price > 0);
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <PlanCard
+          eyebrow="반복 훈련"
+          title="AI 모의면접"
+          price="무료"
+          priceNote="지금은 전부 무료 · 준비 중"
+          lines={[
+            { label: "말하기·태도 연습", value: "무제한" },
+            ...paid.map((t) => ({ label: t.label, value: t.priceLabel, muted: true })),
+          ]}
+        />
+        <PlanCard
+          eyebrow="판단과 설계"
+          title={`선생님 1:1 · ${sessionLabel}`}
+          price={TUITION.perSessionLabel}
+          priceNote="1회 · 줌 온라인"
+          lines={[
+            { label: "1회차", value: "진단과 설계" },
+            { label: "2회차", value: "실전 점검" },
+            { label: "수업 전·후 과제", value: "포함" },
+            { label: "묶음·선납", value: "없음" },
+          ]}
+        />
+      </div>
+
+      <div className="mt-8 flex flex-col items-center">
+        <span className="h-8 w-px bg-hair-strong" aria-hidden="true" />
+        <p className="py-3 text-[12px] font-semibold tracking-tight text-ink-400">함께 쓰면</p>
+        <span className="h-8 w-px bg-hair-strong" aria-hidden="true" />
+      </div>
+
+      <div className="mx-auto mt-2 max-w-xl">
+        <PlanCard
+          tone="ink"
+          eyebrow="권장"
+          title="선생님 1회 + AI 무제한"
+          price={BUNDLE.priceLabel}
+          priceNote="1회당"
+          lines={[
+            { label: "선생님 1:1", value: sessionLabel },
+            { label: "AI 실전 모의", value: "시즌 무제한" },
+            { label: "추가 처방", value: "비용 없음" },
+          ]}
+        />
+      </div>
+
+      <p className="mx-auto mt-8 max-w-3xl text-center text-[12px] font-light leading-relaxed text-ink-400">
+        AI 유료 항목은 아직 과금하지 않습니다 — 지금 여는 실전 모의 형식이 고려대 의학과 하나뿐이고
+        제시문도 검수 전이라, 형식을 늘리고 검수를 마친 뒤에 엽니다. 그때까지는 무료로 쓰실 수
+        있습니다.
+      </p>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------
+ * 공유용 카드 이미지 — 네이버가 이미지 중심으로 노출하므로 본문에 실제로 띄운다.
+ *  OG 태그로만 두면 이미지 검색에 잡히지 않는다.
+ *  생성기: scripts/interview-og/concept.mjs
+ * ---------------------------------------------------------------------- */
+
+export function ShareCard({
+  src,
+  alt,
+  caption,
+  tone = "default",
+}: {
+  src: string;
+  alt: string;
+  caption: string;
+  tone?: "default" | "ink";
+}) {
+  return (
+    <figure className="mx-auto max-w-3xl">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        width={1200}
+        height={630}
+        className={`w-full border ${tone === "ink" ? "border-paper/20" : "border-hair-strong"}`}
+      />
+      <figcaption
+        className={`mt-4 text-center text-[12px] font-light leading-relaxed ${
+          tone === "ink" ? "text-paper/50" : "text-ink-400"
+        }`}
+      >
+        {caption}
+      </figcaption>
+    </figure>
+  );
+}
