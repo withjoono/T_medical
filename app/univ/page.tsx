@@ -19,6 +19,9 @@ import {
 } from "../_site/components";
 import { UnivCard, UnivStatRow } from "./_univ";
 import { byZone, UNIV_TOTALS } from "@/lib/univ";
+import Link from "next/link";
+import { FIELD_PAGES } from "@/lib/field-registry";
+import { ADMISSION_FIELDS, admissionBase, admissionUnivs } from "@/lib/field-admission";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/univ" },
@@ -107,6 +110,39 @@ export default function UnivHubPage() {
           </div>
         </PromoSection>
       ))}
+
+      {/* ===== 치·한·약·수 대학별 전형 (/univ/<계열>/<대학>) ===== */}
+      <PromoSection
+        eyebrow="OTHER FIELDS"
+        EyebrowIcon={GraduationCap}
+        title="치대 · 한의대 · 약대 · 수의대 대학별 전형"
+        subtitle="의대와 같은 방식으로 대학별 전형 구조와 공시 입결을 정리했습니다. 면접은 각 대학 페이지에서 이어집니다."
+      >
+        <div className="mx-auto max-w-5xl space-y-9">
+          {ADMISSION_FIELDS.map((fp) => {
+            const f = FIELD_PAGES[fp];
+            const univs = admissionUnivs(fp);
+            return (
+              <div key={fp} className="border-t border-hair pt-6">
+                <p className="eyebrow text-brass-600">
+                  {f.unitLabel} · {univs.length}개교
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  {univs.map((u) => (
+                    <Link
+                      key={u.slug}
+                      href={`${admissionBase(fp)}/${u.slug}`}
+                      className="border border-hair-strong bg-white px-3.5 py-2.5 text-[13px] font-medium tracking-tight text-ink-900 transition-colors hover:border-ink-300 hover:bg-paper-50"
+                    >
+                      {u.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </PromoSection>
 
       <PromoSection
         eyebrow="HOW TO READ"

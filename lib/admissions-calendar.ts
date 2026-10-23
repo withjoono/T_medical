@@ -56,6 +56,15 @@ export type CalEvent = {
   href?: string;
 };
 
+/** 계열 → 대학별 면접 페이지 경로 (slug 는 각 계열 SSOT 의 slug 그대로 = generateStaticParams) */
+const INTERVIEW_BASE: Record<FieldKey, string> = {
+  uiye: "/interview/uidae",
+  chiuiye: "/interview/chidae",
+  hanuiye: "/interview/hanuidae",
+  yakhak: "/interview/yakdae",
+  suuiye: "/interview/suuidae",
+};
+
 function push(
   out: CalEvent[],
   field: FieldKey,
@@ -67,7 +76,9 @@ function push(
   idSeed: string,
   note?: string,
 ) {
-  const href = `/univ/${slug}`;
+  // 발표·면접 일정 이벤트 → 계열별 대학 면접 페이지로(2026-10-23 /univ 전형·면접 분리).
+  // 예전에는 치·한·약·수도 /univ/<대학> 으로 보내 의대 페이지에 떨어졌다.
+  const href = `${INTERVIEW_BASE[field]}/${slug}`;
   if (announce) {
     out.push({
       id: `${idSeed}-a`,
@@ -98,7 +109,7 @@ function fromFieldUnivs(univs: FieldUniv[], field: FieldKey): CalEvent[] {
   for (const u of univs) {
     for (const [i, t] of u.tracks.entries()) {
       if (!t.interview) continue;
-      push(out, field, u.short, u.slug.replace(/-[a-z]+$/, ""), t.name, t.announce, t.date, `${field}-${u.slug}-${i}`);
+      push(out, field, u.short, u.slug, t.name, t.announce, t.date, `${field}-${u.slug}-${i}`);
     }
   }
   return out;

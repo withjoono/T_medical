@@ -35,6 +35,7 @@ import {
   type FieldPage,
 } from "@/lib/field-registry";
 import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
+import { admissionHrefOf } from "@/lib/field-admission";
 import { formatKo, UNIV_TEACHERS } from "@/lib/mmi-schedule";
 import { TeacherCards } from "../univ/_booking";
 import { JsonLdAll } from "@/components/json-ld";
@@ -129,6 +130,8 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   // 면접 미실시 대학은 문구가 통째로 달라진다 — '이 대학의 질문 출처에 맞춰' 같은
   // 문장을 그대로 두면 없는 시험을 파는 페이지가 된다.
   const none = u.style === "none";
+  /** 같은 대학의 전형 소개 페이지(/univ/<계열>/<대학>) — 입결 DB 에 없는 대학이면 undefined */
+  const admissionHref = admissionHrefOf(field, u);
   const card = fieldUnivCard(field, u);
   const title = fieldUnivMetadata(field, u).title as string;
   const description = fieldUnivMetadata(field, u).description as string;
@@ -157,8 +160,8 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         }
         primaryHref="#contact"
         primaryLabel={none ? `${field.short} 면접 수업 문의` : `${u.short} 면접 수업 문의`}
-        secondaryHref={field.base}
-        secondaryLabel={`${field.short} 면접 전체 보기`}
+        secondaryHref={admissionHref ?? field.base}
+        secondaryLabel={admissionHref ? "전형 안내 보기" : `${field.short} 면접 전체 보기`}
         Icon={Stethoscope}
         stats={[
           { icon: ClipboardCheck, label: u.styleLabel },
@@ -287,12 +290,19 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
               title: `${field.label} 전체`,
               body: `유형별로 나눈 ${field.short} 면접 실시 대학과 일정을 한 페이지에.`,
             },
-            {
-              href: field.ipkyul,
-              icon: GraduationCap,
-              title: `${field.unitLabel} 입시결과`,
-              body: "대학·전형별 모집인원과 공시된 입결.",
-            },
+            admissionHref
+              ? {
+                  href: admissionHref,
+                  icon: GraduationCap,
+                  title: `${u.short} ${field.unitLabel} 전형 안내`,
+                  body: "전형별 모집인원·수능최저·선발모형과 공시 입결.",
+                }
+              : {
+                  href: field.ipkyul,
+                  icon: GraduationCap,
+                  title: `${field.unitLabel} 입시결과`,
+                  body: "대학·전형별 모집인원과 공시된 입결.",
+                },
             {
               href: "/interview",
               icon: ClipboardCheck,

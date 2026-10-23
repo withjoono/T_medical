@@ -221,7 +221,7 @@ function PreSuneungTable() {
             {PRE_SUNEUNG.map((f) => (
               <tr key={`${f.slug}-${f.track}`} className="align-top">
                 <td className="border-t border-hair px-4 py-4 font-medium text-ink-900">
-                  <Link href={`/univ/${f.slug}`} className="underline-offset-4 hover:underline">
+                  <Link href={`/interview/uidae/${f.slug}`} className="underline-offset-4 hover:underline">
                     {f.univ}
                   </Link>
                 </td>

@@ -91,7 +91,7 @@ export function AdmissionTables({ univ }: { univ: UnivPage }) {
             <>
               이 가운데 면접을 보는 전형은{" "}
               <strong className="font-semibold text-jade-700">{ivTracks}개</strong> 이고,
-              어느 전형인지는 <a href="#interview" className="link-underline">바로 아래 면접 섹션</a> 에
+              어느 전형인지는 <a href={`/interview/uidae/${univ.slug}`} className="link-underline">{univ.short} 의대 면접 페이지</a> 에
               요강 기준으로 따로 정리했습니다.
             </>
           ) : (

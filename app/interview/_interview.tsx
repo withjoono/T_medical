@@ -77,7 +77,7 @@ export function TypeUnivTable({
                   }`}
                 >
                   <td className="border-t border-hair px-4 py-4 font-medium text-ink-900">
-                    <Link href={`/univ/${univ.slug}`} className="link-underline">
+                    <Link href={`/interview/uidae/${univ.slug}`} className="link-underline">
                       {univ.short}
                     </Link>
                     {univ.hasClassPage && (
@@ -104,10 +104,10 @@ export function TypeUnivTable({
                   </td>
                   <td className="border-t border-hair px-4 py-4">
                     <Link
-                      href={`/univ/${univ.slug}`}
+                      href={`/interview/uidae/${univ.slug}`}
                       className="group inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] font-semibold tracking-tight text-ink-700 hover:text-jade-700"
                     >
-                      {univ.hasClassPage ? "일정 · 예약" : "전형 보기"}
+                      {univ.hasClassPage ? "일정 · 예약" : "면접 보기"}
                       <ArrowRight
                         className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"
                         strokeWidth={2}
@@ -141,7 +141,7 @@ export function AlsoUnivs({
         {rows.map(({ univ, tag }) => (
           <Link
             key={univ.slug}
-            href={`/univ/${univ.slug}`}
+            href={`/interview/uidae/${univ.slug}`}
             className="group border border-hair bg-paper px-3.5 py-2 text-[13px] font-light text-ink-700 transition-colors hover:border-jade-200 hover:bg-jade-50"
           >
             <span className="font-medium text-ink-900">{univ.short}</span>
@@ -222,7 +222,7 @@ export function NoInterviewRow({
       {univs.map((u) => (
         <Link
           key={u.slug}
-          href={`/univ/${u.slug}`}
+          href={`/interview/uidae/${u.slug}`}
           className="border border-hair bg-paper px-4 py-2 text-[14px] font-light text-ink-700 transition-colors hover:border-jade-200 hover:bg-jade-50"
         >
           <span className="font-medium text-ink-900">{u.short}</span>
@@ -323,7 +323,7 @@ export function UnivFinder({
             {univs.map((u) => (
               <Link
                 key={u.slug}
-                href={`/univ/${u.slug}`}
+                href={`/interview/uidae/${u.slug}`}
                 className="group inline-flex items-center gap-2 border border-hair-strong bg-white px-3.5 py-2.5 text-[13px] transition-colors hover:border-ink-300 hover:bg-paper-50"
               >
                 <span className="font-medium tracking-tight text-ink-900">{u.short}</span>
@@ -391,7 +391,7 @@ export function MedGlanceTable({ rows }: { rows: MedGlanceRow[] }) {
                 }`}
               >
                 <td className="border-t border-hair px-4 py-4 font-medium text-ink-900">
-                  <Link href={`/univ/${univ.slug}`} className="link-underline">
+                  <Link href={`/interview/uidae/${univ.slug}`} className="link-underline">
                     {univ.short}
                   </Link>
                 </td>

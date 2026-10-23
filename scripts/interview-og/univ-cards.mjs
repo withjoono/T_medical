@@ -75,7 +75,7 @@ function card(u) {
   <div class="head">${esc(iv?.headline ?? "2027학년도 수시 전형과 면접 안내")}</div>
   <span class="chip">${esc(none ? "면접 미실시" : (iv?.styleLabel ?? "면접 실시"))}</span></div>
   <div class="grid">${facts.map(([k,v,b])=>`<div class="cell"><div class="k">${esc(k)}</div><div class="v${b?" big":""}">${esc(v)}</div></div>`).join("")}</div>
-  <div class="foot"><span class="url">tmedi.kr/univ/${esc(u.slug)}</span><span class="brand">T메디 · 의치한약수 입시</span></div>
+  <div class="foot"><span class="url">tmedi.kr/interview/uidae/${esc(u.slug)}</span><span class="brand">T메디 · 의치한약수 입시</span></div>
   </div></body></html>`;
 }
 

@@ -8,6 +8,13 @@ import {
   fieldTotals,
   measuredUnits,
 } from "@/lib/ipkyul";
+import { IPKYUL_KEY, admissionBase } from "@/lib/field-admission";
+
+/** 입결 계열 → 대학별 상세 경로. 의예는 /ipkyul/uiye/<대학>, 나머지는 /univ/<계열>/<대학>(전형 소개). */
+const UNIV_BASE: Record<string, string> = {
+  uiye: "/ipkyul/uiye",
+  ...Object.fromEntries(Object.entries(IPKYUL_KEY).map(([fp, fk]) => [fk, admissionBase(fp as keyof typeof IPKYUL_KEY)])),
+};
 
 /** =========================================================================
  *  /ipkyul 전용 블록. 전부 서버 컴포넌트 — 숫자가 HTML 에 박혀야 색인된다.
@@ -58,12 +65,50 @@ function g(n?: number) {
   return n == null ? null : n.toFixed(2);
 }
 
-/** 등급 배지 — 숫자가 없으면 '—'. 추정으로 채우지 않는다. */
+/** -------------------------------------------------------------------------
+ *  9등급 → 5등급 환산 (2028학년도~ 5등급 상대평가 대상 학년용 참고값)
+ *
+ *  9등급 누적비율 4·11·23·40·60·77·89·96·100%, 5등급 10·34·66·90·100%.
+ *  ① 9등급 각 등급 구간 안에서 석차가 고르게 퍼져 있다고 보고, 그 구간이 5등급 어디에
+ *     얼마만큼 겹치는지로 '그 등급의 5등급 기대값'을 구한다 (예: 9등급 2등급 4~11% →
+ *     6/7 은 1등급, 1/7 은 2등급 → 1.143).
+ *  ② 평균등급 2.3 은 2등급 70%·3등급 30% 로 보고 기대값을 선형 보간한다.
+ *  같은 석차 비율이면 5등급에서 몇 등급인지의 '환산'일 뿐, 대학의 2028 반영 방식이나
+ *  실제 입결이 아니다. 입결 원값(9등급)을 바꾸지 않고 옆에만 붙인다.
+ *  ---------------------------------------------------------------------- */
+const CUM9 = [0, 4, 11, 23, 40, 60, 77, 89, 96, 100];
+const CUM5 = [0, 10, 34, 66, 90, 100];
+
+/** 9등급 k등급(1~9) 구간의 5등급 기대값 */
+const FIVE_OF_NINE: number[] = Array.from({ length: 9 }, (_, i) => {
+  const lo = CUM9[i], hi = CUM9[i + 1];
+  let sum = 0;
+  for (let j = 0; j < 5; j++) {
+    const overlap = Math.max(0, Math.min(hi, CUM5[j + 1]) - Math.max(lo, CUM5[j]));
+    sum += overlap * (j + 1);
+  }
+  return sum / (hi - lo);
+});
+
+export function toFiveGrade(nine: number): number {
+  const x = Math.min(9, Math.max(1, nine));
+  const k = Math.min(8, Math.floor(x)); // 1~8
+  const f = x - k;
+  return FIVE_OF_NINE[k - 1] * (1 - f) + FIVE_OF_NINE[k] * f;
+}
+
+/** 등급 배지 — 숫자가 없으면 '—'. 추정으로 채우지 않는다.
+ *  아래 줄에 5등급 환산값을 작게 붙인다. */
 function Grade({ v, strong = false }: { v?: number; strong?: boolean }) {
   if (v == null) return <span className="text-ink-300">—</span>;
   return (
-    <span className={`tnum ${strong ? "display text-[15px] text-ink-900" : "text-[13px] text-ink-700"}`}>
-      {g(v)}
+    <span className="inline-flex flex-col leading-tight">
+      <span className={`tnum ${strong ? "display text-[15px] text-ink-900" : "text-[13px] text-ink-700"}`}>
+        {g(v)}
+      </span>
+      <span className="tnum mt-1 whitespace-nowrap text-[11px] font-light text-jade-700">
+        5등급 {toFiveGrade(v).toFixed(2)}
+      </span>
     </span>
   );
 }
@@ -135,12 +180,12 @@ export function UnivSummaryTable({ field }: { field: Field }) {
           <tbody>
             {rows.map((u, ri) => {
               const best = bestCut(u);
-              const linkable = field.key === "uiye";
+              const base = UNIV_BASE[field.key];
               return (
                 <tr key={u.slug} className={ri % 2 === 1 ? "bg-paper-100/60" : ""}>
                   <td className="border-t border-hair px-4 py-3.5 align-top">
-                    {linkable ? (
-                      <Link href={`/ipkyul/${field.key}/${u.slug}`} className="link-underline font-semibold tracking-tight text-ink-900">
+                    {base ? (
+                      <Link href={`${base}/${u.slug}`} className="link-underline font-semibold tracking-tight text-ink-900">
                         {u.name}
                       </Link>
                     ) : (
@@ -174,6 +219,7 @@ export function UnivSummaryTable({ field }: { field: Field }) {
       </div>
       <p className="mt-4 text-center text-xs font-light leading-[1.8] text-ink-400">
         최우수 50%컷 = 그 대학 전형 중 가장 낮은 최종등록자 50%컷 등급. 등급은 낮을수록 우수합니다.
+        초록색 &lsquo;5등급&rsquo; 값은 같은 석차 비율을 5등급제로 옮긴 참고 환산값입니다.
         대학마다 반영 교과·산출식이 달라 <span className="font-medium">등급을 그대로 비교하면 안 됩니다</span> — 대학별 페이지에서 산출 조건을 확인하세요.
       </p>
     </div>
@@ -243,12 +289,12 @@ export function ProgramTables({ univ }: { univ: Univ }) {
             </span>
           </h3>
           <div className="overflow-x-auto border border-hair-strong bg-paper-50">
-            <table className="w-full min-w-[880px] table-fixed border-collapse text-left text-sm">
+            <table className="w-full min-w-[920px] table-fixed border-collapse text-left text-sm">
               <colgroup>
                 <col className="w-[210px]" />
                 <col className="w-[72px]" />
-                <col className="w-[78px]" />
-                <col className="w-[78px]" />
+                <col className="w-[96px]" />
+                <col className="w-[96px]" />
                 <col className="w-[92px]" />
                 <col />
               </colgroup>
@@ -291,6 +337,8 @@ export function MeasuredOnlyNote() {
             "대학마다 반영 교과·학년 비율·등급 환산식이 달라, 등급 숫자를 대학 간에 그대로 비교하면 안 됩니다.",
             "50%컷은 최종등록자의 중간값입니다. 합격 하한선이 아니라 '절반이 이보다 좋았다'는 지점입니다.",
             "충원(추가합격)으로 실제 합격선은 표의 숫자보다 내려가는 경우가 많습니다.",
+            "입결 원값은 9등급제 기준입니다. 2028학년도부터 내신이 5등급제로 바뀌는 학년을 위해 옆에 5등급 환산값(초록색)을 붙였습니다. 9등급 누적비율(4·11·23·40·60·77·89·96%)을 5등급 누적비율(10·34·66·90%)에 겹쳐, 같은 석차 비율이면 5등급 평균이 얼마인지 계산한 참고값입니다. 대학의 2028 반영 방식이나 실제 입결이 아닙니다.",
+            "5등급제에서는 상위 10%가 모두 1등급이라, 9등급 1.0~1.5대 의대 컷은 5등급으로 옮기면 대부분 1.0대 초반으로 몰립니다. 5등급제 대학들은 등급 외에 원점수·성취도·학생부 내용을 더 보게 될 가능성이 큽니다.",
           ].map((t) => (
             <li key={t} className="flex gap-3 text-[14px] font-light leading-[1.8] text-ink-700">
               <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brass-400" />

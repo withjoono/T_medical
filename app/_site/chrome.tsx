@@ -47,7 +47,19 @@ const NAV_ITEMS: NavItem[] = [
   },
   { href: "/jungsi", label: "정시" },
   { href: "/overseas", label: "해외 의대" },
-  { href: "/ipkyul", label: "입시결과" },
+  {
+    href: "/ipkyul",
+    label: "입시정보",
+    // 입결 = 대학 공시 입시 컷라인(학원 합격실적 아님). 다른 입시정보가 생기면 group 을 달리해 아래에 붙인다.
+    children: [
+      { href: "/ipkyul", label: "의치한약수 입결 전체", group: "입결" },
+      { href: "/ipkyul/uiye", label: "의예과 입결", group: "입결" },
+      { href: "/ipkyul/chiuiye", label: "치의예과 입결", group: "입결" },
+      { href: "/ipkyul/hanuiye", label: "한의예과 입결", group: "입결" },
+      { href: "/ipkyul/suuiye", label: "수의예과 입결", group: "입결" },
+      { href: "/ipkyul/yakhak", label: "약학과 입결", group: "입결" },
+    ],
+  },
   { href: "/uidae-class", label: "의대 진학반" },
   {
     href: "/interview",

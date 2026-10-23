@@ -16,7 +16,7 @@
       },
       {
         "source": "/promo/mmi/:slug",
-        "destination": "/univ/:slug",
+        "destination": "/interview/uidae/:slug",
         "type": 301
       },
       {
@@ -31,7 +31,7 @@
       },
       {
         "source": "/mmi/:slug",
-        "destination": "/univ/:slug",
+        "destination": "/interview/uidae/:slug",
         "type": 301
       },
       {

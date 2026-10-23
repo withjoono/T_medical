@@ -3,53 +3,30 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   BarChart3,
-  BookOpenCheck,
-  CalendarDays,
   ClipboardCheck,
   GraduationCap,
-  Image as ImageIcon,
-  Clock,
-  ListChecks,
   MessagesSquare,
-  Repeat,
   Scale,
-  Target,
-  Users,
 } from "lucide-react";
 import {
   PromoHero,
   PromoSection,
-  NoteBox,
   LinkCards,
   FinalCTA,
   SourceNote,
 } from "../../_site/components";
-import {
-  AdmissionTables,
-  InterviewTable,
-  FactList,
-  UnivStatRow,
-  UnverifiedNotice,
-  InterviewDates,
-} from "../_univ";
+import { AdmissionTables, UnivStatRow, UnverifiedNotice } from "../_univ";
 import { UNIV_PAGES, getUnivPage, quotaByType } from "@/lib/univ";
-import {
-  BookingBoard,
-  LeakageNotice,
-  ScheduleCalendar,
-  TeacherCards,
-  Timetable,
-} from "../_booking";
-import { ClassCtaBand } from "../../interview/_interview";
-import {
-  formatKo,
-  getUniv as getMmiUniv,
-  summarize,
-  univDays,
-  UNIV_TEACHERS,
-} from "@/lib/mmi-schedule";
-import { univTeacherKeys } from "@/lib/interview-types";
+import { formatKo } from "@/lib/mmi-schedule";
+
+/** =========================================================================
+ *  /univ/[slug] — 대학별 의대 **전형 소개** 페이지
+ *
+ *  2026-10-23 면접을 /interview/uidae/[slug] 로 분리했다. 이 페이지는 전형 구조만 다룬다.
+ *  면접 내용(방식·대비 포인트·강사·수업 예약)을 여기에 다시 붙이지 말 것 — 면접 페이지로 링크한다.
+ *  ========================================================================= */
 
 /** 정적 export(output: 'export')라 동적 라우트에는 generateStaticParams 가 필수다. */
 export function generateStaticParams() {
@@ -65,31 +42,26 @@ export async function generateMetadata({
   const u = getUnivPage(slug);
   if (!u) return { title: "대학별 의대 전형 안내 | T Medi" };
 
-  const tracks = u.interview?.tracks ?? [];
-  const first = tracks.find((t) => t.interview);
+  const groups = quotaByType(u);
   const noInterview = u.hasInterview === false;
+  const tracks = u.interview?.tracks ?? [];
 
-  // 문장을 배열로 모아 join — 값이 빠진 대학(예: 강원대 admission 없음)도 공백이 겹치지 않게.
   const sentences = [
-    `${u.name} 2027학년도 수시 전형·면접 안내.`,
+    `${u.name} 2027학년도 수시 전형 안내.`,
     u.admission ? `수시 ${u.admission.units.length}개 전형 ${u.admission.quota}명.` : "",
+    groups.length > 0 ? `${groups.map((g) => `${g.type} ${g.quota}명`).join(", ")}.` : "",
     noInterview ? "2027학년도 면접 미실시." : tracks.length > 0 ? `면접 실시 ${tracks.length}개 전형.` : "",
-    first?.interview ? `면접 ${formatKo(first.interview)}.` : "",
-    "전형별 모집인원·수능최저·선발모형과 면접 방식, 면접 수업까지 한 페이지에 정리했습니다.",
+    "전형별 모집인원·수능최저·선발모형을 한 표에서 비교할 수 있습니다.",
   ].filter(Boolean);
   const description = sentences.join(" ");
 
-  // 실제 검색어는 "○○대 의대 면접" — 제목 앞머리에 그대로 둔다(2026-10-21 노출 점검).
-  const title = noInterview
-    ? `${u.short} 의대 2027 수시 전형 — 면접 미실시 | T Medi`
-    : `${u.short} 의대 면접 2027 — 방식·일정·전형 | T Medi`;
+  const title = `${u.short} 의대 수시 전형 2027 — 모집인원·수능최저 | T Medi`;
   const url = `/univ/${u.slug}`;
 
   return {
     alternates: { canonical: url },
     title,
     description,
-    // openGraph 는 layout 과 얕게 병합된다 — 하위에서 쓰면 통째로 바뀌므로 images 등도 다시 적는다.
     openGraph: {
       type: "website",
       siteName: "T메디",
@@ -97,16 +69,7 @@ export async function generateMetadata({
       title,
       description,
       url,
-      images: [
-        {
-          url: `https://tmedi.kr/og/univ/${u.slug}.png`,
-          width: 1200,
-          height: 630,
-          alt: `${u.short} 의예과 2027학년도 면접 요약 — ${
-            noInterview ? "면접 미실시" : u.interview?.styleLabel ?? "면접 실시"
-          }`,
-        },
-      ],
+      images: ["/og-image.png?v=2"],
     },
     twitter: {
       card: "summary_large_image",
@@ -130,10 +93,8 @@ export default async function UnivPage({
   const tracks = iv?.tracks ?? [];
   const groups = quotaByType(u);
   const noInterview = u.hasInterview === false;
-  /** 특강 일정·예약 블록은 mmi-schedule SSOT 에 데이터가 있는 대학만 렌더한다. */
-  const mmiUniv = u.hasClassPage ? getMmiUniv(u.slug) : undefined;
-  const booking = mmiUniv ? summarize(univDays(mmiUniv)) : undefined;
   const unverified = u.confidence === "low";
+  const interviewHref = `/interview/uidae/${u.slug}`;
 
   const interviewDays = [
     ...new Set(tracks.map((t) => t.interview).filter((d): d is string => Boolean(d))),
@@ -164,20 +125,17 @@ export default async function UnivPage({
       <PromoHero
         badge={`2027 ${u.short} 의예과 · ${u.region}`}
         title={`${u.short} 의예과,`}
-        highlight={iv?.headline ?? "전형부터 확인하세요"}
-        body={
-          iv?.lede ??
-          `${u.name}의 2027학년도 수시 전형 구조를 정리했습니다. 전형별 모집인원과 수능 최저, 선발 모형을 한 표에서 비교하실 수 있습니다.`
-        }
+        highlight="수시 전형부터 확인하세요"
+        body={`${u.name}의 2027학년도 수시 전형 구조를 정리했습니다. 전형별 모집인원과 수능 최저, 선발 모형을 한 표에서 비교하실 수 있습니다.`}
         primaryHref="#contact"
         primaryLabel={`${u.short} 지원 상담하기`}
-        secondaryHref={u.admission ? `/ipkyul/uiye/${u.slug}` : "/univ"}
-        secondaryLabel={u.admission ? "입시결과 보기" : "다른 대학 보기"}
+        secondaryHref={interviewHref}
+        secondaryLabel={noInterview ? "면접 미실시 안내" : "면접 안내 보기"}
         Icon={GraduationCap}
         stats={[
           { icon: Scale, label: u.admission ? `수시 ${u.admission.quota}명` : "전형 준비 중" },
+          { icon: ClipboardCheck, label: u.admission ? `${u.admission.units.length}개 전형` : "—" },
           { icon: MessagesSquare, label: noInterview ? "면접 미실시" : `면접 ${tracks.length}개 전형` },
-          ...(u.hasClassPage ? [{ icon: Users, label: "MMI 특강 개설" }] : []),
         ]}
       />
 
@@ -186,28 +144,38 @@ export default async function UnivPage({
         caption="2027학년도 수시 모집요강 및 T스쿨 수시 DB 기준. 최종 수치는 각 대학 모집요강에서 확정됩니다."
       />
 
-      <PromoSection
-        eyebrow="SUMMARY"
-        EyebrowIcon={ImageIcon}
-        title={`${u.short} 의예과 면접 한 장 요약`}
-        subtitle="저장하거나 공유해서 쓰십시오. 요강에서 확인된 값만 담았습니다."
-      >
-        <figure className="mx-auto max-w-4xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/og/univ/${u.slug}.png`}
-            alt={`${u.short} 의예과 2027학년도 면접 요약 — ${
-              noInterview ? "면접 미실시" : u.interview?.styleLabel ?? "면접 실시"
-            }, 면접 ${tracks.length}개 전형`}
-            width={1200}
-            height={630}
-            className="w-full border border-hair-strong"
-          />
-          <figcaption className="mt-4 text-center text-[12px] font-light leading-relaxed text-ink-400">
-            {u.name} · 2027학년도 수시 모집요강 기준
-          </figcaption>
-        </figure>
-      </PromoSection>
+      {/* ===== 면접 배너 — 면접 페이지(/interview/uidae/[slug])로 보내는 주 진입로 ===== */}
+      <section className="border-y border-ink bg-ink px-6 py-10 text-paper sm:px-12">
+        <Link
+          href={interviewHref}
+          className="group mx-auto flex max-w-5xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-start gap-4">
+            <span className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center border border-white/20 bg-white/5">
+              <MessagesSquare className="h-5 w-5 text-brass-300" strokeWidth={1.75} />
+            </span>
+            <div>
+              <p className="eyebrow text-brass-300">
+                {noInterview ? "INTERVIEW · 미실시" : `INTERVIEW · ${tracks.length}개 전형`}
+              </p>
+              <h2 className="display mt-2 text-[1.375rem] leading-snug text-paper sm:text-[1.625rem]">
+                {noInterview ? `${u.short} 의대는 올해 면접이 없습니다` : `${u.short} 의대 면접, 따로 준비하셔야 합니다`}
+              </h2>
+              <p className="mt-2 text-[14px] font-light leading-[1.8] text-paper/70">
+                {noInterview
+                  ? "면접 대신 무엇을 채울지 면접 페이지에 정리했습니다."
+                  : `${iv?.styleLabel ?? "면접 방식"}${
+                      interviewDays.length > 0 ? ` · 첫 면접 ${formatKo(interviewDays[0])}` : ""
+                    } — 방식·대비 포인트·1:1 수업 일정까지 한 페이지에.`}
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex shrink-0 items-center justify-center gap-2 bg-paper px-7 py-4 text-[15px] font-semibold text-ink transition-colors group-hover:bg-brass-200">
+            {noInterview ? "면접 미실시 안내" : `${u.short} 면접 보러 가기`}
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
+          </span>
+        </Link>
+      </section>
 
       {unverified && (
         <PromoSection>
@@ -235,183 +203,32 @@ export default async function UnivPage({
         )}
       </PromoSection>
 
-      {/* ===== 2. 면접 안내 ===== */}
-      <div id="interview" className="scroll-mt-24" />
+      {/* ===== 2. 면접 — 요약만, 본문은 면접 페이지 ===== */}
       <PromoSection
         eyebrow="INTERVIEW"
         EyebrowIcon={MessagesSquare}
-        title={noInterview ? "면접을 실시하지 않습니다" : "면접 안내"}
-        subtitle={
-          noInterview
-            ? `${u.short} 의예과는 2027학년도 수시 전 전형에서 면접을 실시하지 않습니다. 준비의 무게중심이 달라집니다.`
-            : iv
-              ? `${iv.styleLabel} — 요강에서 확인된 사실만 옮겼습니다.`
-              : "면접 정보를 준비 중입니다."
-        }
+        title={noInterview ? "면접을 실시하지 않습니다" : "면접은 따로 정리했습니다"}
         tone="muted"
       >
-        {iv ? (
-          <div className="space-y-12">
-            <FactList items={iv.format} />
-            {tracks.length > 0 && (
-              <>
-                <InterviewDates univ={u} />
-                <InterviewTable univ={u} />
-              </>
-            )}
-            {iv.notes && iv.notes.length > 0 && (
-              <NoteBox
-                title="이 대학에서 특히 헷갈리는 지점"
-                tone="warn"
-                Icon={ListChecks}
-                items={iv.notes}
-              />
-            )}
-          </div>
-        ) : (
-          <p className="mx-auto max-w-2xl text-center text-sm font-light leading-[1.9] text-ink-500">
-            이 대학의 면접 정보는 아직 정리되지 않았습니다. 상담으로 문의해 주세요.
+        <div className="mx-auto max-w-3xl border border-hair-strong bg-paper-50 p-8 text-center">
+          <p className="text-[14px] font-light leading-[1.85] text-ink-600">
+            {noInterview
+              ? `${u.short} 의예과는 2027학년도 수시 전 전형에서 면접을 실시하지 않습니다. 면접 대신 무엇을 준비할지 면접 페이지에 정리했습니다.`
+              : `${u.short} 의예과는 ${tracks.length}개 전형에서 면접을 봅니다${
+                  iv?.styleLabel ? ` — ${iv.styleLabel}` : ""
+                }${interviewDays.length > 0 ? `, 첫 면접일 ${formatKo(interviewDays[0])}` : ""}. 면접 방식·대비 포인트·수업 일정은 면접 페이지에서 확인하세요.`}
           </p>
-        )}
+          <Link
+            href={interviewHref}
+            className="mt-6 inline-flex items-center gap-2 border border-ink bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-800"
+          >
+            {u.short} 의대 면접 보기
+            <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+          </Link>
+        </div>
       </PromoSection>
 
-      {/* ===== 3. 면접 수업 안내 ===== */}
-      <PromoSection
-        eyebrow="CLASS"
-        EyebrowIcon={Target}
-        title={noInterview ? `${u.short} 지원자는 무엇을 준비하나` : `${u.short} 대비 훈련 포인트`}
-        subtitle={
-          noInterview
-            ? "면접이 없는 대학은 준비 시간을 다른 곳에 씁니다. 그 방향을 정리했습니다."
-            : "대학마다 묻는 방식이 다릅니다. 이 대학을 겨냥한 훈련만 적었습니다."
-        }
-      >
-        {iv ? (
-          <div className="space-y-12">
-            <FactList items={iv.drills} />
-
-            {u.hasClassPage && mmiUniv ? (
-              <div className="mx-auto max-w-3xl border border-hair-strong bg-paper-50 p-8 text-center">
-                <p className="eyebrow text-brass-600">대학별 1:1 특강</p>
-                <h3 className="display mt-4 text-[1.375rem] leading-snug text-ink-900">
-                  {u.short} 전용 커리큘럼이 열려 있습니다
-                </h3>
-                <p className="mt-3 text-[14px] font-light leading-[1.85] text-ink-500">
-                  1단계 발표일부터 면접 전날까지의 구간에 맞춰 짜인 커리큘럼입니다. 아래에 이 대학의
-                  수업 캘린더와 남은 자리를 그대로 공개합니다.
-                </p>
-              </div>
-            ) : noInterview ? (
-              <NoteBox
-                title="면접이 없는 대학의 준비 순서"
-                tone="info"
-                Icon={BookOpenCheck}
-                items={[
-                  "교과 성적과 서류가 최종 점수다 — 제출 시점의 학생부가 곧 결과다.",
-                  "수능 최저 충족이 실질 관문이 된다. 모의고사 기준으로 충족 가능성을 먼저 계산한다.",
-                  "면접으로 뒤집을 구간이 없으므로 지원 위치를 보수적으로 잡는다.",
-                  "면접 준비에 쓸 시간을 최저 과목과 생기부 마무리에 재배치한다.",
-                ]}
-              />
-            ) : (
-              <div className="mx-auto max-w-3xl border border-hair-strong bg-paper-50 p-8 text-center">
-                <p className="eyebrow text-brass-600">면접 수업</p>
-                <h3 className="display mt-4 text-[1.375rem] leading-snug text-ink-900">
-                  {u.short} 면접은 1:1 맞춤 편성으로 진행합니다
-                </h3>
-                <p className="mt-3 text-[14px] font-light leading-[1.85] text-ink-500">
-                  이 대학은 정규 특강반이 아니라, 1단계 발표일과 면접일에 맞춰 개별 일정으로 편성합니다.
-                  위 훈련 포인트를 기준으로 커리큘럼을 짜고 모의면접을 반복합니다. 편성 가능 일정은 상담에서
-                  확인해 주세요.
-                </p>
-                <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-                  <Link
-                    href="#contact"
-                    className="inline-flex items-center gap-2 border border-ink bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-800"
-                  >
-                    <MessagesSquare className="h-4 w-4" strokeWidth={1.75} />
-                    {u.short} 면접 수업 문의
-                  </Link>
-                  <Link
-                    href="/interview"
-                    className="inline-flex items-center gap-2 border border-hair-strong px-6 py-3 text-sm font-medium text-ink-700 transition-colors hover:border-ink"
-                  >
-                    면접 수업 전체 보기
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-      </PromoSection>
-
-      {/* ===== 담당 강사 — 제시문 → 박은우, 그 밖 → 이세인 ===== */}
-      {!noInterview && univTeacherKeys(u.slug).length > 0 && (
-        <PromoSection
-          eyebrow="INSTRUCTOR"
-          EyebrowIcon={Users}
-          title="담당 강사"
-          subtitle={
-            univTeacherKeys(u.slug).length > 1
-              ? `${u.short} 면접은 제시문 면접은 박은우 선생님, 그 밖의 면접은 이세인 선생님이 나눠 맡습니다.`
-              : univTeacherKeys(u.slug)[0] === "jesimun"
-                ? `${u.short} 면접은 제시문 면접이라 박은우 선생님이 맡습니다.`
-                : `${u.short} 면접은 이세인 선생님이 맡습니다.`
-          }
-        >
-          <TeacherCards teachers={univTeacherKeys(u.slug).map((k) => UNIV_TEACHERS[k])} />
-        </PromoSection>
-      )}
-
-      {/* ===== 이어보기 ===== */}
-      {mmiUniv && booking && (
-        <>
-          <PromoSection
-            eyebrow="CALENDAR"
-            EyebrowIcon={CalendarDays}
-            title="수업 캘린더"
-            subtitle="1차 발표일부터 면접 전날까지 열려 있는 자리입니다. 숫자는 그 날의 잔여 회차입니다."
-            tone="muted"
-          >
-            <ScheduleCalendar univ={mmiUniv} />
-          </PromoSection>
-
-          <PromoSection
-            eyebrow="AVAILABILITY"
-            EyebrowIcon={Clock}
-            title="예약 현황"
-            subtitle={`${u.short} 구간 전체 ${booking.total}회 중 ${
-              booking.booked + booking.waitlist
-            }회가 찼습니다. 남은 자리는 아래와 같습니다.`}
-          >
-            <BookingBoard univ={mmiUniv} />
-          </PromoSection>
-
-          <PromoSection
-            eyebrow="TIMETABLE"
-            EyebrowIcon={ListChecks}
-            title="수업 일정표"
-            subtitle="세로가 타임, 가로가 날짜입니다. 칸 안의 표시가 강사별 예약 상태입니다."
-            tone="muted"
-          >
-            <Timetable univ={mmiUniv} />
-          </PromoSection>
-
-          <PromoSection
-            eyebrow="WAITLIST"
-            EyebrowIcon={Repeat}
-            title="1차 불합격으로 풀리는 자리"
-          >
-              <LeakageNotice univ={mmiUniv} />
-          </PromoSection>
-        </>
-      )}
-
-      {/* 컨셉 밴드는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다.
-          예약 보드만 mmiUniv 에 걸려 있다. */}
-      <ClassCtaBand typeName={`${u.short} 면접`} />
-
-      <PromoSection eyebrow="MORE" EyebrowIcon={BarChart3} title="이어서 보기" tone="muted">
+      <PromoSection eyebrow="MORE" EyebrowIcon={BarChart3} title="이어서 보기">
         <LinkCards
           items={[
             ...(u.admission
@@ -420,7 +237,7 @@ export default async function UnivPage({
                     href: `/ipkyul/uiye/${u.slug}`,
                     icon: BarChart3,
                     title: `${u.short} 입시결과`,
-                    body: "전형별 최종등록자 등급컷(50%·70%)을 공시된 값만 정리했습니다.",
+                    body: "전형별 최종등록자 등급컷(50%·70%)을 공시된 값만 정리했습니다. 5등급 환산값도 함께 봅니다.",
                   },
                 ]
               : []),
@@ -428,7 +245,7 @@ export default async function UnivPage({
               href: "/univ",
               icon: GraduationCap,
               title: "다른 의대 보기",
-              body: "권역별로 전국 의대를 모아 두었습니다. 전형과 면접을 나란히 비교하세요.",
+              body: "권역별로 전국 의대를 모아 두었습니다. 전형 구조를 나란히 비교하세요.",
             },
             {
               href: "/susi",
@@ -443,9 +260,8 @@ export default async function UnivPage({
 
       <SourceNote
         lines={[
-          `전형 데이터는 T스쿨 수시 DB(2027학년도 기준), 면접 데이터는 ${u.short} 2027학년도 수시 모집요강에서 정리했습니다.`,
-          ...(iv?.sources ?? []).map((s) => `출처 — ${s.label}: ${s.url}`),
-          "모집인원·수능최저·면접 일정은 대학 사정에 따라 변경될 수 있습니다. 지원 판단은 반드시 해당 대학 최종 모집요강을 근거로 하세요.",
+          "전형 데이터는 T스쿨 수시 DB(2027학년도 기준)에서 정리했습니다.",
+          "모집인원·수능최저는 대학 사정에 따라 변경될 수 있습니다. 지원 판단은 반드시 해당 대학 최종 모집요강을 근거로 하세요.",
           ...(unverified
             ? ["⚠️ 이 대학은 입학처 요강 원문을 확인하지 못했습니다. 페이지의 수치를 그대로 신뢰하지 마세요."]
             : []),
@@ -454,7 +270,7 @@ export default async function UnivPage({
 
       <FinalCTA
         title={`${u.short} 지원, 가능한 전형부터 추려 드립니다`}
-        body="내신·모의고사·생기부를 이 대학 전형 구조에 대입하면 어느 전형이 현실적인지 분명해집니다. 면접 일정까지 함께 설계합니다."
+        body="내신·모의고사·생기부를 이 대학 전형 구조에 대입하면 어느 전형이 현실적인지 분명해집니다."
         Icon={GraduationCap}
         primaryHref="#contact"
         primaryLabel={`${u.short} 상담하기`}
