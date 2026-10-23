@@ -132,25 +132,33 @@ export type TeacherCard = {
 };
 
 export const TUITION = {
-  perSession: 380000,
-  perSessionLabel: "38만원",
+  perSession: 350000,
+  perSessionLabel: "35만원",
   unit: "1회 · 1:1 개인지도",
 } as const;
 
-/** 1회 수업은 2시간 30분. 식사 시간(11:00~12:00 / 17:00~18:00)은 타임에서 뺀다.
+/** 1회 수업은 1시간 40분(100분). 식사 시간(11:00~12:00 / 17:00~18:00)은 타임에서 뺀다.
  *
- *  평일  — 18:00~23:00 에 2타임
- *  휴일  — 08:30~11:00 / 12:00~17:00 / 18:00~23:00 에 5타임
+ *  평일  — 18:00~23:00 에 3타임
+ *  휴일  — 08:30~10:10 / 12:00~17:00 에 3타임 / 18:00~23:00 에 3타임 = 7타임
+ *
+ *  ⚠️ 100분은 운영 창에 딱 맞아떨어지는 길이다. 평일 저녁 300분 = 3타임,
+ *     휴일 낮 300분 = 3타임. 대신 타임 사이 버퍼가 0이므로 한 저녁에 3타임을
+ *     연속으로 열지 말 것(1:1 5시간 연속은 못 버틴다). 3타임은 용량의 상한이지
+ *     매일 채우라는 시간표가 아니다.
+ *     120분으로 늘리면 평일이 2타임으로 돌아가 용량이 150분 때와 같아진다.
  *
  *  holidayOnly 인 타임은 낮 시간대라 평일에는 열리지 않는다. */
-export const SESSION_MINUTES = 150;
+export const SESSION_MINUTES = 100;
 
 export const SLOT_TIMES = [
-  { id: "am", label: "08:30–11:00", short: "08:30", holidayOnly: true },
-  { id: "pm1", label: "12:00–14:30", short: "12:00", holidayOnly: true },
-  { id: "pm2", label: "14:30–17:00", short: "14:30", holidayOnly: true },
-  { id: "ev1", label: "18:00–20:30", short: "18:00", holidayOnly: false },
-  { id: "ev2", label: "20:30–23:00", short: "20:30", holidayOnly: false },
+  { id: "am", label: "08:30–10:10", short: "08:30", holidayOnly: true },
+  { id: "pm1", label: "12:00–13:40", short: "12:00", holidayOnly: true },
+  { id: "pm2", label: "13:40–15:20", short: "13:40", holidayOnly: true },
+  { id: "pm3", label: "15:20–17:00", short: "15:20", holidayOnly: true },
+  { id: "ev1", label: "18:00–19:40", short: "18:00", holidayOnly: false },
+  { id: "ev2", label: "19:40–21:20", short: "19:40", holidayOnly: false },
+  { id: "ev3", label: "21:20–23:00", short: "21:20", holidayOnly: false },
 ] as const;
 
 export type SlotTimeId = (typeof SLOT_TIMES)[number]["id"];
