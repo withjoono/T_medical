@@ -236,6 +236,7 @@ export default async function UnivPage({
       </PromoSection>
 
       {/* ===== 2. 면접 안내 ===== */}
+      <div id="interview" className="scroll-mt-24" />
       <PromoSection
         eyebrow="INTERVIEW"
         EyebrowIcon={MessagesSquare}

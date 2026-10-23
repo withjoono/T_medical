@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Check, TriangleAlert } from "lucide-react";
+import { CalendarDays, Check, ClipboardCheck, TriangleAlert } from "lucide-react";
 import type { UnivPage } from "@/lib/univ";
 import { quotaByType, isMixedUnit } from "@/lib/univ";
 import { formatKo } from "@/lib/mmi-schedule";
@@ -71,8 +71,34 @@ export function AdmissionTables({ univ }: { univ: UnivPage }) {
 
   const groups = quotaByType(univ);
 
+  /** 전형안내는 면접 유무와 무관하게 전 전형을 싣는다. 그래서 "면접이 아닌 것이
+   *  섞여 있다" 로 읽힌다. 행마다 면접 여부를 자동 판정하는 것은 전형명 규칙이
+   *  대학마다 달라 41% 밖에 맞지 않으므로 하지 않는다 — 틀린 라벨이 없는 것보다
+   *  나쁘다. 대신 면접 실시 전형 수(요강 실측)를 먼저 밝히고 면접 섹션으로 보낸다. */
+  const ivTracks = univ.interview?.tracks?.length ?? 0;
+  const noInterview = univ.hasInterview === false;
+
   return (
     <div className="mx-auto max-w-5xl space-y-12">
+      <div className="flex gap-3 border border-hair-strong bg-paper-100 px-6 py-4">
+        <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-brass-600" strokeWidth={1.75} />
+        <p className="text-[13px] font-light leading-[1.8] text-ink-700">
+          아래는 <strong className="font-semibold text-ink-900">면접 유무와 상관없이</strong> 이
+          대학 {univ.short} 의 수시 전형 전부입니다.{" "}
+          {noInterview ? (
+            <>2027학년도 요강 기준으로 <strong className="font-semibold text-ink-900">면접을 실시하는 전형은 없습니다.</strong></>
+          ) : ivTracks > 0 ? (
+            <>
+              이 가운데 면접을 보는 전형은{" "}
+              <strong className="font-semibold text-jade-700">{ivTracks}개</strong> 이고,
+              어느 전형인지는 <a href="#interview" className="link-underline">바로 아래 면접 섹션</a> 에
+              요강 기준으로 따로 정리했습니다.
+            </>
+          ) : (
+            <>면접 실시 전형은 요강에서 확인되지 않았습니다. 입학처 공지로 확인하세요.</>
+          )}
+        </p>
+      </div>
       {groups.map((g) => {
         const units = a.units.filter((u) => (u.type ?? "기타") === g.type);
         return (
