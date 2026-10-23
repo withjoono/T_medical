@@ -239,21 +239,47 @@ export function NoInterviewRow({
  *  ⚠️ 수업 절차·포함사항·가격 상세는 /interview 한 곳에만 둔다.
  *     유형 페이지마다 PriceCard 를 반복하면 어느 페이지를 열어도 절반이 같은 내용이 된다.
  *     여기서는 '얼마·얼마나·어디서 자세히' 세 가지만 말하고 보낸다. */
+/** 모든 대학·계열 페이지 하단의 수업 CTA.
+ *
+ *  ⚠️ 컨셉이 여기에 실린다 — 이 밴드가 의대 39개교 + 계열 50개교 + 허브까지
+ *     한 번에 깔리므로, 컨셉 문구를 페이지마다 따로 쓰지 말고 여기만 고친다. */
 export function ClassCtaBand({ typeName }: { typeName: string }) {
   return (
-    <section className="border-t border-hair bg-ink px-6 py-14 text-paper sm:px-12">
-      <div className="mx-auto flex max-w-4xl flex-col items-center gap-7 text-center">
-        <p className="eyebrow text-brass-300">{typeName} 대비 1:1 수업</p>
-        <p className="display text-[1.5rem] leading-snug sm:text-[1.75rem]">
-          줌 온라인 1:1 · 1회 {SESSION_HOURS_LABEL} ·{" "}
-          <span className="tnum text-brass-300">{CLASS_PRICE.label}</span>
-          <span className="text-[1rem] font-light text-paper/70"> {CLASS_PRICE.suffix}</span>
+    <section className="border-t border-hair bg-ink px-6 py-16 text-paper sm:px-12">
+      <div className="mx-auto max-w-4xl text-center">
+        <p className="eyebrow text-brass-300">{typeName} 대비</p>
+        <p className="display mt-6 text-[1.5rem] leading-snug sm:text-[1.75rem]">
+          반복은 <span className="text-brass-300">AI</span> 가, 판단은{" "}
+          <span className="text-brass-300">선생님</span>이
         </p>
-        <p className="max-w-xl text-[14px] font-light leading-[1.85] text-paper/70">
-          지원 대학과 면접일을 알려주시면 남은 기간에 맞춰 회차와 날짜를 잡아 드립니다.
-          묶음 결제나 선납은 없습니다.
+        <p className="mx-auto mt-5 max-w-xl text-[14px] font-light leading-[1.85] text-paper/70">
+          면접은 아는 것을 늘려서 되는 일이 아니라 반복해 몸에 붙이는 일입니다. 그래서 반복은
+          AI 모의면접이 맡고, 선생님 시간은 소재를 고르고 설계하는 데만 씁니다.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
+
+        <div className="mx-auto mt-10 grid max-w-3xl gap-px bg-paper/15 sm:grid-cols-3">
+          {[
+            { no: "01", t: "AI 모의면접", d: "무제한 · 선생님이 회차 처방" },
+            { no: "02", t: `선생님 1:1 ${SESSION_HOURS_LABEL}`, d: "진단·설계 / 실전 점검" },
+            { no: "03", t: "2회로 완성", d: "묶음·선납 없음" },
+          ].map((x) => (
+            <div key={x.no} className="bg-ink px-5 py-6">
+              <p className="tnum text-[11px] font-semibold tracking-[0.2em] text-brass-300">{x.no}</p>
+              <p className="mt-3 text-[14px] font-semibold">{x.t}</p>
+              <p className="mt-1.5 text-[12px] font-light text-paper/60">{x.d}</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-10 text-[15px] font-light text-paper/85">
+          선생님 1회 + AI 무제한{" "}
+          <span className="tnum text-[1.25rem] font-semibold text-brass-300">
+            {BUNDLE.priceLabel}
+          </span>
+          <span className="text-paper/55"> · 선생님 수업만 1회 {CLASS_PRICE.label}</span>
+        </p>
+
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="#contact"
             className="inline-flex items-center gap-2 border border-paper bg-paper px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-paper-100"
@@ -266,7 +292,7 @@ export function ClassCtaBand({ typeName }: { typeName: string }) {
             className="inline-flex items-center gap-2 border border-paper/30 px-6 py-3 text-sm font-medium text-paper transition-colors hover:border-paper/70"
           >
             <MonitorPlay className="h-4 w-4" strokeWidth={1.75} />
-            수업 절차 · 포함사항 자세히
+            수업 절차 · 비용 자세히
           </Link>
         </div>
       </div>

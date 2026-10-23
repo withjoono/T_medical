@@ -8,6 +8,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   GraduationCap,
+  Image as ImageIcon,
   Clock,
   ListChecks,
   MessagesSquare,
@@ -96,7 +97,16 @@ export async function generateMetadata({
       title,
       description,
       url,
-      images: [{ url: "/og-image.png?v=2", width: 1200, height: 630, alt: "T메디" }],
+      images: [
+        {
+          url: `https://tmedi.kr/og/univ/${u.slug}.png`,
+          width: 1200,
+          height: 630,
+          alt: `${u.short} 의예과 2027학년도 면접 요약 — ${
+            noInterview ? "면접 미실시" : u.interview?.styleLabel ?? "면접 실시"
+          }`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
@@ -175,6 +185,29 @@ export default async function UnivPage({
         items={stats}
         caption="2027학년도 수시 모집요강 및 T스쿨 수시 DB 기준. 최종 수치는 각 대학 모집요강에서 확정됩니다."
       />
+
+      <PromoSection
+        eyebrow="SUMMARY"
+        EyebrowIcon={ImageIcon}
+        title={`${u.short} 의예과 면접 한 장 요약`}
+        subtitle="저장하거나 공유해서 쓰십시오. 요강에서 확인된 값만 담았습니다."
+      >
+        <figure className="mx-auto max-w-4xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/og/univ/${u.slug}.png`}
+            alt={`${u.short} 의예과 2027학년도 면접 요약 — ${
+              noInterview ? "면접 미실시" : u.interview?.styleLabel ?? "면접 실시"
+            }, 면접 ${tracks.length}개 전형`}
+            width={1200}
+            height={630}
+            className="w-full border border-hair-strong"
+          />
+          <figcaption className="mt-4 text-center text-[12px] font-light leading-relaxed text-ink-400">
+            {u.name} · 2027학년도 수시 모집요강 기준
+          </figcaption>
+        </figure>
+      </PromoSection>
 
       {unverified && (
         <PromoSection>
@@ -368,12 +401,14 @@ export default async function UnivPage({
             EyebrowIcon={Repeat}
             title="1차 불합격으로 풀리는 자리"
           >
-            <LeakageNotice univ={mmiUniv} />
+              <LeakageNotice univ={mmiUniv} />
           </PromoSection>
-
-          <ClassCtaBand typeName={`${u.short} 면접`} />
         </>
       )}
+
+      {/* 컨셉 밴드는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다.
+          예약 보드만 mmiUniv 에 걸려 있다. */}
+      <ClassCtaBand typeName={`${u.short} 면접`} />
 
       <PromoSection eyebrow="MORE" EyebrowIcon={BarChart3} title="이어서 보기" tone="muted">
         <LinkCards
