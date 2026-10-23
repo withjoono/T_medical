@@ -8,18 +8,21 @@ import {
   MessagesSquare,
   MonitorPlay,
   Users,
+  Wallet,
 } from "lucide-react";
 import {
+  CompareTable,
   FeatureGrid,
   FinalCTA,
   LinkCards,
+  NoteBox,
   PriceCard,
   PromoHero,
   PromoSection,
   SourceNote,
   StepList,
 } from "../_site/components";
-import { FieldChooser } from "./_interview";
+import { FieldChooser, PriceTiers } from "./_interview";
 import { TeacherCards } from "../univ/_booking";
 import { UNIV_TEACHERS } from "@/lib/mmi-schedule";
 import {
@@ -51,33 +54,36 @@ const TAGLINES: Record<string, string> = {
   suuidae: "면접 반영은 20~30%로 좁고, 생기부 기반 면접이 대부분입니다. 면접이 없는 대학도 있습니다.",
 };
 
-/** 계열과 무관하게 같은 준비 순서. 계열별 차이는 각 계열 메인에 있다. */
+/** 면접은 공부가 아니라 훈련이다 — AI 가 반복(임계량)을 맡고 선생님이 판단을 맡는
+ *  구조. 네 단계 중 둘만 유료 수업이다. 계열이 달라도 순서는 같다. */
 const PREP_STEPS = [
   {
-    title: "계열과 지원 대학 확정",
+    title: "사전 과제 — 수업 아님",
     body:
-      "같은 대학이라도 의예과·치의예과·한의예과·약학과·수의예과의 면접 방식과 배점이 따로 정해져 있습니다. 계열을 고르고, 그 안에서 지원 대학의 면접 형식부터 확인합니다.",
+      "생기부를 올리고 지원 대학·전형을 확정한 뒤, AI 말하기 연습을 세 번 해 둡니다. 이걸 해 두어야 1회차가 정보 수집이 아니라 진단으로 시작합니다. 미완료 상태로는 1회차를 잡지 않습니다.",
   },
   {
-    title: "유형별 기본기",
+    title: "1회차 — 진단과 설계",
     body:
-      "제시문 독해 루틴, MMI 스테이션 대응, 생기부 예상 질문 정리 — 유형이 다르면 훈련도 다릅니다. 유형에 맞는 답변 골격을 먼저 만듭니다.",
+      "짧은 진단 모의로 무너지는 지점을 먼저 특정합니다. 그다음 생기부에서 쓸 소재를 고르고, 지원 대학의 평가축에 맞춰 답변 뼈대를 세웁니다. 강원대는 적성 60, 경희대는 인성 50·전공적합성 50 — 같은 생기부라도 무엇을 먼저 꺼낼지가 달라집니다.",
   },
   {
-    title: "생기부 전수 점검",
+    title: "AI 훈련 — 임계량 채우기",
     body:
-      "어떤 계열이든 생기부 질문은 나옵니다. 3년치 기재 내용을 문장 단위로 끊어 예상 질문과 답변 근거를 만들어 둡니다.",
+      "선생님이 회차를 처방합니다. 회차는 최소치이고 통과 기준은 따로 있습니다 — 카드별로 60초 안에 결론·근거·사례·배움 구조가 세 번 연속 나와야 합니다. 부족하면 추가 처방이 나가고, 추가 비용은 없습니다.",
   },
   {
-    title: "대학별 빈출 문항 실전 연습",
+    title: "2회차 — 실전 점검",
     body:
-      "지원 대학의 기출·빈출 문항으로 반복합니다. 반박과 꼬리질문 대응, 시간 관리 감각을 여기서 만듭니다.",
+      "지원 대학 형식 그대로 모의면접을 돌리고 즉시 교정합니다. 취약한 소재를 다시 손보고, 당일 입실 동선과 모르는 질문이 나왔을 때의 처리까지 맞춰 둡니다.",
   },
-  {
-    title: "1차 발표 후 실전 모의면접",
-    body:
-      "발표 직후부터 면접 전날까지 실전과 동일한 조건으로 모의면접을 돌리고, 표현·논리·태도를 즉시 교정합니다.",
-  },
+];
+
+/** AI 와 선생님의 역할 분담. 이 경계가 흐려지면 '싼 모의면접'이 된다. */
+const ROLE_ROWS = [
+  ["무엇을 보나", "구조 · 분량 · 말 빠르기 · 시선", "소재 선택 · 서사 · 진정성 · 태도"],
+  ["횟수", "선생님이 처방 — 기준 충족까지", "최대 2회"],
+  ["언제", "수업 사이 상시", "1회차 진단·설계 / 2회차 실전 점검"],
 ];
 
 function range(days: string[]) {
@@ -154,11 +160,31 @@ export default function InterviewHubPage() {
       <PromoSection
         eyebrow="PROCESS"
         EyebrowIcon={Brain}
-        title="준비 순서"
-        subtitle="계열이 달라도 쌓는 순서는 같습니다. 계열 확인에서 실전 모의면접까지 다섯 단계입니다."
+        title="선생님 수업 2회로 끝냅니다"
+        subtitle="면접은 아는 것을 늘려서 되는 일이 아니라, 압박 속에서 같은 구조를 반복해 몸에 붙이는 일입니다. 그래서 반복은 AI 가 맡고, 선생님 시간은 판단과 설계에만 씁니다."
         tone="muted"
       >
         <StepList steps={PREP_STEPS} />
+        <div className="mt-16">
+          <CompareTable
+            head={["", "AI 모의면접", "선생님 1:1"]}
+            rows={ROLE_ROWS}
+            caption="경계를 이렇게 나눕니다. AI 는 '자연스러움' 을 점수로 매기지 않습니다 — 점수를 올리는 방향으로 훈련하면 매끄럽지만 외운 티가 나는 답변이 나오고, 그건 면접위원이 깎는 지점입니다."
+          />
+        </div>
+        <div className="mt-14">
+          <NoteBox
+            title="2회차 시점은 대학이 정합니다"
+            items={[
+              "의대 72개 전형의 1단계 발표에서 면접까지는 중앙값 9일이지만 편차가 큽니다.",
+              "3~4일인 대학(을지대·연세대 미래·부산대·인하대 등)은 발표를 보고 시작하면 유형을 익히다 끝납니다. 2회차를 발표 전에 끝내야 합니다.",
+              "발표 전에 하면 떨어질 수도 있는 상태에서 비용을 쓰게 됩니다. 이 선택은 먼저 설명드리고 함께 정합니다.",
+              "5~8일이면 발표 직후, 9일 이상이면 발표 뒤에 여유 있게 잡습니다.",
+            ]}
+            tone="warn"
+            Icon={CalendarDays}
+          />
+        </div>
       </PromoSection>
 
       <PromoSection
@@ -188,6 +214,15 @@ export default function InterviewHubPage() {
             label="면접 수업 문의하기"
           />
         </div>
+      </PromoSection>
+
+      <PromoSection
+        eyebrow="PRICING"
+        EyebrowIcon={Wallet}
+        title="비용"
+        subtitle="AI 가 반복을, 선생님이 판단을 맡으면 회차가 줄고 비용이 내려갑니다. 대치동 의대 MMI 특강은 6시간 180만원, 1:1 12시간은 240만원 선입니다."
+      >
+        <PriceTiers sessionLabel={SESSION_HOURS_LABEL} />
       </PromoSection>
 
       <PromoSection

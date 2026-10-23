@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MonitorPlay } from "lucide-react";
 import { earliestInterview, interviewTrackCount } from "@/lib/univ";
-import { formatKo } from "@/lib/mmi-schedule";
+import {
+  formatKo,
+  AI_TIERS,
+  BUNDLE,
+  TUITION,
+} from "@/lib/mmi-schedule";
 import {
   CLASS_PRICE,
   SESSION_HOURS_LABEL,
@@ -450,6 +455,89 @@ export function FieldChooser({
           </span>
         </Link>
       ))}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------
+ * 가격표 — AI 단품 · 선생님 수업 · 묶음
+ *
+ *  ⚠️ 숫자를 여기에 쓰지 않는다. lib/mmi-schedule.ts 의 AI_TIERS / BUNDLE /
+ *     TUITION 이 SSOT 다. status: "preparing" 인 항목은 '준비 중'으로 나가고
+ *     결제 버튼이 붙지 않는다.
+ * ---------------------------------------------------------------------- */
+
+export function PriceTiers({ sessionLabel }: { sessionLabel: string }) {
+  const preparing = AI_TIERS.filter((t) => t.status === "preparing").length;
+  return (
+    <div className="mx-auto max-w-4xl">
+      <div className="border border-hair-strong bg-white">
+        <div className="border-b border-hair bg-paper-100 px-7 py-4">
+          <p className="eyebrow text-brass-600">AI 모의면접</p>
+          <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-600">
+            반복 훈련을 맡습니다. 선생님이 회차를 처방하고, 부족하면 추가 처방이 나갑니다.
+            추가 비용은 없습니다.
+          </p>
+        </div>
+        <ul>
+          {AI_TIERS.map((t) => (
+            <li
+              key={t.key}
+              className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-hair px-7 py-4"
+            >
+              <span className="flex flex-wrap items-baseline gap-x-2.5">
+                <span className="text-[15px] font-medium text-ink-900">{t.label}</span>
+                <span className="text-[12px] font-light text-ink-400">{t.meta}</span>
+                {t.status === "preparing" && (
+                  <span className="border border-hair bg-paper-100 px-2 py-0.5 text-[11px] font-semibold text-ink-400">
+                    준비 중
+                  </span>
+                )}
+              </span>
+              <span
+                className={`tnum text-[15px] font-semibold ${
+                  t.price === 0 ? "text-jade-700" : "text-ink-900"
+                }`}
+              >
+                {t.priceLabel}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="border-b border-hair bg-paper-100 px-7 py-4">
+          <p className="eyebrow text-brass-600">선생님 1:1</p>
+          <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-600">
+            판단과 설계를 맡습니다. 1회차는 진단과 설계, 2회차는 실전 점검입니다.
+          </p>
+        </div>
+        <ul>
+          <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-hair px-7 py-4">
+            <span className="flex flex-wrap items-baseline gap-x-2.5">
+              <span className="text-[15px] font-medium text-ink-900">선생님 1:1 수업 1회</span>
+              <span className="text-[12px] font-light text-ink-400">줌 · {sessionLabel}</span>
+            </span>
+            <span className="tnum text-[15px] font-semibold text-ink-900">{TUITION.perSessionLabel}</span>
+          </li>
+          <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 bg-jade-50 px-7 py-5">
+            <span className="flex flex-wrap items-baseline gap-x-2.5">
+              <span className="text-[15px] font-semibold text-ink-900">
+                선생님 1회 + AI 무제한
+              </span>
+              <span className="text-[12px] font-light text-ink-500">{BUNDLE.aiMeta}</span>
+            </span>
+            <span className="tnum text-[15px] font-semibold text-jade-700">
+              {BUNDLE.priceLabel}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <p className="mt-5 text-[12px] font-light leading-relaxed text-ink-400">
+        묶음 결제나 선납은 없습니다. 회차는 필요한 만큼만 잡습니다.
+        {preparing > 0 &&
+          " ‘준비 중’ 인 AI 항목은 아직 과금하지 않습니다 — 지금 여는 실전 모의 형식이 고려대 의학과 하나뿐이고 제시문도 검수 전이라, 형식을 늘리고 검수를 마친 뒤에 엽니다. 그때까지는 무료로 쓰실 수 있습니다."}
+      </p>
     </div>
   );
 }

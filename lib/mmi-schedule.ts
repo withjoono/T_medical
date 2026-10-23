@@ -131,6 +131,56 @@ export type TeacherCard = {
   focus: string;
 };
 
+/** =========================================================================
+ *  가격 SSOT — 화면 표기는 전부 여기서 파생한다. 숫자를 페이지에 직접 쓰지 말 것.
+ *
+ *  구조: AI 모의면접이 반복(임계량)을 맡고, 선생님 100분이 판단과 설계를 맡는다.
+ *  그래서 AI 는 단품으로는 유료지만 수업에 붙으면 무료다 — 선생님이 "더 해오세요"
+ *  를 처방하는 구조이므로, 처방이 추가 결제 요구가 되면 구조 자체가 무너진다.
+ *
+ *  ⚠️ AI 유료 항목은 status: "preparing" 이다. 지금 여는 실전 모의 형식이
+ *     고려대 의학과 하나뿐이고 제시문도 검수 전 초안이라 과금하면 안 된다.
+ *     형식이 3개 이상(제시문·인적성·MMI)으로 늘고 제시문 검수가 끝나면
+ *     status 만 "open" 으로 바꾼다. 화면은 자동으로 따라온다.
+ *  ========================================================================= */
+
+export type PriceStatus = "open" | "preparing";
+
+export type PriceTier = {
+  key: string;
+  label: string;
+  /** 기간·횟수 등 조건 */
+  meta: string;
+  /** 원 단위. 0 이면 무료 */
+  price: number;
+  priceLabel: string;
+  status: PriceStatus;
+};
+
+/** AI 모의면접 단품. 수업에 붙을 때는 BUNDLE 로 무료 제공한다. */
+export const AI_TIERS: PriceTier[] = [
+  { key: "coach", label: "말하기·태도 연습", meta: "무제한 · 로그인 없이",
+    price: 0, priceLabel: "무료", status: "open" },
+  { key: "trial", label: "실전 모의 체험", meta: "1회",
+    price: 0, priceLabel: "무료", status: "preparing" },
+  { key: "p3", label: "실전 모의 3회", meta: "회당 9,700원",
+    price: 29000, priceLabel: "29,000원", status: "preparing" },
+  { key: "p5", label: "실전 모의 5회", meta: "회당 9,000원",
+    price: 45000, priceLabel: "45,000원", status: "preparing" },
+  { key: "week", label: "실전 모의 1주 무제한", meta: "1단계 발표에서 면접까지를 덮는 길이",
+    price: 69000, priceLabel: "69,000원", status: "preparing" },
+  { key: "season", label: "실전 모의 시즌 무제한", meta: "면접 종료까지",
+    price: 149000, priceLabel: "149,000원", status: "preparing" },
+];
+
+/** 선생님 수업 + AI 묶음. AI 는 시즌 무제한으로 넣는다 —
+ *  1주만 주면 면접 직전에 끊겨 추가 처방을 못 받는다. */
+export const BUNDLE = {
+  price: 380000,
+  priceLabel: "38만원",
+  aiMeta: "AI 실전 모의 시즌 무제한 포함",
+} as const;
+
 export const TUITION = {
   perSession: 350000,
   perSessionLabel: "35만원",
