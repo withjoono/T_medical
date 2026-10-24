@@ -10,7 +10,8 @@ import {
   Scale,
   ScrollText,
   Stethoscope,
-  Users,
+  Compass,
+  Building2,
 } from "lucide-react";
 import {
   FinalCTA,
@@ -20,7 +21,8 @@ import {
   PromoSection,
   SourceNote,
 } from "../_site/components";
-import { ClassCtaBand } from "./_interview";
+import { CrossFieldLinks, FieldClassLine, FieldPeerFacts } from "./_crossfield";
+import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
 import {
   FieldAxisPair,
   FieldCountdown,
@@ -34,10 +36,8 @@ import {
   styleGroupMeta,
   type FieldPage,
 } from "@/lib/field-registry";
-import { SESSION_HOURS_LABEL } from "@/lib/interview-types";
 import { admissionHrefOf } from "@/lib/field-admission";
 import { formatKo, UNIV_TEACHERS } from "@/lib/mmi-schedule";
-import { TeacherCards } from "../univ/_booking";
 import { JsonLdAll } from "@/components/json-ld";
 import { abs, article, breadcrumb } from "@/lib/jsonld";
 
@@ -135,6 +135,12 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   const card = fieldUnivCard(field, u);
   const title = fieldUnivMetadata(field, u).title as string;
   const description = fieldUnivMetadata(field, u).description as string;
+  const unit = `${u.short} ${field.unitLabel}`;
+  const peer = fieldPeerContext(field, u);
+  const cross = crossFieldLinks(u.short, field.key);
+  const teacher = none
+    ? undefined
+    : (u.style === "jesimun" ? UNIV_TEACHERS.jesimun : UNIV_TEACHERS.general).name;
 
   return (
     <>
@@ -155,8 +161,8 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         highlight={u.headline}
         body={
           none
-            ? `${u.name} 는 2027학년도 요강 기준으로 면접을 실시하지 않습니다. 대신 지원 가능한 전형과 선발 방법, 수능 최저를 요강에서 그대로 옮겼습니다.`
-            : `${u.name} 의 2027학년도 수시 모집요강에서 면접에 관한 문장만 그대로 옮겼습니다. 전형별 반영비율과 1단계 발표일·면접일이 함께 있습니다.`
+            ? `${u.name} 는 2027학년도 요강 기준으로 면접을 실시하지 않습니다. 면접 대신 무엇을 준비할지 정리했고, 전형별 모집인원·수능 최저는 전형 안내 페이지에 있습니다.`
+            : `${u.name} 의 2027학년도 수시 모집요강에서 면접에 관한 문장만 그대로 옮겼습니다. 면접 전형의 반영비율과 1단계 발표일·면접일이 함께 있습니다.`
         }
         primaryHref="#contact"
         primaryLabel={none ? `${field.short} 면접 수업 문의` : `${u.short} 면접 수업 문의`}
@@ -177,7 +183,6 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         eyebrow="SUMMARY"
         EyebrowIcon={ImageIcon}
         title={`${u.short} ${field.unitLabel} 면접 한 장 요약`}
-        subtitle="저장하거나 공유해서 쓰십시오. 요강에서 확인된 값만 담았습니다."
       >
         <figure className="mx-auto max-w-4xl">
           {/* next/image 를 쓰지 않는다 — output:'export' 에서 굳이 거칠 이유가 없고,
@@ -200,8 +205,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         <PromoSection
           eyebrow="TWO AXES"
           EyebrowIcon={Scale}
-          title="이 면접은 무엇으로 갈리나"
-          subtitle="질문 출처와 평가 배점은 서로 다른 축입니다. 둘을 따로 확인해야 준비물이 정해집니다."
+          title={`${unit} 면접은 무엇으로 갈리나`}
         >
           <FieldAxisPair univ={u} />
         </PromoSection>
@@ -210,8 +214,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
       <PromoSection
         eyebrow="FORMAT"
         EyebrowIcon={ScrollText}
-        title={none ? "요강에 적힌 것과, 그래서 확인할 것" : "요강에 적힌 것과, 그래서 훈련할 것"}
-        subtitle="왼쪽은 요강 문장입니다. 오른쪽은 그 문장에서 바로 나오는 준비 과제입니다."
+        title={none ? `${unit} — 요강 문장과 확인할 것` : `${unit} — 요강 문장과 훈련 과제`}
         tone="muted"
       >
         <FieldFormatDrills univ={u} />
@@ -220,17 +223,17 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
       <PromoSection
         eyebrow="TRACKS"
         EyebrowIcon={GraduationCap}
-        title="전형별 반영비율과 일정"
-        subtitle="같은 대학 안에서도 전형에 따라 면접 유무가 갈립니다. 지원 전형을 먼저 확정해야 준비가 헛돌지 않습니다."
+        title={none ? "면접을 보는 전형이 없습니다" : "면접 전형의 반영비율과 일정"}
+        subtitle={none ? undefined : `${unit}에서 면접을 보는 전형 ${iv.length}개입니다.`}
       >
-        <FieldTrackTables univ={u} />
+        <FieldTrackTables univ={u} admissionHref={admissionHref} />
       </PromoSection>
 
       {iv.length > 0 && (
         <PromoSection
           eyebrow="TIMELINE"
           EyebrowIcon={CalendarDays}
-          title="언제 시작해야 하나"
+          title={`${unit} 면접, 언제 시작해야 하나`}
           tone="muted"
         >
           <FieldCountdown univ={u} />
@@ -248,33 +251,34 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         </PromoSection>
       )}
 
-      {!none && (
+      <PromoSection
+        eyebrow="IN CONTEXT"
+        EyebrowIcon={Compass}
+        title={`${field.short} ${field.univs.length}곳 안에서 본 ${u.short}`}
+        tone={iv.length > 0 ? undefined : "muted"}
+      >
+        <FieldPeerFacts field={field} ctx={peer} />
+      </PromoSection>
+
+      {cross.length > 0 && (
         <PromoSection
-          eyebrow="INSTRUCTOR"
-          EyebrowIcon={Users}
-          title="담당 강사"
-          subtitle={
-            u.style === "jesimun"
-              ? `${u.short} ${field.unitLabel} 면접은 제시문 면접이라 박은우 선생님이 맡습니다.`
-              : `${u.short} ${field.unitLabel} 면접은 제시문이 없는 면접이라 이세인 선생님이 맡습니다.`
-          }
+          eyebrow="SAME UNIVERSITY"
+          EyebrowIcon={Building2}
+          title={`${u.short}의 다른 계열 면접`}
+          subtitle={`같은 ${u.short}라도 모집단위마다 면접 방식과 날짜가 다릅니다.`}
           tone="muted"
         >
-          <TeacherCards
-            teachers={[u.style === "jesimun" ? UNIV_TEACHERS.jesimun : UNIV_TEACHERS.general]}
-          />
+          <CrossFieldLinks links={cross} mine={first} univShort={u.short} />
         </PromoSection>
       )}
 
-      <ClassCtaBand typeName={none ? field.label : `${u.short} ${field.unitLabel} 면접`} />
+      <FieldClassLine subject={none ? field.label : `${unit} 면접`} teacher={teacher} />
 
       {siblings.length > 0 && (
         <PromoSection
           eyebrow="SAME TYPE"
           EyebrowIcon={MessagesSquare}
-          title="같은 유형의 다른 대학"
-          subtitle={`${meta.label} 묶음에 함께 있는 대학입니다. 복수 지원이라면 면접일이 겹치는지 먼저 확인하세요.`}
-          tone="muted"
+          title={`${meta.label} — 다른 ${field.short}`}
         >
           <FieldSiblings field={field} univs={siblings} label={meta.label} />
         </PromoSection>
@@ -282,20 +286,20 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
 
       <PromoSection eyebrow="MORE" EyebrowIcon={ClipboardCheck} title="함께 보기">
         <LinkCards
-          columns={3}
+          columns={2}
           items={[
             {
               href: field.base,
               icon: MessagesSquare,
               title: `${field.label} 전체`,
-              body: `유형별로 나눈 ${field.short} 면접 실시 대학과 일정을 한 페이지에.`,
+              body: `${field.short} ${field.univs.length}곳의 면접일·방식을 면접일 순으로.`,
             },
             admissionHref
               ? {
                   href: admissionHref,
                   icon: GraduationCap,
                   title: `${u.short} ${field.unitLabel} 전형 안내`,
-                  body: "전형별 모집인원·수능최저·선발모형과 공시 입결.",
+                  body: `${unit}의 전형별 모집인원·수능최저와 공시 입결.`,
                 }
               : {
                   href: field.ipkyul,
@@ -303,21 +307,13 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
                   title: `${field.unitLabel} 입시결과`,
                   body: "대학·전형별 모집인원과 공시된 입결.",
                 },
-            {
-              href: "/interview",
-              icon: ClipboardCheck,
-              title: "면접 수업 절차",
-              body: `1회 ${SESSION_HOURS_LABEL} 줌 1:1 수업의 진행 방식과 포함 사항.`,
-            },
           ]}
         />
       </PromoSection>
 
       <SourceNote
         lines={[
-          `면접 방식·반영비율·일정은 ${u.name} 2027학년도 수시 모집요강에서 정리했습니다(2026년 9월 확인). 대학 사정으로 변경될 수 있으므로 최종 확인은 해당 입학처 공지를 따르십시오.`,
-          "요강에 적힌 문장만 옮겼습니다. 같은 대학의 다른 모집단위(의예과 등) 자료로 이 모집단위를 추정하지 않았습니다.",
-          "평가 배점이 '요강 미기재' 로 표시된 항목은 요강에 공개되지 않은 것입니다. 없는 값을 추정해 넣지 않았습니다.",
+          `${u.name} 2027학년도 수시 모집요강 기준(2026년 9월 확인). 요강에 없는 값은 '요강 미기재' 로 두었고 다른 모집단위 자료로 추정하지 않았습니다. 최종 확인은 입학처 공지를 따르십시오.`,
         ]}
       />
 
@@ -329,8 +325,8 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         }
         body={
           none
-            ? `이 모집단위는 제출 시점의 학생부와 수능 최저가 전부입니다. 면접을 보는 ${field.short}와 함께 지원한다면, 그 대학의 평가 축에 맞춰 준비를 설계해 드립니다. 1회 ${SESSION_HOURS_LABEL}, 줌 1:1 수업입니다.`
-            : `이 대학의 질문 출처와 평가 배점에 맞춰 과제와 모의면접을 설계합니다. 1회 ${SESSION_HOURS_LABEL}, 줌 1:1 수업입니다.`
+            ? `${unit}는 학생부와 수능 최저가 전부입니다. 면접을 보는 ${field.short}와 함께 지원한다면 그 대학 기준으로 준비를 설계합니다.`
+            : `${unit}의 ${u.source ? `질문 출처(${u.source.label})` : "질문 출처"}와 ${u.scoring ? `평가 배점(${u.scoring.label})` : "평가 배점"}에 맞춰 과제와 모의면접을 설계합니다.`
         }
         Icon={Stethoscope}
         primaryHref="#contact"

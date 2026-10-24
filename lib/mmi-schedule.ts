@@ -1,3 +1,4 @@
+import { TEACHER_PROFILES } from "./teachers";
 /** =========================================================================
  *  2027 의대 면접(MMI) 특강 — 대학별 일정 · 수업 슬롯 데이터
  *
@@ -80,10 +81,8 @@ export function formatDot(iso: string): string {
  *  약대·치대·수의대·한의대 선생님은 사용자가 따로 입력할 예정이다. */
 export const TEACHERS = [
   {
-    id: "lsi",
-    name: "이세인",
+    ...TEACHER_PROFILES.lsi,
     role: "의대 면접 전담 · 인성 · 상황 · MMI",
-    credential: "이화여자대학교 의과대학",
     focus:
       "의대 면접 수업을 맡습니다. 인성·상황·의료윤리 문항의 답변 골격을 잡고, 지원 대학 형식 그대로 모의면접을 돌린 뒤 표현·태도·시선까지 그 자리에서 교정합니다.",
   },
@@ -92,10 +91,8 @@ export const TEACHERS = [
 /** 고려대 의학과 제시문 면접(자연계 공통, 수학·과학 교과)만 맡는 강사.
  *  예약 슬롯(TEACHERS)에는 넣지 않는다 — 고려대 제시문 수업은 따로 일정을 잡는다. */
 export const KOREA_JESIMUN_TEACHER = {
-  id: "pew",
-  name: "박은우",
+  ...TEACHER_PROFILES.pew,
   role: "고려대 의학과 제시문 면접 전담",
-  credential: "서강대학교 공과대학 졸업 · 現 과학고 수학·과학(물리·화학·생명) AP 수업 담당",
   focus:
     "고려대 계열적합전형 의학과의 자연계 제시문 면접(수학·과학 교과, 준비 21분 · 면접 7분)을 맡습니다. 처음 보는 소재의 제시문을 읽고 제시문끼리 연결해 설명하는 훈련을 합니다.",
 } as const;
@@ -106,18 +103,14 @@ export const KOREA_JESIMUN_TEACHER = {
  *  예약 슬롯(TEACHERS)과는 별개다. 대학 페이지에 '누가 맡는가' 를 보여 줄 때만 쓴다. */
 export const UNIV_TEACHERS = {
   general: {
-    id: "lsi",
-    name: "이세인",
+    ...TEACHER_PROFILES.lsi,
     role: "인성 · 서류 기반 · MMI 면접",
-    credential: "이화여자대학교 의과대학",
     focus:
       "생활기록부를 놓고 묻는 질문과 인성·상황·의료윤리 문항의 답변 골격을 잡고, 지원 대학 형식 그대로 모의면접을 돌린 뒤 표현·태도·시선까지 그 자리에서 교정합니다.",
   },
   jesimun: {
-    id: "pew",
-    name: "박은우",
+    ...TEACHER_PROFILES.pew,
     role: "제시문 면접 전담",
-    credential: "서강대학교 공과대학 졸업 · 現 과학고 수학·과학(물리·화학·생명) AP 수업 담당",
     focus:
       "처음 보는 소재의 제시문을 읽고 쟁점을 세운 뒤, 제시문끼리 연결해 근거와 함께 설명하는 훈련을 합니다. 수학·과학 제시문까지 직접 다룹니다.",
   },
@@ -129,6 +122,8 @@ export type TeacherCard = {
   role: string;
   credential: string;
   focus: string;
+  /** 사진 — 보통 비워 둔다. 카드가 lib/teachers.ts 에서 id 로 찾는다 */
+  photo?: string;
 };
 
 /** =========================================================================

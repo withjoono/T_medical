@@ -9,6 +9,7 @@ import {
   GraduationCap,
   MessagesSquare,
   Scale,
+  Building2,
 } from "lucide-react";
 import {
   PromoHero,
@@ -20,6 +21,8 @@ import {
 import { AdmissionTables, UnivStatRow, UnverifiedNotice } from "../_univ";
 import { UNIV_PAGES, getUnivPage, quotaByType } from "@/lib/univ";
 import { formatKo } from "@/lib/mmi-schedule";
+import { CrossFieldLinks } from "../../interview/_crossfield";
+import { crossFieldLinks } from "@/lib/field-crosslinks";
 
 /** =========================================================================
  *  /univ/[slug] — 대학별 의대 **전형 소개** 페이지
@@ -99,6 +102,8 @@ export default async function UnivPage({
   const interviewDays = [
     ...new Set(tracks.map((t) => t.interview).filter((d): d is string => Boolean(d))),
   ].sort();
+  /** 같은 대학의 치·한·약·수 면접 — 이미 색인된 이 페이지에서 계열 페이지로 가는 길 */
+  const cross = crossFieldLinks(u.short, "uidae");
 
   const stats = [
     u.admission
@@ -227,6 +232,17 @@ export default async function UnivPage({
           </Link>
         </div>
       </PromoSection>
+
+      {cross.length > 0 && (
+        <PromoSection
+          eyebrow="SAME UNIVERSITY"
+          EyebrowIcon={Building2}
+          title={`${u.short}의 다른 계열 면접`}
+          subtitle={`${u.short}에 함께 지원한다면 — 치·한·약·수 면접은 방식과 날짜가 의예과와 다릅니다.`}
+        >
+          <CrossFieldLinks links={cross} mine={interviewDays[0] ?? null} univShort={u.short} />
+        </PromoSection>
+      )}
 
       <PromoSection eyebrow="MORE" EyebrowIcon={BarChart3} title="이어서 보기">
         <LinkCards

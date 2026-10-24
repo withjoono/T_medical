@@ -16,6 +16,7 @@ import {
   Scale,
   Target,
   Users,
+  Building2,
 } from "lucide-react";
 import {
   PromoHero,
@@ -41,6 +42,8 @@ import {
   Timetable,
 } from "@/app/univ/_booking";
 import { ClassCtaBand } from "../../_interview";
+import { CrossFieldLinks } from "../../_crossfield";
+import { crossFieldLinks } from "@/lib/field-crosslinks";
 import {
   formatKo,
   getUniv as getMmiUniv,
@@ -146,6 +149,8 @@ export default async function UidaeInterviewUnivPage({
   const interviewDays = [
     ...new Set(tracks.map((t) => t.interview).filter((d): d is string => Boolean(d))),
   ].sort();
+  /** 같은 대학의 치·한·약·수 면접 페이지 — 색인된 의대 면접 페이지에서 건너가는 길 */
+  const cross = crossFieldLinks(u.short, "uidae");
 
   const stats = [
     u.admission
@@ -398,6 +403,17 @@ export default async function UidaeInterviewUnivPage({
       {/* 컨셉 밴드는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다.
           예약 보드만 mmiUniv 에 걸려 있다. */}
       <ClassCtaBand typeName={`${u.short} 면접`} />
+
+      {cross.length > 0 && (
+        <PromoSection
+          eyebrow="SAME UNIVERSITY"
+          EyebrowIcon={Building2}
+          title={`${u.short}의 다른 계열 면접`}
+          subtitle={`${u.short}에 함께 지원한다면 — 치·한·약·수 면접은 방식과 날짜가 의예과와 다릅니다.`}
+        >
+          <CrossFieldLinks links={cross} mine={interviewDays[0] ?? null} univShort={u.short} />
+        </PromoSection>
+      )}
 
       <PromoSection eyebrow="MORE" EyebrowIcon={BarChart3} title="이어서 보기" tone="muted">
         <LinkCards

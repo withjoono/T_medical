@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { teacherPhoto } from "@/lib/teachers";
 import { ArrowRight, CalendarDays, Check, Clock, UserRound } from "lucide-react";
 import {
   type Track,
@@ -536,12 +537,27 @@ export function TeacherCards({ teachers }: { teachers?: readonly TeacherCard[] }
     <div
       className={`feature-grid grid ${cards.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-xl"}`}
     >
-      {cards.map((t) => (
+      {cards.map((t) => {
+        // 사진은 lib/teachers.ts(SSOT)에서 id 로 찾는다 — 카드 데이터에 직접 적힌 값이 있으면 그것을 쓴다
+        const photo = t.photo ?? teacherPhoto(t.id);
+        return (
         <div key={t.id} className="feature-card p-8">
           <div className="flex items-start justify-between">
-            <span className="flex h-11 w-11 items-center justify-center border border-hair-strong bg-white text-jade-600">
-              <UserRound className="h-5 w-5" strokeWidth={1.5} />
-            </span>
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photo}
+                alt={`${t.name} 선생님`}
+                width={96}
+                height={120}
+                loading="lazy"
+                className="h-[120px] w-[96px] border border-hair-strong bg-paper-200 object-cover"
+              />
+            ) : (
+              <span className="flex h-11 w-11 items-center justify-center border border-hair-strong bg-white text-jade-600">
+                <UserRound className="h-5 w-5" strokeWidth={1.5} />
+              </span>
+            )}
             <span className="eyebrow text-brass-600">1:1</span>
           </div>
           <h3 className="display mt-6 text-[1.25rem] leading-snug text-ink-900">{t.name}</h3>
@@ -549,7 +565,8 @@ export function TeacherCards({ teachers }: { teachers?: readonly TeacherCard[] }
           <p className="mt-4 border-t border-hair pt-4 text-[13px] font-light leading-[1.8] text-ink-500">{t.credential}</p>
           <p className="mt-4 text-[14px] font-light leading-[1.85] text-ink-600">{t.focus}</p>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -449,13 +449,36 @@ function TrackTable({
   );
 }
 
-export function FieldTrackTables({ univ }: { univ: FieldUniv }) {
+/** 면접 페이지에는 **면접을 보는 전형만** 싣는다(2026-10-23 전형·면접 분리).
+ *  면접 없는 전형의 모집·수능최저는 전형 소개 페이지(/univ/<계열>/<대학>) 몫 — 여기서는 이름과 링크만. */
+export function FieldTrackTables({
+  univ,
+  admissionHref,
+}: {
+  univ: FieldUniv;
+  admissionHref?: string;
+}) {
   const iv = univ.tracks.filter((t) => t.interview);
   const no = univ.tracks.filter((t) => !t.interview);
   return (
-    <div className="space-y-14">
+    <div className="space-y-10">
       <TrackTable title="면접을 실시하는 전형" tracks={iv} withDates />
-      <TrackTable title="면접이 없는 전형" tracks={no} withDates={false} />
+      {(no.length > 0 || iv.length === 0) && (
+        <div className="mx-auto max-w-5xl border border-hair-strong bg-paper-50 px-6 py-5">
+          <p className="text-[14px] font-light leading-[1.8] text-ink-600">
+            {iv.length === 0
+              ? "이 대학은 2027학년도에 면접을 보는 전형이 없습니다."
+              : `면접이 없는 전형 ${no.length}개(${no.map((t) => t.name).join(" · ")})는 면접 준비와 무관해 여기서 뺐습니다.`}{" "}
+            {admissionHref ? (
+              <Link href={admissionHref} className="link-underline font-medium text-ink-900">
+                전형별 모집인원·수능최저는 전형 안내에서 보세요 →
+              </Link>
+            ) : (
+              "전형별 모집인원·수능최저는 모집요강에서 확인하세요."
+            )}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
