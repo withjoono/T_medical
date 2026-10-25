@@ -7,6 +7,7 @@ import {
   BarChart3,
   ClipboardCheck,
   GraduationCap,
+  Image as ImageIcon,
   MessagesSquare,
   Scale,
   Building2,
@@ -72,13 +73,22 @@ export async function generateMetadata({
       title,
       description,
       url,
-      images: ["/og-image.png?v=2"],
+      images: u.admission
+        ? [
+            {
+              url: `https://tmedi.kr/og/ipkyul/uiye/${u.slug}.png`,
+              width: 1200,
+              height: 630,
+              alt: `${u.short} 의예과 2027학년도 수시 전형 요약 — 모집 ${u.admission.quota}명, ${u.admission.units.length}개 전형`,
+            },
+          ]
+        : ["/og-image.png?v=2"],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-image.png?v=2"],
+      images: u.admission ? [`https://tmedi.kr/og/ipkyul/uiye/${u.slug}.png`] : ["/og-image.png?v=2"],
     },
   };
 }
@@ -148,6 +158,35 @@ export default async function UnivPage({
         items={stats}
         caption="2027학년도 수시 모집요강 및 T스쿨 수시 DB 기준. 최종 수치는 각 대학 모집요강에서 확정됩니다."
       />
+
+      {/* 전형안내 카드. 면접 카드(/og/univ/<slug>.png)와 숫자가 겹치지 않는다 —
+          이쪽은 모집인원·전형 수·구성·공시 입결, 저쪽은 면접일·방식.
+          ⚠️ 입결 SSOT 에 없는 대학(u.admission 없음)은 카드도 없으니 렌더하지 않는다.
+          생성기: scripts/interview-og/ipkyul-cards.mjs */}
+      {u.admission && (
+        <PromoSection
+          eyebrow="SUMMARY"
+          EyebrowIcon={ImageIcon}
+          title={`${u.short} 의예과 전형 한 장 요약`}
+          subtitle="저장하거나 공유해서 쓰십시오. 요강·공시에서 확인된 값만 담았습니다."
+        >
+          <figure className="mx-auto max-w-4xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/og/ipkyul/uiye/${u.slug}.png`}
+              alt={`${u.short} 의예과 2027학년도 수시 전형 요약 — 모집 ${u.admission.quota}명, ${
+                u.admission.units.length
+              }개 전형, ${groups.map((g) => `${g.type} ${g.programs}개`).join(" · ")}`}
+              width={1200}
+              height={630}
+              className="w-full border border-hair-strong"
+            />
+            <figcaption className="mt-4 text-center text-[12px] font-light leading-relaxed text-ink-400">
+              {u.name} · 2027학년도 수시 전형 · T스쿨 수시 DB 기준
+            </figcaption>
+          </figure>
+        </PromoSection>
+      )}
 
       {/* ===== 면접 배너 — 면접 페이지(/interview/uidae/[slug])로 보내는 주 진입로 ===== */}
       <section className="border-y border-ink bg-ink px-6 py-10 text-paper sm:px-12">

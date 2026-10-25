@@ -10,6 +10,8 @@
  *     PriceCard 에 실제로 찍혀 있어야 한다. 안 보이는 것을 넣으면 스팸이다.
  *  ========================================================================= */
 
+import { SESSION_MINUTES } from "./mmi-schedule";
+
 export const SITE_URL = "https://tmedi.kr";
 export const SITE_NAME = "T메디";
 
@@ -107,14 +109,17 @@ export function course({
   /** 수업 형태 — 전부 온라인(줌) 1:1 */
   startDate,
   endDate,
+  bundlePrice,
 }: {
   path: string;
   name: string;
   description: string;
-  /** 원 단위 정수. PriceCard 에 실제로 보이는 값이어야 한다. */
+  /** 원 단위 정수. 화면에 실제로 보이는 값이어야 한다. */
   price: number;
   startDate?: string;
   endDate?: string;
+  /** 선생님 1회 + AI 무제한 묶음가. 화면 띠에 보이므로 함께 마크업한다 */
+  bundlePrice?: number;
 }) {
   return {
     "@context": "https://schema.org",
@@ -125,18 +130,33 @@ export function course({
     inLanguage: "ko-KR",
     url: abs(path),
     provider: { "@id": `${SITE_URL}/#organization` },
-    offers: {
-      "@type": "Offer",
-      price: String(price),
-      priceCurrency: "KRW",
-      category: "1회 수업료",
-      availability: "https://schema.org/InStock",
-      url: abs(path),
-    },
+    offers: [
+      {
+        "@type": "Offer",
+        price: String(price),
+        priceCurrency: "KRW",
+        category: "1회 수업료",
+        availability: "https://schema.org/InStock",
+        url: abs(path),
+      },
+      ...(bundlePrice
+        ? [
+            {
+              "@type": "Offer" as const,
+              price: String(bundlePrice),
+              priceCurrency: "KRW",
+              category: "선생님 1회 + AI 모의면접 무제한",
+              availability: "https://schema.org/InStock",
+              url: abs(path),
+            },
+          ]
+        : []),
+    ],
     hasCourseInstance: {
       "@type": "CourseInstance",
       courseMode: "Online",
-      courseWorkload: "PT2H30M",
+      // 수업 길이는 lib/mmi-schedule.ts 의 SESSION_MINUTES 가 SSOT 다 — 여기 숫자를 적지 않는다
+      courseWorkload: `PT${Math.floor(SESSION_MINUTES / 60)}H${SESSION_MINUTES % 60}M`,
       ...(startDate ? { startDate } : {}),
       ...(endDate ? { endDate } : {}),
     },

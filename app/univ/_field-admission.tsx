@@ -7,6 +7,7 @@ import {
   BarChart3,
   ClipboardCheck,
   GraduationCap,
+  Image as ImageIcon,
   MessagesSquare,
   Scale,
 } from "lucide-react";
@@ -27,6 +28,7 @@ import {
   admissionUnivs,
   getAdmissionUniv,
   interviewOf,
+  IPKYUL_KEY,
   ipkyulField,
 } from "@/lib/field-admission";
 import { formatKo } from "@/lib/mmi-schedule";
@@ -58,6 +60,10 @@ export function fieldAdmissionMetadata(fp: FieldPageKey, slug: string): Metadata
     .filter(Boolean)
     .join(" ");
   const url = `${admissionBase(fp)}/${u.slug}`;
+  // 전형안내 카드 — scripts/interview-og/ipkyul-cards.mjs 가 굽는다. 면접 카드와 숫자가
+  // 겹치지 않아야 네이버 이미지 검색에서 중복으로 접히지 않는다.
+  const cardUrl = `https://tmedi.kr/og/ipkyul/${IPKYUL_KEY[fp]}/${u.slug}.png`;
+  const cardAlt = `${u.name} ${field.unitLabel} 2027학년도 수시 전형 요약 — 모집 ${u.quota}명, ${u.units.length}개 전형`;
   return {
     alternates: { canonical: url },
     title,
@@ -69,9 +75,9 @@ export function fieldAdmissionMetadata(fp: FieldPageKey, slug: string): Metadata
       title,
       description,
       url,
-      images: ["/og-image.png?v=2"],
+      images: [{ url: cardUrl, width: 1200, height: 630, alt: cardAlt }],
     },
-    twitter: { card: "summary_large_image", title, description, images: ["/og-image.png?v=2"] },
+    twitter: { card: "summary_large_image", title, description, images: [cardUrl] },
   };
 }
 
@@ -130,6 +136,31 @@ export function FieldAdmissionPage({ fp, slug }: { fp: FieldPageKey; slug: strin
         items={stats}
         caption="2027학년도 T스쿨 수시 DB 기준. 최종 수치는 각 대학 모집요강에서 확정됩니다."
       />
+
+      {/* 카드 이미지는 OG 태그로만 두면 이미지 검색에 잡히지 않는다 — 본문에 실제로 띄운다.
+          생성기: scripts/interview-og/ipkyul-cards.mjs (네 칸 모두 아래 표에 있는 값이다) */}
+      <PromoSection
+        eyebrow="SUMMARY"
+        EyebrowIcon={ImageIcon}
+        title={`${u.name} ${unit} 전형 한 장 요약`}
+        subtitle="저장하거나 공유해서 쓰십시오. 요강·공시에서 확인된 값만 담았습니다."
+      >
+        <figure className="mx-auto max-w-4xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/og/ipkyul/${IPKYUL_KEY[fp]}/${u.slug}.png`}
+            alt={`${u.name} ${unit} 2027학년도 수시 전형 요약 — 모집 ${u.quota}명, ${u.units.length}개 전형, ${groups
+              .map((g) => `${g.type} ${g.units.length}개`)
+              .join(" · ")}`}
+            width={1200}
+            height={630}
+            className="w-full border border-hair-strong"
+          />
+          <figcaption className="mt-4 text-center text-[12px] font-light leading-relaxed text-ink-400">
+            {u.name} {unit} · 2027학년도 수시 전형 · T스쿨 수시 DB 기준
+          </figcaption>
+        </figure>
+      </PromoSection>
 
       {/* ===== 면접 배너 — 면접 페이지로 보내는 주 진입로 ===== */}
       {iv && interviewHref && (

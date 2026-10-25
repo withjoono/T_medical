@@ -38,9 +38,9 @@ import {
   type FieldPage,
 } from "@/lib/field-registry";
 import { admissionHrefOf } from "@/lib/field-admission";
-import { formatKo } from "@/lib/mmi-schedule";
+import { BUNDLE, formatKo, TUITION } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
-import { abs, article, breadcrumb } from "@/lib/jsonld";
+import { abs, article, breadcrumb, course } from "@/lib/jsonld";
 
 /** =========================================================================
  *  계열 × 대학 상세 페이지의 공용 본문.
@@ -159,6 +159,21 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
             { name: `${u.short} ${field.unitLabel}`, path: `${field.base}/${u.slug}` },
           ]),
           article({ path: `${field.base}/${u.slug}`, headline: title, description }),
+          // 가격은 본문 띠에 실제로 보이므로 마크업한다(안 보이는 것을 넣지 않는 규칙).
+          // 본문 글자를 늘리지 않고 검색엔진에만 가격을 전달하는 자리다.
+          ...(none
+            ? []
+            : [
+                course({
+                  path: `${field.base}/${u.slug}`,
+                  name: `${unit} 면접 1:1 수업`,
+                  description: `${u.name} 면접에 맞춘 줌 1:1 수업. ${
+                    classContext || u.styleLabel
+                  }. 반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다.`,
+                  price: TUITION.perSession,
+                  bundlePrice: BUNDLE.price,
+                }),
+              ]),
         ]}
       />
 

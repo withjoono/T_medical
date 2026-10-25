@@ -41,16 +41,20 @@ import {
   TeacherCards,
   Timetable,
 } from "@/app/univ/_booking";
-import { ClassCtaBand } from "../../_interview";
-import { CrossFieldLinks } from "../../_crossfield";
+import { CrossFieldLinks, FieldClassLine } from "../../_crossfield";
 import { crossFieldLinks } from "@/lib/field-crosslinks";
+import { JsonLdAll } from "@/components/json-ld";
+import { article, breadcrumb, course } from "@/lib/jsonld";
 import {
+  BUNDLE,
   formatKo,
   getUniv as getMmiUniv,
   summarize,
+  TUITION,
   univDays,
   UNIV_TEACHERS,
 } from "@/lib/mmi-schedule";
+import { teachersForField } from "@/lib/teachers";
 import { univTeacherKeys } from "@/lib/interview-types";
 
 /** =========================================================================
@@ -152,6 +156,25 @@ export default async function UidaeInterviewUnivPage({
   /** 같은 대학의 치·한·약·수 면접 페이지 — 색인된 의대 면접 페이지에서 건너가는 길 */
   const cross = crossFieldLinks(u.short, "uidae");
 
+  /** 담당 선생님은 lib/teachers.ts 한 곳이 정한다 — 계열 전담이 등록되면 자동 반영.
+   *  제시문 면접을 보는 대학은 제시문 전담이 맡는다(univTeacherKeys 가 판단). */
+  const classTeachers = noInterview
+    ? []
+    : (() => {
+        const keys = univTeacherKeys(u.slug);
+        const list = (keys.length > 0 ? keys : ["general"]).flatMap((k) =>
+          teachersForField("uidae", k === "jesimun" ? "jesimun" : undefined),
+        );
+        return list.filter((t, i) => list.findIndex((x) => x.id === t.id) === i);
+      })();
+  /** 띠 문구에 이 대학에만 성립하는 조각을 붙인다(39개 띠가 같은 문장이 되지 않게) */
+  const classContext = [
+    interviewDays.length > 0 ? `면접 ${formatKo(interviewDays[0])}` : null,
+    iv?.styleLabel ?? null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const stats = [
     u.admission
       ? { label: "수시 모집", value: String(u.admission.quota), unit: "명", sub: `${u.admission.units.length}개 전형` }
@@ -174,6 +197,38 @@ export default async function UidaeInterviewUnivPage({
 
   return (
     <>
+      <JsonLdAll
+        items={[
+          breadcrumb([
+            { name: "의약학 면접", path: "/interview" },
+            { name: "의대 면접", path: "/interview/uidae" },
+            { name: `${u.short} 의예과 면접`, path: `/interview/uidae/${u.slug}` },
+          ]),
+          article({
+            path: `/interview/uidae/${u.slug}`,
+            headline: `${u.short} 의대 면접 2027 — 방식·일정·대비`,
+            description: `${u.name} 2027학년도 수시 면접. ${
+              noInterview ? "면접 미실시" : iv?.styleLabel ?? "면접 실시"
+            }.`,
+          }),
+          // 가격은 본문 띠(FieldClassLine)에 실제로 보이므로 마크업한다
+          // (안 보이는 것을 넣지 않는 규칙 — lib/jsonld.ts 머리말).
+          ...(noInterview
+            ? []
+            : [
+                course({
+                  path: `/interview/uidae/${u.slug}`,
+                  name: `${u.short} 의예과 면접 1:1 수업`,
+                  description: `${u.name} 의대 면접에 맞춘 줌 1:1 수업. ${
+                    classContext || iv?.styleLabel || "면접 실시"
+                  }. 반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다.`,
+                  price: TUITION.perSession,
+                  bundlePrice: BUNDLE.price,
+                }),
+              ]),
+        ]}
+      />
+
       <PromoHero
         badge={`2027 ${u.short} 의예과 면접 · ${u.region}`}
         title={`${u.short} 의대 면접,`}
@@ -400,9 +455,15 @@ export default async function UidaeInterviewUnivPage({
         </>
       )}
 
-      {/* 컨셉 밴드는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다.
-          예약 보드만 mmiUniv 에 걸려 있다. */}
-      <ClassCtaBand typeName={`${u.short} 면접`} />
+      {/* 수업 띠는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다(예약 보드만
+          mmiUniv 에 걸려 있다). ⚠️ 여기에 ClassCtaBand 같은 큰 공통 블록을 되돌리지 말 것 —
+          같은 문단이 39개 의대 페이지에 박혀 2026-10-24 에 걷어낸 중복이 되살아난다.
+          절차·강사 학력·가격 상세는 팝업과 /interview 가 맡는다. */}
+      <FieldClassLine
+        subject={noInterview ? "의대 면접" : `${u.short} 의예과 면접`}
+        teachers={classTeachers}
+        context={noInterview ? undefined : classContext}
+      />
 
       {cross.length > 0 && (
         <PromoSection

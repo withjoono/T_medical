@@ -33,3 +33,28 @@ CHROME=/path/to/chrome node scripts/interview-og/render.mjs
    사라진 PNG 가 나온다. 에러도 안 난다.
 2. **고정 높이 캔버스에서 flex 를 쓰지 않는다.** 내용이 넘치면 flex-shrink 가
    아래 요소부터 눌러 버린다(푸터가 3px 로 찌그러졌다). 절대배치로 짠다.
+
+---
+
+## 전형안내 카드 (`ipkyul-cards.mjs`)
+
+`public/og/ipkyul/<계열키>/<slug>.png` 102장. 계열키는 입결 키
+(`uiye` · `chiuiye` · `hanuiye` · `yakhak` · `suuiye`)다.
+
+```bash
+node scripts/interview-og/ipkyul-cards.mjs      # manifest 를 스스로 만든다
+```
+
+면접 카드와 **같은 대학에 두 장**이 생기는데 의도한 것이다. 네 칸의 값이
+서로 겹치지 않기 때문이다.
+
+| | 면접 카드 | 전형안내 카드 |
+|---|---|---|
+| 경로 | `og/interview/<계열>/`, `og/univ/` | `og/ipkyul/<계열키>/` |
+| 칸 | 면접일 · 면접 전형 수 · 1단계 발표 · 요강 확인 | 수시 모집 · 전형 수 · 전형 구성 · 공시 입결 |
+| 쓰는 페이지 | `/interview/**` | `/univ/**` |
+
+`lib/ipkyul/*.ts` 의 `quota` · `units` · `measured` 가 바뀌면 다시 돌린다.
+
+⚠️ **수능최저 '적용 n개' 같은 파생 수치를 칸에 넣지 말 것.** `minimum` 이
+`undefined` 인 행을 미적용으로 셀 수 없어서, 세는 순간 카드가 요강보다 앞서 간다.
