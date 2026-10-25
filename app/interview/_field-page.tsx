@@ -22,6 +22,7 @@ import {
   SourceNote,
 } from "../_site/components";
 import { CrossFieldLinks, FieldClassLine, FieldPeerFacts } from "./_crossfield";
+import { teachersForField, type FieldTeacherKey } from "@/lib/teachers";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
 import {
   FieldAxisPair,
@@ -37,7 +38,7 @@ import {
   type FieldPage,
 } from "@/lib/field-registry";
 import { admissionHrefOf } from "@/lib/field-admission";
-import { formatKo, UNIV_TEACHERS } from "@/lib/mmi-schedule";
+import { formatKo } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
 import { abs, article, breadcrumb } from "@/lib/jsonld";
 
@@ -138,9 +139,15 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   const unit = `${u.short} ${field.unitLabel}`;
   const peer = fieldPeerContext(field, u);
   const cross = crossFieldLinks(u.short, field.key);
-  const teacher = none
-    ? undefined
-    : (u.style === "jesimun" ? UNIV_TEACHERS.jesimun : UNIV_TEACHERS.general).name;
+  // 담당 선생님은 lib/teachers.ts 한 곳이 정한다 — 계열 전담이 등록되면 자동 반영
+  const teachers = teachersForField(field.key as FieldTeacherKey, u.style);
+  // 띠 문구에 이 대학에만 성립하는 조각을 붙인다(50개 띠가 같은 문장이 되지 않게)
+  const classContext = [
+    first ? `면접 ${formatKo(first)}` : null,
+    u.scoring && u.scoring.label !== "요강 미기재" ? u.scoring.label : u.styleLabel,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <>
@@ -272,7 +279,11 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         </PromoSection>
       )}
 
-      <FieldClassLine subject={none ? field.label : `${unit} 면접`} teacher={teacher} />
+      <FieldClassLine
+        subject={none ? field.label : `${unit} 면접`}
+        teachers={teachers}
+        context={none ? undefined : classContext}
+      />
 
       {siblings.length > 0 && (
         <PromoSection

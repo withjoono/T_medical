@@ -8,6 +8,7 @@ import {
 import type { FieldPage } from "@/lib/field-registry";
 import { BUNDLE, formatKo } from "@/lib/mmi-schedule";
 import { CLASS_PRICE, SESSION_HOURS_LABEL } from "@/lib/interview-types";
+import { ClassDetailButton } from "./_class-modal";
 
 /** =========================================================================
  *  대학 면접 페이지의 '맥락' 블록 — 2026-10-24 검색 노출 개선.
@@ -112,34 +113,49 @@ export function FieldPeerFacts({
 /** 공통 수업 안내 한 줄 — 상세(절차·강사·비용)는 /interview 에 한 번만 둔다. */
 export function FieldClassLine({
   subject,
-  teacher,
+  teachers,
+  context,
 }: {
   /** "경희대 치의예과 면접" */
   subject: string;
-  /** 담당 선생님 이름. 면접 미실시면 생략 */
-  teacher?: string;
+  /** 담당 선생님 — lib/teachers.ts 의 teachersForField() 결과. 면접 미실시면 빈 배열.
+   *  ⚠️ 여기에는 **이름만** 쓴다. credential(학력)을 띠에 넣으면 같은 문장이
+   *     50~71개 페이지에 박혀 2026-10-24 에 걷어낸 중복이 되살아난다.
+   *     학력은 팝업(ClassDetailButton)과 /interview 에서만 보여 준다. */
+  teachers: { name: string; credential: string }[];
+  /** 이 대학에만 해당하는 한 조각(면접일·평가축 등). 50개 띠가 같은 문장이 되지 않게 한다 */
+  context?: string;
 }) {
   return (
-    <section className="border-t border-hair bg-ink px-6 py-10 text-paper sm:px-12">
-      <div className="mx-auto flex max-w-5xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[14px] font-light leading-[1.8] text-paper/85">
-          <span className="font-semibold text-paper">{subject} 수업</span>
-          {teacher ? ` · ${teacher} 선생님` : ""} · 줌 1:1 {SESSION_HOURS_LABEL} · 선생님 1회 + AI 무제한{" "}
-          <span className="tnum font-semibold text-brass-300">{BUNDLE.priceLabel}</span>
-          <span className="text-paper/55"> (수업만 {CLASS_PRICE.label})</span>
-        </p>
-        <div className="flex shrink-0 gap-3">
+    <section className="border-y-2 border-brass bg-ink px-6 py-9 text-paper sm:px-12">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-[15px] leading-[1.7]">
+            <span className="font-semibold">{subject} 수업</span>
+            {context ? <span className="font-light text-paper/70"> · {context}</span> : null}
+          </p>
+          <p className="mt-2.5 text-[14px] font-light leading-[1.8] text-paper/75">
+            {teachers.length > 0 ? (
+              <>
+                {teachers.map((t) => `${t.name} 선생님`).join(" · ")}
+                {" · "}
+              </>
+            ) : null}
+            줌 1:1 {SESSION_HOURS_LABEL} · 반복은 AI 모의면접이 맡아 선생님 수업은 2회로 끝납니다
+          </p>
+          <p className="mt-3.5 text-[15px] font-light">
+            선생님 1회 + AI 무제한{" "}
+            <span className="tnum display text-[1.5rem] text-brass-300">{BUNDLE.priceLabel}</span>
+            <span className="text-[13px] text-paper/55"> · 수업만 {CLASS_PRICE.label}</span>
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-3">
+          <ClassDetailButton />
           <Link
             href="#contact"
             className="inline-flex items-center gap-2 border border-paper bg-paper px-5 py-2.5 text-sm font-medium text-ink hover:bg-paper-100"
           >
             문의하기
-          </Link>
-          <Link
-            href="/interview"
-            className="inline-flex items-center gap-2 border border-paper/40 px-5 py-2.5 text-sm font-light text-paper hover:border-paper"
-          >
-            수업 절차·강사
           </Link>
         </div>
       </div>
