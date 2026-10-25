@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { TeacherAndClass } from "../interview/_class-block";
 import {
   ArrowLeft,
   ArrowRight,
@@ -217,10 +216,6 @@ export function FieldAdmissionPage({ fp, slug }: { fp: FieldPageKey; slug: strin
           ]}
         />
       </PromoSection>
-
-      {/* 전형 페이지에도 수업 경로를 둔다 — 강사 섹션은 면접 페이지 몫이므로
-          teacherKeys 를 비워 CTA 밴드만 깐다. 문구·가격은 _class-block 한 곳에서. */}
-      <TeacherAndClass short={u.name} typeName={`${u.name} ${field.short} 면접`} teacherKeys={[]} />
 
       <SourceNote
         lines={[

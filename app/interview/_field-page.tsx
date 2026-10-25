@@ -23,7 +23,6 @@ import {
 } from "../_site/components";
 import { CrossFieldLinks, FieldClassLine, FieldPeerFacts } from "./_crossfield";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
-import { TeacherAndClass, teacherKeysForStyle } from "./_class-block";
 import {
   FieldAxisPair,
   FieldCountdown,
@@ -274,12 +273,6 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
       )}
 
       <FieldClassLine subject={none ? field.label : `${unit} 면접`} teacher={teacher} />
-
-      <TeacherAndClass
-        short={u.short}
-        typeName={`${u.short} ${field.unitLabel} 면접`}
-        teacherKeys={teacherKeysForStyle(u.style)}
-      />
 
       {siblings.length > 0 && (
         <PromoSection

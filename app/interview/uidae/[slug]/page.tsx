@@ -38,9 +38,10 @@ import {
   BookingBoard,
   LeakageNotice,
   ScheduleCalendar,
+  TeacherCards,
   Timetable,
 } from "@/app/univ/_booking";
-import { TeacherAndClass } from "../../_class-block";
+import { ClassCtaBand } from "../../_interview";
 import { CrossFieldLinks } from "../../_crossfield";
 import { crossFieldLinks } from "@/lib/field-crosslinks";
 import {
@@ -48,6 +49,7 @@ import {
   getUniv as getMmiUniv,
   summarize,
   univDays,
+  UNIV_TEACHERS,
 } from "@/lib/mmi-schedule";
 import { univTeacherKeys } from "@/lib/interview-types";
 
@@ -336,11 +338,23 @@ export default async function UidaeInterviewUnivPage({
         ) : null}
       </PromoSection>
 
-      <TeacherAndClass
-        short={u.short}
-        typeName={`${u.short} 면접`}
-        teacherKeys={noInterview ? [] : univTeacherKeys(u.slug)}
-      />
+      {/* ===== 담당 강사 — 제시문 → 박은우, 그 밖 → 이세인 ===== */}
+      {!noInterview && univTeacherKeys(u.slug).length > 0 && (
+        <PromoSection
+          eyebrow="INSTRUCTOR"
+          EyebrowIcon={Users}
+          title="담당 강사"
+          subtitle={
+            univTeacherKeys(u.slug).length > 1
+              ? `${u.short} 면접은 제시문 면접은 박은우 선생님, 그 밖의 면접은 이세인 선생님이 나눠 맡습니다.`
+              : univTeacherKeys(u.slug)[0] === "jesimun"
+                ? `${u.short} 면접은 제시문 면접이라 박은우 선생님이 맡습니다.`
+                : `${u.short} 면접은 이세인 선생님이 맡습니다.`
+          }
+        >
+          <TeacherCards teachers={univTeacherKeys(u.slug).map((k) => UNIV_TEACHERS[k])} />
+        </PromoSection>
+      )}
 
       {/* ===== 이어보기 ===== */}
       {mmiUniv && booking && (
@@ -388,6 +402,7 @@ export default async function UidaeInterviewUnivPage({
 
       {/* 컨셉 밴드는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다.
           예약 보드만 mmiUniv 에 걸려 있다. */}
+      <ClassCtaBand typeName={`${u.short} 면접`} />
 
       {cross.length > 0 && (
         <PromoSection
