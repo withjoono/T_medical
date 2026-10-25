@@ -198,6 +198,7 @@ Vite 앱과 다르다. Next 앱에는 마커 블록이 있는 `index.html` 이 �
 
 | 파일 | 언제 읽나 |
 |---|---|
+| `README.md` | **전체 색인** — 가격·정책·데이터 원칙·사고 교훈·범위 경계 문서 목록과 낡은 내용 목록 |
 | `static-export-and-deploy.md` | 빌드·수동 배포·Firebase 리라이트 설정, 서버 기능을 추가하려 할 때 |
 | `site-structure.md` | 페이지 추가·네비게이션 수정, 죽은 `navigation.tsx` 를 만났을 때 |
 | `sibling-apps-drift.md` | 형제 앱(Kwakiwon·Sakwan)과 공유하는 코드를 고칠 때 |
