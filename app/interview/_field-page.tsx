@@ -40,7 +40,7 @@ import {
   type FieldPage,
 } from "@/lib/field-registry";
 import { admissionHrefOf } from "@/lib/field-admission";
-import { BUNDLE, formatKo, TUITION } from "@/lib/mmi-schedule";
+import { BUNDLE, classPlanFor, formatKo, minutesLabel } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
 import { abs, article, breadcrumb, course } from "@/lib/jsonld";
 
@@ -140,6 +140,8 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   const description = fieldUnivMetadata(field, u).description as string;
   const unit = `${u.short} ${field.unitLabel}`;
   const gichul = gachonGichulFor(field.key, u.slug);
+  /** 수업 조건 — 가천대는 AI 없이 1회 2시간 30분(lib/mmi-schedule.ts CLASS_PLAN_OVERRIDES) */
+  const plan = classPlanFor(`${field.base}/${u.slug}`);
   const peer = fieldPeerContext(field, u);
   const cross = crossFieldLinks(u.short, field.key);
   // 담당 선생님은 lib/teachers.ts 한 곳이 정한다 — 계열 전담이 등록되면 자동 반영
@@ -172,9 +174,14 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
                   name: `${unit} 면접 1:1 수업`,
                   description: `${u.name} 면접에 맞춘 줌 1:1 수업. ${
                     classContext || u.styleLabel
-                  }. 반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다.`,
-                  price: TUITION.perSession,
-                  bundlePrice: BUNDLE.price,
+                  }. ${
+                    plan.withAi
+                      ? "반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다."
+                      : `AI 모의면접 없이 선생님 1:1 수업, 1회 ${minutesLabel(plan.minutes)}.`
+                  }`,
+                  price: plan.price,
+                  bundlePrice: plan.withAi ? BUNDLE.price : undefined,
+                  minutes: plan.minutes,
                 }),
               ]),
         ]}
@@ -301,6 +308,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
       )}
 
       <FieldClassLine
+        plan={plan}
         subject={none ? field.label : `${unit} 면접`}
         teachers={teachers}
         context={none ? undefined : classContext}

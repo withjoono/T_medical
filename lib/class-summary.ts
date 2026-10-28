@@ -6,5 +6,6 @@
 import { AI_TIERS, BUNDLE, SESSION_MINUTES, TUITION } from "./mmi-schedule";
 
 export { AI_TIERS, BUNDLE };
+export type { ClassPlan } from "./mmi-schedule";
 export const CLASS_PRICE_LABEL = TUITION.perSessionLabel;
 export const SESSION_LABEL = `${Math.floor(SESSION_MINUTES / 60)}시간 ${SESSION_MINUTES % 60}분`;

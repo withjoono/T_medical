@@ -110,7 +110,10 @@ export function course({
   startDate,
   endDate,
   bundlePrice,
+  minutes = SESSION_MINUTES,
 }: {
+  /** 1회 수업 길이(분). 대학별 예외가 있으면 lib/mmi-schedule.ts classPlanFor 값 */
+  minutes?: number;
   path: string;
   name: string;
   description: string;
@@ -156,7 +159,7 @@ export function course({
       "@type": "CourseInstance",
       courseMode: "Online",
       // 수업 길이는 lib/mmi-schedule.ts 의 SESSION_MINUTES 가 SSOT 다 — 여기 숫자를 적지 않는다
-      courseWorkload: `PT${Math.floor(SESSION_MINUTES / 60)}H${SESSION_MINUTES % 60}M`,
+      courseWorkload: `PT${Math.floor(minutes / 60)}H${minutes % 60}M`,
       ...(startDate ? { startDate } : {}),
       ...(endDate ? { endDate } : {}),
     },

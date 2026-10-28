@@ -6,7 +6,7 @@ import {
   type PeerContext,
 } from "@/lib/field-crosslinks";
 import type { FieldPage } from "@/lib/field-registry";
-import { BUNDLE, formatKo } from "@/lib/mmi-schedule";
+import { BUNDLE, formatKo, minutesLabel, type ClassPlan } from "@/lib/mmi-schedule";
 import { CLASS_PRICE, SESSION_HOURS_LABEL } from "@/lib/interview-types";
 import { ClassDetailButton } from "./_class-modal";
 
@@ -115,7 +115,10 @@ export function FieldClassLine({
   subject,
   teachers,
   context,
+  plan,
 }: {
+  /** 대학별 수업 조건(lib/mmi-schedule.ts classPlanFor). 없으면 기본(AI + 선생님 수업) */
+  plan?: ClassPlan;
   /** "경희대 치의예과 면접" */
   subject: string;
   /** 담당 선생님 — lib/teachers.ts 의 teachersForField() 결과. 면접 미실시면 빈 배열.
@@ -141,16 +144,25 @@ export function FieldClassLine({
                 {" · "}
               </>
             ) : null}
-            줌 1:1 {SESSION_HOURS_LABEL} · 반복은 AI 모의면접이 맡아 선생님 수업은 2회로 끝납니다
+            {plan && !plan.withAi
+              ? `줌 1:1 ${minutesLabel(plan.minutes)} · AI 모의면접 없이 선생님 1:1 수업으로 준비합니다`
+              : `줌 1:1 ${SESSION_HOURS_LABEL} · 반복은 AI 모의면접이 맡아 선생님 수업은 2회로 끝납니다`}
           </p>
-          <p className="mt-3.5 text-[15px] font-light">
-            선생님 1회 + AI 무제한{" "}
-            <span className="tnum display text-[1.5rem] text-brass-300">{BUNDLE.priceLabel}</span>
-            <span className="text-[13px] text-paper/55"> · 수업만 {CLASS_PRICE.label}</span>
-          </p>
+          {plan && !plan.withAi ? (
+            <p className="mt-3.5 text-[15px] font-light">
+              선생님 1:1 · 1회 {minutesLabel(plan.minutes)}{" "}
+              <span className="tnum display text-[1.5rem] text-brass-300">{plan.priceLabel}</span>
+            </p>
+          ) : (
+            <p className="mt-3.5 text-[15px] font-light">
+              선생님 1회 + AI 무제한{" "}
+              <span className="tnum display text-[1.5rem] text-brass-300">{BUNDLE.priceLabel}</span>
+              <span className="text-[13px] text-paper/55"> · 수업만 {CLASS_PRICE.label}</span>
+            </p>
+          )}
         </div>
         <div className="flex shrink-0 flex-wrap gap-3">
-          <ClassDetailButton />
+          <ClassDetailButton plan={plan} />
           <Link
             href="#contact"
             className="inline-flex items-center gap-2 border border-paper bg-paper px-5 py-2.5 text-sm font-medium text-ink hover:bg-paper-100"

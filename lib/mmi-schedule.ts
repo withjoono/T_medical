@@ -1247,3 +1247,45 @@ export function shortestWindow(u: Univ): number | null {
     .filter((v): v is number => v !== null);
   return spans.length ? Math.min(...spans) : null;
 }
+
+/* -------------------------------------------------------------------------
+ * 대학별 수업 조건 — 기본은 AI 모의면접 + 선생님 수업(SESSION_MINUTES · TUITION · BUNDLE).
+ * 예외 대학만 CLASS_PLAN_OVERRIDES 에 페이지 경로로 적는다.
+ *
+ * 가천대(의대·약대·한의대) — 2026-10-28 사용자 확정:
+ *   AI 모의면접 없음, 선생님 1:1 수업 1회 2시간 30분 · 38만원.
+ *   가천의약학 면접은 생기부 속 수학·화학·생명과학 개념을 묻는 면접이라(lib/gachon-gichul.ts)
+ *   AI 반복 훈련 구조를 쓰지 않는다.
+ * ---------------------------------------------------------------------- */
+export type ClassPlan = {
+  minutes: number;
+  price: number;
+  priceLabel: string;
+  /** false 면 AI 모의면접을 팔지 않는다 — 묶음가·'2회로 끝' 문구를 띄우지 않는다 */
+  withAi: boolean;
+};
+
+export const DEFAULT_CLASS_PLAN: ClassPlan = {
+  minutes: SESSION_MINUTES,
+  price: TUITION.perSession,
+  priceLabel: TUITION.perSessionLabel,
+  withAi: true,
+};
+
+const GACHON_PLAN: ClassPlan = { minutes: 150, price: 380000, priceLabel: "38만원", withAi: false };
+
+export const CLASS_PLAN_OVERRIDES: Record<string, ClassPlan> = {
+  "/interview/uidae/gachon": GACHON_PLAN,
+  "/interview/yakdae/gachon-y": GACHON_PLAN,
+  "/interview/hanuidae/gachon": GACHON_PLAN,
+};
+
+export function classPlanFor(path: string): ClassPlan {
+  return CLASS_PLAN_OVERRIDES[path] ?? DEFAULT_CLASS_PLAN;
+}
+
+export function minutesLabel(m: number): string {
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  return r ? `${h}시간 ${r}분` : `${h}시간`;
+}

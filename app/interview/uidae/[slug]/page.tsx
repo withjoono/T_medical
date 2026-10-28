@@ -53,6 +53,8 @@ import {
   TUITION,
   univDays,
   UNIV_TEACHER_GROUPS,
+  classPlanFor,
+  minutesLabel,
 } from "@/lib/mmi-schedule";
 import { teachersForField } from "@/lib/teachers";
 import { univTeacherKeys } from "@/lib/interview-types";
@@ -160,6 +162,8 @@ export default async function UidaeInterviewUnivPage({
 
   /** 공개 기출 분석이 있는 대학인가(가천대) */
   const gichul = gachonGichulFor("uidae", u.slug);
+  /** 수업 조건 — 가천대는 AI 없이 1회 2시간 30분(lib/mmi-schedule.ts CLASS_PLAN_OVERRIDES) */
+  const plan = classPlanFor(`/interview/uidae/${u.slug}`);
 
   /** 이 대학 면접을 누가 맡는가 — lib/interview-types.ts 가 판단한다 */
   const teacherKeys = univTeacherKeys(u.slug);
@@ -228,9 +232,14 @@ export default async function UidaeInterviewUnivPage({
                   name: `${u.short} 의예과 면접 1:1 수업`,
                   description: `${u.name} 의대 면접에 맞춘 줌 1:1 수업. ${
                     classContext || iv?.styleLabel || "면접 실시"
-                  }. 반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다.`,
-                  price: TUITION.perSession,
-                  bundlePrice: BUNDLE.price,
+                  }. ${
+                    plan.withAi
+                      ? "반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다."
+                      : `AI 모의면접 없이 선생님 1:1 수업, 1회 ${minutesLabel(plan.minutes)}.`
+                  }`,
+                  price: plan.price,
+                  bundlePrice: plan.withAi ? BUNDLE.price : undefined,
+                  minutes: plan.minutes,
                 }),
               ]),
         ]}
@@ -472,6 +481,7 @@ export default async function UidaeInterviewUnivPage({
           같은 문단이 39개 의대 페이지에 박혀 2026-10-24 에 걷어낸 중복이 되살아난다.
           절차·강사 학력·가격 상세는 팝업과 /interview 가 맡는다. */}
       <FieldClassLine
+        plan={plan}
         subject={noInterview ? "의대 면접" : `${u.short} 의예과 면접`}
         teachers={classTeachers}
         context={noInterview ? undefined : classContext}

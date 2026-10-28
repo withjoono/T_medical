@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, X } from "lucide-react";
-import { AI_TIERS, BUNDLE, CLASS_PRICE_LABEL, SESSION_LABEL } from "@/lib/class-summary";
+import { AI_TIERS, BUNDLE, CLASS_PRICE_LABEL, SESSION_LABEL, type ClassPlan } from "@/lib/class-summary";
 import { ALL_TEACHERS } from "@/lib/teachers";
 
 /** =========================================================================
@@ -18,8 +18,22 @@ import { ALL_TEACHERS } from "@/lib/teachers";
  *  내용은 요약만 담고 더 깊은 것은 /interview 로 보낸다.
  *  ========================================================================= */
 
-export function ClassDetailButton({ label = "수업·강사 자세히" }: { label?: string }) {
+function minutesText(m: number) {
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  return r ? `${h}시간 ${r}분` : `${h}시간`;
+}
+
+export function ClassDetailButton({
+  label = "수업·강사 자세히",
+  plan,
+}: {
+  label?: string;
+  /** 대학별 수업 조건. withAi=false(가천대)면 AI 구조·묶음가를 보여 주지 않는다 */
+  plan?: ClassPlan;
+}) {
   const [open, setOpen] = useState(false);
+  const noAi = plan ? !plan.withAi : false;
   return (
     <>
       <button
@@ -47,7 +61,7 @@ export function ClassDetailButton({ label = "수업·강사 자세히" }: { labe
               <div>
                 <p className="eyebrow text-brass-600">면접 수업</p>
                 <h2 className="display mt-2 text-[1.25rem] leading-snug">
-                  반복은 AI 가, 판단은 선생님이
+                  {noAi ? "선생님 1:1 수업으로 준비합니다" : "반복은 AI 가, 판단은 선생님이"}
                 </h2>
               </div>
               <button
@@ -61,6 +75,28 @@ export function ClassDetailButton({ label = "수업·강사 자세히" }: { labe
             </div>
 
             <div className="px-7 py-6">
+              {noAi && plan ? (
+                <>
+                  <p className="text-[14px] font-light leading-[1.85] text-ink-600">
+                    이 대학 면접은 AI 모의면접 없이 선생님 1:1 수업으로 준비합니다. 1회{" "}
+                    {minutesText(plan.minutes)}, 줌 온라인 수업입니다.
+                  </p>
+                  <div className="mt-7 border border-hair-strong">
+                    <div className="flex items-baseline justify-between bg-ink px-5 py-4 text-paper">
+                      <span className="text-[14px] font-semibold">
+                        선생님 1:1 · 줌 {minutesText(plan.minutes)}
+                      </span>
+                      <span className="tnum display text-[1.375rem] text-brass-300">
+                        {plan.priceLabel}
+                      </span>
+                    </div>
+                    <p className="px-5 py-3 text-[12px] font-light text-ink-400">
+                      1회 수업료입니다. 묶음 결제나 선납은 없고, 회차는 필요한 만큼만 잡습니다.
+                    </p>
+                  </div>
+                </>
+              ) : (
+              <>
               <p className="text-[14px] font-light leading-[1.85] text-ink-600">
                 면접은 아는 것을 늘려서 되는 일이 아니라 반복해 몸에 붙이는 일입니다. 반복은 AI
                 모의면접이 맡고, 선생님 시간은 소재를 고르고 설계하는 데만 씁니다. 그래서 선생님
@@ -105,6 +141,8 @@ export function ClassDetailButton({ label = "수업·강사 자세히" }: { labe
                   묶음 결제나 선납은 없습니다. 회차는 필요한 만큼만 잡습니다.
                 </p>
               </div>
+              </>
+              )}
 
               <div className="mt-7">
                 <p className="eyebrow text-brass-600">담당 선생님</p>
