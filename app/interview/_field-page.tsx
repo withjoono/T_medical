@@ -26,6 +26,8 @@ import { teachersForField, type FieldTeacherKey } from "@/lib/teachers";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
 import { gachonGichulFor } from "@/lib/gachon-gichul";
 import { GachonGichul } from "./_gichul";
+import { univGichulFor } from "@/lib/univ-gichul";
+import { UnivGichulBlock } from "./_univ-gichul";
 import {
   FieldAxisPair,
   FieldCountdown,
@@ -140,6 +142,8 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   const description = fieldUnivMetadata(field, u).description as string;
   const unit = `${u.short} ${field.unitLabel}`;
   const gichul = gachonGichulFor(field.key, u.slug);
+  /** 가천대 외 대학의 공개 기출 분석(lib/univ-gichul.ts) */
+  const univGichul = univGichulFor(field.key, u.slug);
   /** 수업 조건 — 가천대는 AI 없이 1회 2시간 30분(lib/mmi-schedule.ts CLASS_PLAN_OVERRIDES) */
   const plan = classPlanFor(`${field.base}/${u.slug}`);
   const peer = fieldPeerContext(field, u);
@@ -283,8 +287,9 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         </PromoSection>
       )}
 
-      {/* 공개 기출 분석 — 지금은 가천대만. 의대·약대·한의대가 겹치지 않게 나눠 싣는다 */}
+      {/* 공개 기출 분석 — 가천대(lib/gachon-gichul.ts) · 나머지 대학(lib/univ-gichul.ts). 계열 페이지가 겹치지 않게 나눠 싣는다 */}
       {gichul && <GachonGichul page={gichul} />}
+      {univGichul && <UnivGichulBlock u={univGichul.u} field={univGichul.field} />}
 
       <PromoSection
         eyebrow="IN CONTEXT"

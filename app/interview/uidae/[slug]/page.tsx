@@ -60,6 +60,8 @@ import { teachersForField } from "@/lib/teachers";
 import { univTeacherKeys } from "@/lib/interview-types";
 import { GACHON_CONCEPT, gachonGichulFor } from "@/lib/gachon-gichul";
 import { GachonGichul } from "../../_gichul";
+import { univGichulFor } from "@/lib/univ-gichul";
+import { UnivGichulBlock } from "../../_univ-gichul";
 
 /** =========================================================================
  *  /interview/uidae/[slug] — 대학별 의대 **면접** 페이지 (2026-10-23 분리)
@@ -162,6 +164,8 @@ export default async function UidaeInterviewUnivPage({
 
   /** 공개 기출 분석이 있는 대학인가(가천대) */
   const gichul = gachonGichulFor("uidae", u.slug);
+  /** 가천대 외 대학의 공개 기출 분석(lib/univ-gichul.ts) */
+  const univGichul = univGichulFor("uidae", u.slug);
   /** 수업 조건 — 가천대는 AI 없이 1회 2시간 30분(lib/mmi-schedule.ts CLASS_PLAN_OVERRIDES) */
   const plan = classPlanFor(`/interview/uidae/${u.slug}`);
 
@@ -409,8 +413,10 @@ export default async function UidaeInterviewUnivPage({
         ) : null}
       </PromoSection>
 
-      {/* ===== 공개 기출 분석 — 지금은 가천대만(lib/gachon-gichul.ts). 의대·약대·한의대가 나눠 싣는다 ===== */}
+      {/* ===== 공개 기출 분석 — 가천대(lib/gachon-gichul.ts) · 나머지 대학(lib/univ-gichul.ts).
+          같은 대학의 여러 계열 페이지가 겹치지 않게 나눠 싣는다 ===== */}
       {gichul && <GachonGichul page={gichul} />}
+      {univGichul && <UnivGichulBlock u={univGichul.u} field={univGichul.field} />}
 
       {/* ===== 담당 강사 — 의대 출신 두 분 + (제시문 면접이면) 제시문 전담 =====
           약력(detailed)은 켜지 않는다. 39개 대학 페이지에 같은 약력이 깔리면
