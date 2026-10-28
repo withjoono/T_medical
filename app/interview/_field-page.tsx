@@ -24,6 +24,8 @@ import {
 import { CrossFieldLinks, FieldClassLine, FieldPeerFacts } from "./_crossfield";
 import { teachersForField, type FieldTeacherKey } from "@/lib/teachers";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
+import { gachonGichulFor } from "@/lib/gachon-gichul";
+import { GachonGichul } from "./_gichul";
 import {
   FieldAxisPair,
   FieldCountdown,
@@ -137,6 +139,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   const title = fieldUnivMetadata(field, u).title as string;
   const description = fieldUnivMetadata(field, u).description as string;
   const unit = `${u.short} ${field.unitLabel}`;
+  const gichul = gachonGichulFor(field.key, u.slug);
   const peer = fieldPeerContext(field, u);
   const cross = crossFieldLinks(u.short, field.key);
   // 담당 선생님은 lib/teachers.ts 한 곳이 정한다 — 계열 전담이 등록되면 자동 반영
@@ -272,6 +275,9 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
           />
         </PromoSection>
       )}
+
+      {/* 공개 기출 분석 — 지금은 가천대만. 의대·약대·한의대가 겹치지 않게 나눠 싣는다 */}
+      {gichul && <GachonGichul page={gichul} />}
 
       <PromoSection
         eyebrow="IN CONTEXT"

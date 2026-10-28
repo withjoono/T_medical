@@ -56,6 +56,8 @@ import {
 } from "@/lib/mmi-schedule";
 import { teachersForField } from "@/lib/teachers";
 import { univTeacherKeys } from "@/lib/interview-types";
+import { gachonGichulFor } from "@/lib/gachon-gichul";
+import { GachonGichul } from "../../_gichul";
 
 /** =========================================================================
  *  /interview/uidae/[slug] — 대학별 의대 **면접** 페이지 (2026-10-23 분리)
@@ -155,6 +157,9 @@ export default async function UidaeInterviewUnivPage({
   ].sort();
   /** 같은 대학의 치·한·약·수 면접 페이지 — 색인된 의대 면접 페이지에서 건너가는 길 */
   const cross = crossFieldLinks(u.short, "uidae");
+
+  /** 공개 기출 분석이 있는 대학인가(가천대) */
+  const gichul = gachonGichulFor("uidae", u.slug);
 
   /** 이 대학 면접을 누가 맡는가 — lib/interview-types.ts 가 판단한다 */
   const teacherKeys = univTeacherKeys(u.slug);
@@ -394,6 +399,9 @@ export default async function UidaeInterviewUnivPage({
           </div>
         ) : null}
       </PromoSection>
+
+      {/* ===== 공개 기출 분석 — 지금은 가천대만(lib/gachon-gichul.ts). 의대·약대·한의대가 나눠 싣는다 ===== */}
+      {gichul && <GachonGichul page={gichul} />}
 
       {/* ===== 담당 강사 — 의대 출신 두 분 + (제시문 면접이면) 제시문 전담 =====
           약력(detailed)은 켜지 않는다. 39개 대학 페이지에 같은 약력이 깔리면

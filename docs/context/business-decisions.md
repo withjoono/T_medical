@@ -41,7 +41,7 @@ updated: 2026-10-25
 SSOT: **`lib/teachers.ts`** (프로필 `TEACHER_PROFILES`, 계열 배정 `FIELD_TEACHERS`, 제시문 전담 `JESIMUN_TEACHER`).
 대학별 예외는 `lib/mmi-schedule.ts` `UNIV_TEACHERS` · `lib/interview-types.ts` `univTeacherKeys`.
 
-- 의대 면접 = 이세인 선생님. 계열 전담이 없는 치·한·약·수도 당분간 `DEFAULT_TEACHER` 가 맡는다.
+- 의대 면접 = 류지연·이세인 선생님 두 분(2026-10-28 사용자 확정). 계열 전담이 없는 치·한·약·수는 당분간 `DEFAULT_TEACHER`(이세인)가 맡는다.
 - 주 형식이 **제시문**인 대학 = 박은우 선생님(계열 무관). 고려대는 두 분 모두 표시.
   서울대·울산대처럼 MMI 안에 제시문이 섞인 의대는 이세인.
 - 강정규 선생님은 의대 면접에서 제외(2026-09-30).
