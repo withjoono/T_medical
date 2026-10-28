@@ -27,7 +27,7 @@ const JESIMUN = new Set(["제시문", "MMI 상황"]);
 
 function basisLabel(q: UnivGichulQuestion) {
   if (JESIMUN.has(q.kind)) return "제시문·상황";
-  if (q.kind === "공통문항") return "배경";
+  if (q.kind === "공통문항" || /기출 아님/.test(q.kind)) return "배경";
   return "근거 기록";
 }
 
@@ -113,6 +113,8 @@ function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
     : fields.length > 1 && scope.every((s) => /학과 구분 없음/.test(s))
       ? " 보고서가 학과를 나누지 않고 공개해, 배치는 과목 성격에 맞춘 것입니다."
       : "";
+  const exHere = gichulExamplesOn(u, field).length;
+  const exText = exHere ? ` 대학이 공개한 예시·예상 문항 ${exHere}개는 기출과 따로 아래에 실었습니다.` : "";
   if (total === 0) {
     if (u.examples?.length) {
       return `${iga(u.short)} 공개한 선행학습 영향평가 보고서에는 이 계열 면접의 문항 예시가 없습니다. 대신 대학이 가이드북에 직접 공개한 예시문항을 같은 방식으로 분석했습니다.`;
@@ -120,9 +122,9 @@ function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
     return `${iga(u.short)} 공개한 선행학습 영향평가 보고서에는 이 계열 면접의 문항 예시가 없습니다. 보고서가 밝힌 면접 성격과 준비 방향만 정리했습니다.`;
   }
   if (fields.length === 1 || qs.length === total) {
-    return `${iga(u.short)} 선행학습 영향평가 보고서로 공개한 ${yearText}면접 문항을 ${total}개 카드로 하나씩 분석했습니다.${scopeText}`;
+    return `${iga(u.short)} 선행학습 영향평가 보고서로 공개한 ${yearText}면접 문항을 ${total}개 카드로 하나씩 분석했습니다.${scopeText}${exText}`;
   }
-  return `${iga(u.short)} 공개한 ${yearText}면접 문항을 ${total}개 카드로 분석해 계열 페이지에 나눠 실었고, 이 페이지에는 ${qs.length}개가 있습니다.${scopeText}`;
+  return `${iga(u.short)} 공개한 ${yearText}면접 문항을 ${total}개 카드로 분석해 계열 페이지에 나눠 실었고, 이 페이지에는 ${qs.length}개가 있습니다.${scopeText}${exText}`;
 }
 
 function OtherPages({ u, field }: { u: UnivGichul; field: GichulField }) {
@@ -254,9 +256,9 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
         )}
         {ex.length > 0 && (
           <div className="mx-auto mt-10 max-w-4xl">
-            <p className="eyebrow text-brass-600">대학 공개 예시문항 — 기출 아님</p>
+            <p className="eyebrow text-brass-600">대학 공개 예시·예상 문항 — 기출 아님</p>
             <p className="mt-2 text-[13px] font-light leading-[1.8] text-ink-600">
-              {iga(u.short)} 가이드북 등에 직접 공개한 예시문항입니다. 실제 면접에서 나온 기출은 아니지만, 대학이 무엇을 묻겠다고 밝힌 자료라 같은 방식으로 분석했습니다.
+              {iga(u.short)} 가이드북·입학처 공지 등에 직접 공개한 예시·예상 문항입니다. 실제 면접에서 그대로 나왔는지는 공개되지 않았지만, 대학이 무엇을 묻겠다고 밝힌 자료라 같은 방식으로 분석했습니다.
             </p>
             <div className="mt-5 space-y-5">
               {ex.map((q, i) => (
