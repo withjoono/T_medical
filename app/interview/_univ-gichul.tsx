@@ -107,15 +107,15 @@ function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
   const scopeText = commonOnly
     ? " 공개된 것은 의약 계열 전용이 아니라 전형·계열 공통 예시입니다."
     : scope.some((s) => /학과 구분 없음/.test(s))
-      ? " 보고서가 학과를 나누지 않고 공개해, 계열 페이지에는 과목 성격에 맞춰 나눠 실었습니다."
+      ? " 보고서가 학과를 나누지 않고 공개해, 배치는 과목 성격에 맞춘 것입니다."
       : "";
   if (total === 0) {
     return `${iga(u.short)} 공개한 선행학습 영향평가 보고서에는 이 계열 면접의 문항 예시가 없습니다. 보고서가 밝힌 면접 성격과 준비 방향만 정리했습니다.`;
   }
   if (fields.length === 1 || qs.length === total) {
-    return `${iga(u.short)} 선행학습 영향평가 보고서로 공개한 ${yearText}면접 문항 ${total}개를 하나씩 분석했습니다.${scopeText}`;
+    return `${iga(u.short)} 선행학습 영향평가 보고서로 공개한 ${yearText}면접 문항을 ${total}개 카드로 하나씩 분석했습니다.${scopeText}`;
   }
-  return `${iga(u.short)} 공개한 ${yearText}면접 문항 ${total}개 가운데 ${qs.length}개입니다.${scopeText}`;
+  return `${iga(u.short)} 공개한 ${yearText}면접 문항을 ${total}개 카드로 분석해 계열 페이지에 나눠 실었고, 이 페이지에는 ${qs.length}개가 있습니다.${scopeText}`;
 }
 
 function OtherPages({ u, field }: { u: UnivGichul; field: GichulField }) {
