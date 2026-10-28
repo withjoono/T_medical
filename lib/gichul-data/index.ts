@@ -5,6 +5,7 @@ import catholic from "./catholic.json";
 import cha from "./cha.json";
 import chosun from "./chosun.json";
 import cnu from "./cnu.json";
+import daeguCatholic from "./daegu-catholic.json";
 import daejeon from "./daejeon.json";
 import dankook from "./dankook.json";
 import donga from "./donga.json";
@@ -14,9 +15,11 @@ import donggukSeoul from "./dongguk-seoul.json";
 import donggukWise from "./dongguk-wise.json";
 import duksung from "./duksung.json";
 import eulji from "./eulji.json";
+import ewha from "./ewha.json";
 import gnu from "./gnu.json";
 import hallym from "./hallym.json";
 import hanyang from "./hanyang.json";
+import inha from "./inha.json";
 import inje from "./inje.json";
 import jbnu from "./jbnu.json";
 import jeju from "./jeju.json";
@@ -42,6 +45,7 @@ export const GICHUL_DATA: unknown[] = [
   cha,
   chosun,
   cnu,
+  daeguCatholic,
   daejeon,
   dankook,
   donga,
@@ -51,9 +55,11 @@ export const GICHUL_DATA: unknown[] = [
   donggukWise,
   duksung,
   eulji,
+  ewha,
   gnu,
   hallym,
   hanyang,
+  inha,
   inje,
   jbnu,
   jeju,

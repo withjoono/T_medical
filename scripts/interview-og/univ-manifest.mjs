@@ -12,7 +12,7 @@ fs.rmSync(TMP, { recursive: true, force: true });
 fs.mkdirSync(path.join(TMP, "ipkyul"), { recursive: true });
 
 const FILES = [
-  "mmi-schedule.ts", "univ-interview.ts", "interview-types.ts", "univ.ts",
+  "mmi-schedule.ts", "teachers.ts", "univ-interview.ts", "interview-types.ts", "univ.ts",
   "ipkyul/index.ts", "ipkyul/uiye.ts", "ipkyul/chiuiye.ts", "ipkyul/hanuiye.ts",
   "ipkyul/yakhak.ts", "ipkyul/suuiye.ts",
 ];
