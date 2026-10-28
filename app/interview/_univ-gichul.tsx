@@ -105,11 +105,12 @@ function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
   const yearText = years.length ? `${years.join("·")}학년도 ` : "";
   const total = u.questions.length;
   const fields = gichulFields(u);
-  const scope = [...new Set(u.questions.map((q) => q.unit))];
-  const commonOnly = total > 0 && scope.every((s) => /공통/.test(s));
+  // 공개 범위 문장은 이 페이지에 실린 문항만 보고 정한다(다른 계열 페이지 몫의 사정을 끌어오지 않게)
+  const scope = [...new Set((qs.length ? qs : u.questions).map((q) => q.unit))];
+  const commonOnly = scope.length > 0 && scope.every((s) => /공통/.test(s));
   const scopeText = commonOnly
     ? " 공개된 것은 의약 계열 전용이 아니라 전형·계열 공통 예시입니다."
-    : scope.some((s) => /학과 구분 없음/.test(s))
+    : fields.length > 1 && scope.every((s) => /학과 구분 없음/.test(s))
       ? " 보고서가 학과를 나누지 않고 공개해, 배치는 과목 성격에 맞춘 것입니다."
       : "";
   if (total === 0) {
