@@ -62,6 +62,8 @@ export type UnivGichul = {
   oneLine?: string;
   evidence?: string;
   questions: UnivGichulQuestion[];
+  /** 대학이 공개한 예시문항(가이드북 등) — 기출이 아니다. 기출이 없는 대학만 쓴다 */
+  examples?: UnivGichulQuestion[];
   inseong?: UnivGichulInseong[];
   trend?: { item: string; y2025: string; y2026: string }[];
   prep?: { step: string; detail: string }[];
@@ -73,6 +75,10 @@ export const UNIV_GICHUL: UnivGichul[] = GICHUL_DATA as UnivGichul[];
 
 export function gichulHref(field: GichulField, slug: string) {
   return `/interview/${field}/${slug}`;
+}
+
+export function gichulExamplesOn(u: UnivGichul, field: GichulField) {
+  return (u.examples ?? []).filter((q) => q.page === field);
 }
 
 /** 이 대학의 사이트 계열 페이지(순서 고정) */

@@ -6,6 +6,7 @@ import {
   gichulFields,
   gichulHref,
   gichulLayout,
+  gichulExamplesOn,
   gichulQuestionsOn,
   type GichulField,
   type UnivGichul,
@@ -110,6 +111,9 @@ function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
       ? " 보고서가 학과를 나누지 않고 공개해, 배치는 과목 성격에 맞춘 것입니다."
       : "";
   if (total === 0) {
+    if (u.examples?.length) {
+      return `${iga(u.short)} 공개한 선행학습 영향평가 보고서에는 이 계열 면접의 문항 예시가 없습니다. 대신 대학이 가이드북에 직접 공개한 예시문항을 같은 방식으로 분석했습니다.`;
+    }
     return `${iga(u.short)} 공개한 선행학습 영향평가 보고서에는 이 계열 면접의 문항 예시가 없습니다. 보고서가 밝힌 면접 성격과 준비 방향만 정리했습니다.`;
   }
   if (fields.length === 1 || qs.length === total) {
@@ -194,7 +198,8 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
   const showInseong = field === lay.inseong && (u.inseong?.length ?? 0) > 0;
   const showPrep = field === lay.prep && (u.prep?.length ?? 0) > 0;
   const showTrend = isPrimary && (u.trend?.length ?? 0) > 0;
-  const showMain = isPrimary || qs.length > 0;
+  const ex = gichulExamplesOn(u, field);
+  const showMain = isPrimary || qs.length > 0 || ex.length > 0;
   const nothingHere = !showMain && !showInseong && !showPrep;
   /** 같은 대학 다른 페이지 링크·출처는 이 페이지에서 마지막으로 그리는 섹션 끝에 한 번 */
   const last = showInseong ? "inseong" : showPrep ? "prep" : showTrend ? "trend" : "main";
@@ -242,6 +247,19 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
             {qs.map((q, i) => (
               <QuestionCard key={q.id} q={q} n={i + 1} />
             ))}
+          </div>
+        )}
+        {ex.length > 0 && (
+          <div className="mx-auto mt-10 max-w-4xl">
+            <p className="eyebrow text-brass-600">대학 공개 예시문항 — 기출 아님</p>
+            <p className="mt-2 text-[13px] font-light leading-[1.8] text-ink-600">
+              {iga(u.short)} 가이드북 등에 직접 공개한 예시문항입니다. 실제 면접에서 나온 기출은 아니지만, 대학이 무엇을 묻겠다고 밝힌 자료라 같은 방식으로 분석했습니다.
+            </p>
+            <div className="mt-5 space-y-5">
+              {ex.map((q, i) => (
+                <QuestionCard key={q.id} q={q} n={qs.length + i + 1} />
+              ))}
+            </div>
           </div>
         )}
         {isPrimary && (u.limits?.length ?? 0) > 0 && (
