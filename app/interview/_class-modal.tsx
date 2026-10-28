@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, X } from "lucide-react";
 import { AI_TIERS, BUNDLE, CLASS_PRICE_LABEL, SESSION_LABEL } from "@/lib/class-summary";
-import { TEACHER_PROFILES } from "@/lib/teachers";
+import { ALL_TEACHERS } from "@/lib/teachers";
 
 /** =========================================================================
  *  수업 상세 팝업.
@@ -108,13 +108,37 @@ export function ClassDetailButton({ label = "수업·강사 자세히" }: { labe
 
               <div className="mt-7">
                 <p className="eyebrow text-brass-600">담당 선생님</p>
+                {/* 약력까지 여기서 펼쳐도 안전하다 — 팝업 내용은 열어야 DOM 에 생기므로
+                    페이지 HTML 에 복제되지 않는다. 본문에 그대로 옮기지는 말 것. */}
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {Object.values(TEACHER_PROFILES).map((t) => (
+                  {ALL_TEACHERS.map((t) => (
                     <div key={t.id} className="border border-hair bg-white p-5">
+                      {t.photo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={t.photo}
+                          alt={`${t.name} 선생님`}
+                          width={56}
+                          height={70}
+                          className="mb-3 h-[70px] w-[56px] border border-hair bg-paper-200 object-cover"
+                        />
+                      ) : null}
                       <p className="display text-[15px] text-ink-900">{t.name}</p>
                       <p className="mt-2 text-[12px] font-light leading-relaxed text-ink-500">
                         {t.credential}
                       </p>
+                      {t.career && t.career.length > 0 && (
+                        <ul className="mt-3 space-y-1.5 border-t border-hair pt-3">
+                          {t.career.map((c) => (
+                            <li
+                              key={c}
+                              className="text-[12px] font-light leading-[1.7] text-ink-500"
+                            >
+                              {c}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   ))}
                 </div>

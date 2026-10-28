@@ -52,7 +52,7 @@ import {
   summarize,
   TUITION,
   univDays,
-  UNIV_TEACHERS,
+  UNIV_TEACHER_GROUPS,
 } from "@/lib/mmi-schedule";
 import { teachersForField } from "@/lib/teachers";
 import { univTeacherKeys } from "@/lib/interview-types";
@@ -156,13 +156,15 @@ export default async function UidaeInterviewUnivPage({
   /** 같은 대학의 치·한·약·수 면접 페이지 — 색인된 의대 면접 페이지에서 건너가는 길 */
   const cross = crossFieldLinks(u.short, "uidae");
 
+  /** 이 대학 면접을 누가 맡는가 — lib/interview-types.ts 가 판단한다 */
+  const teacherKeys = univTeacherKeys(u.slug);
+
   /** 담당 선생님은 lib/teachers.ts 한 곳이 정한다 — 계열 전담이 등록되면 자동 반영.
    *  제시문 면접을 보는 대학은 제시문 전담이 맡는다(univTeacherKeys 가 판단). */
   const classTeachers = noInterview
     ? []
     : (() => {
-        const keys = univTeacherKeys(u.slug);
-        const list = (keys.length > 0 ? keys : ["general"]).flatMap((k) =>
+        const list = (teacherKeys.length > 0 ? teacherKeys : ["uidae"]).flatMap((k) =>
           teachersForField("uidae", k === "jesimun" ? "jesimun" : undefined),
         );
         return list.filter((t, i) => list.findIndex((x) => x.id === t.id) === i);
@@ -393,21 +395,21 @@ export default async function UidaeInterviewUnivPage({
         ) : null}
       </PromoSection>
 
-      {/* ===== 담당 강사 — 제시문 → 박은우, 그 밖 → 이세인 ===== */}
-      {!noInterview && univTeacherKeys(u.slug).length > 0 && (
+      {/* ===== 담당 강사 — 의대 출신 두 분 + (제시문 면접이면) 제시문 전담 =====
+          약력(detailed)은 켜지 않는다. 39개 대학 페이지에 같은 약력이 깔리면
+          2026-10-24 에 걷어낸 본문 중복이 그대로 되살아난다 — /interview 로 보낸다. */}
+      {!noInterview && teacherKeys.length > 0 && (
         <PromoSection
           eyebrow="INSTRUCTOR"
           EyebrowIcon={Users}
           title="담당 강사"
           subtitle={
-            univTeacherKeys(u.slug).length > 1
-              ? `${u.short} 면접은 제시문 면접은 박은우 선생님, 그 밖의 면접은 이세인 선생님이 나눠 맡습니다.`
-              : univTeacherKeys(u.slug)[0] === "jesimun"
-                ? `${u.short} 면접은 제시문 면접이라 박은우 선생님이 맡습니다.`
-                : `${u.short} 면접은 이세인 선생님이 맡습니다.`
+            teacherKeys.includes("jesimun")
+              ? `${u.short} 면접은 제시문 면접이라, 의대 출신 두 분과 제시문 전담 박은우 선생님이 나눠 맡습니다. 약력과 수업 방식은 아래 수업 안내에서 펼쳐 보실 수 있습니다.`
+              : `${u.short} 면접은 의대 출신 류지연·이세인 선생님이 맡습니다. 약력과 수업 방식은 아래 수업 안내에서 펼쳐 보실 수 있습니다.`
           }
         >
-          <TeacherCards teachers={univTeacherKeys(u.slug).map((k) => UNIV_TEACHERS[k])} />
+          <TeacherCards teachers={teacherKeys.flatMap((k) => UNIV_TEACHER_GROUPS[k])} />
         </PromoSection>
       )}
 

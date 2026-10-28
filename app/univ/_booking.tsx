@@ -531,8 +531,22 @@ export function LeakageNotice({ univ }: { univ: Univ }) {
  * 강사
  * ---------------------------------------------------------------------- */
 
-export function TeacherCards({ teachers }: { teachers?: readonly TeacherCard[] } = {}) {
-  const cards: readonly TeacherCard[] = teachers ?? [...TEACHERS, KOREA_JESIMUN_TEACHER];
+/** 강사 카드.
+ *
+ *  ▸ 반신 사진(halfPhoto)이 있으면 사진을 카드의 **바깥쪽**에 붙인다. facing 이
+ *    "right" 면 사진이 왼쪽, "left" 면 오른쪽이다. 두 분을 나란히 놓으면 서로
+ *    가운데를 바라보게 된다(2026-10-28 사용자 요청). 사진을 교체하면
+ *    lib/teachers.ts 의 facing 도 같이 고쳐야 배치가 깨지지 않는다.
+ *  ▸ `detailed` 는 약력(career)까지 펼친다. /interview 와 수업 팝업에서만 켠다 —
+ *    대학 페이지 39곳에 같은 약력을 깔면 2026-10-24 에 걷어낸 본문 중복이 되살아난다.
+ */
+export function TeacherCards({
+  teachers,
+  detailed = false,
+}: { teachers?: readonly TeacherCard[]; detailed?: boolean } = {}) {
+  const given: readonly TeacherCard[] = teachers ?? [...TEACHERS, KOREA_JESIMUN_TEACHER];
+  // 오른쪽을 보는 분이 왼쪽 칸에 와야 둘이 마주본다. 자리 순서는 여기서만 정한다.
+  const cards = [...given].sort((a, b) => Number(b.facing === "right") - Number(a.facing === "right"));
   return (
     <div
       className={`feature-grid grid ${cards.length > 1 ? "sm:grid-cols-2" : "mx-auto max-w-xl"}`}
@@ -540,10 +554,21 @@ export function TeacherCards({ teachers }: { teachers?: readonly TeacherCard[] }
       {cards.map((t) => {
         // 사진은 lib/teachers.ts(SSOT)에서 id 로 찾는다 — 카드 데이터에 직접 적힌 값이 있으면 그것을 쓴다
         const photo = t.photo ?? teacherPhoto(t.id);
+        const half = t.halfPhoto;
         return (
         <div key={t.id} className="feature-card p-8">
-          <div className="flex items-start justify-between">
-            {photo ? (
+          <div className={`flex items-start gap-6 ${t.facing === "left" ? "flex-row-reverse" : ""}`}>
+            {half ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={half}
+                alt={`${t.name} 선생님`}
+                width={200}
+                height={250}
+                loading="lazy"
+                className="h-[200px] w-[160px] shrink-0 border border-hair-strong bg-ink object-cover object-top lg:h-[250px] lg:w-[200px]"
+              />
+            ) : photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={photo}
@@ -551,19 +576,38 @@ export function TeacherCards({ teachers }: { teachers?: readonly TeacherCard[] }
                 width={96}
                 height={120}
                 loading="lazy"
-                className="h-[120px] w-[96px] border border-hair-strong bg-paper-200 object-cover"
+                className="h-[120px] w-[96px] shrink-0 border border-hair-strong bg-paper-200 object-cover"
               />
             ) : (
-              <span className="flex h-11 w-11 items-center justify-center border border-hair-strong bg-white text-jade-600">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-hair-strong bg-white text-jade-600">
                 <UserRound className="h-5 w-5" strokeWidth={1.5} />
               </span>
             )}
-            <span className="eyebrow text-brass-600">1:1</span>
+            <div className={`min-w-0 flex-1 ${t.facing === "left" ? "text-right" : ""}`}>
+              <span className="eyebrow text-brass-600">1:1</span>
+              <h3 className="display mt-4 text-[1.25rem] leading-snug text-ink-900">{t.name}</h3>
+              <p className="mt-1.5 text-[13px] font-semibold tracking-tight text-jade-700">{t.role}</p>
+              <p className="mt-3 text-[13px] font-light leading-[1.8] text-ink-500">{t.credential}</p>
+            </div>
           </div>
-          <h3 className="display mt-6 text-[1.25rem] leading-snug text-ink-900">{t.name}</h3>
-          <p className="mt-1.5 text-[13px] font-semibold tracking-tight text-jade-700">{t.role}</p>
-          <p className="mt-4 border-t border-hair pt-4 text-[13px] font-light leading-[1.8] text-ink-500">{t.credential}</p>
-          <p className="mt-4 text-[14px] font-light leading-[1.85] text-ink-600">{t.focus}</p>
+          {/* 수업 설명(focus)과 약력(career)은 detailed 에서만 편다. 대학 페이지 39곳에
+              같은 문단을 깔면 2026-10-24 에 걷어낸 본문 중복이 되살아난다 —
+              거기서는 사진·이름·출신까지만 보이고, 나머지는 수업 팝업과 /interview 가 맡는다. */}
+          {detailed && (
+            <p className="mt-6 border-t border-hair pt-5 text-[14px] font-light leading-[1.85] text-ink-600">
+              {t.focus}
+            </p>
+          )}
+          {detailed && t.career && t.career.length > 0 && (
+            <ul className="mt-5 space-y-2 border-t border-hair pt-5">
+              {t.career.map((c) => (
+                <li key={c} className="flex gap-2.5 text-[13px] font-light leading-[1.75] text-ink-500">
+                  <span aria-hidden className="mt-[9px] h-px w-3 shrink-0 bg-brass-600" />
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         );
       })}

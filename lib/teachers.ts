@@ -15,8 +15,17 @@ export type TeacherProfile = {
   name: string;
   /** 학력 · 경력 한 줄 */
   credential: string;
-  /** public/ 기준 경로. 없으면 카드가 아이콘으로 대체한다 */
+  /** 증명사진(머리·어깨). public/ 기준 경로. 없으면 카드가 아이콘으로 대체한다 */
   photo?: string;
+  /** 허리까지 나오는 반신 사진. 두 분을 나란히 놓는 자리에서 쓴다 */
+  halfPhoto?: string;
+  /** 반신 사진에서 인물이 바라보는 쪽. 카드가 사진을 **반대편**에 붙여
+   *  두 분이 가운데를 보고 서로 마주보게 만든다. 사진을 바꾸면 여기도 고칠 것. */
+  facing?: "left" | "right";
+  /** 약력 — 본인이 준 문장만 그대로 싣는다. 코드가 보태거나 다듬지 않는다.
+   *  ⚠️ 본문 중복을 막으려고 /interview 와 수업 팝업에서만 펼친다
+   *     (대학 페이지 39곳에 같은 목록을 깔면 2026-10-24 중복 제거가 무너진다). */
+  career?: readonly string[];
 };
 
 export const TEACHER_PROFILES = {
@@ -25,6 +34,24 @@ export const TEACHER_PROFILES = {
     name: "이세인",
     credential: "이화여자대학교 의과대학",
     photo: "/images/teachers/lee-sein.jpg",
+    halfPhoto: "/images/teachers/lee-sein-half.jpg",
+    facing: "left",
+    career: ["T메디 면접 컨설팅 수업", "의대 준비반 수학·과학 수업"],
+  },
+  ryu: {
+    id: "ryu",
+    name: "류지연",
+    credential: "차의과학대학교 의학전문대학원(장학생)",
+    photo: "/images/teachers/ryu-jiyeon.jpg",
+    halfPhoto: "/images/teachers/ryu-jiyeon-half.jpg",
+    facing: "right",
+    career: [
+      "2020년 대치동 아이엔지학원 때부터 면접·컨설팅 수업",
+      "의대 · 의전원 면접 수업, 합격생 다수 배출",
+      "2022년 메디게이트뉴스 인턴기자",
+      "2024년 The 18th Asian Institute in Statistical Genetic and Genomics Scholarship Program",
+      "2025년 Travel Award in 2025 AACR-KCA Joint Conference",
+    ],
   },
   pew: {
     id: "pew",
@@ -34,6 +61,11 @@ export const TEACHER_PROFILES = {
 } as const satisfies Record<string, TeacherProfile>;
 
 export type TeacherId = keyof typeof TEACHER_PROFILES;
+
+/** 등록된 선생님 전부 — 화면에서 목록으로 돌릴 때 쓴다.
+ *  TEACHER_PROFILES 를 직접 Object.values 하면 `as const` 때문에 선생님마다
+ *  타입이 달라져(사진·약력이 없는 분이 있다) 공통 필드를 못 읽는다. */
+export const ALL_TEACHERS: readonly TeacherProfile[] = Object.values(TEACHER_PROFILES);
 
 /** 카드에 쓸 사진 — id 로 찾는다. 등록 안 된 id·사진 없음이면 undefined */
 export function teacherPhoto(id: string): string | undefined {
@@ -64,7 +96,9 @@ export type FieldTeacherKey = "uidae" | "chidae" | "hanuidae" | "yakdae" | "suui
 
 /** 계열 전담 선생님. 빈 배열이면 DEFAULT_TEACHER 로 떨어진다. */
 export const FIELD_TEACHERS: Record<FieldTeacherKey, TeacherId[]> = {
-  uidae: ["lsi"],
+  // 의대 면접은 의대 출신 두 분이 함께 맡는다(2026-10-28 사용자 확정).
+  // 순서는 화면 배치가 아니라 목록 순서일 뿐이다 — 마주보기 배치는 facing 이 정한다.
+  uidae: ["ryu", "lsi"],
   chidae: [],
   hanuidae: [],
   yakdae: [],

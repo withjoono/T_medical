@@ -108,6 +108,13 @@ export const UNIV_TEACHERS = {
     focus:
       "생활기록부를 놓고 묻는 질문과 인성·상황·의료윤리 문항의 답변 골격을 잡고, 지원 대학 형식 그대로 모의면접을 돌린 뒤 표현·태도·시선까지 그 자리에서 교정합니다.",
   },
+  ryu: {
+    ...TEACHER_PROFILES.ryu,
+    role: "의대 · 의전원 면접",
+    // ⚠️ focus 는 본인이 준 약력을 문장으로 옮긴 것뿐이다. 수업 방식을 코드가 지어내지 말 것.
+    // 바로 아래 약력 목록과 같은 문장을 되풀이하지 않도록 한 줄로만 둔다.
+    focus: "의대·의전원 면접과 입시 컨설팅 수업을 맡습니다.",
+  },
   jesimun: {
     ...TEACHER_PROFILES.pew,
     role: "제시문 면접 전담",
@@ -115,6 +122,15 @@ export const UNIV_TEACHERS = {
       "처음 보는 소재의 제시문을 읽고 쟁점을 세운 뒤, 제시문끼리 연결해 근거와 함께 설명하는 훈련을 합니다. 수학·과학 제시문까지 직접 다룹니다.",
   },
 } as const;
+
+/** 대학 페이지가 '누가 맡는가' 를 그릴 때 쓰는 묶음.
+ *  의대 면접은 **의대 출신 두 분이 함께** 맡고(2026-10-28 사용자 확정),
+ *  제시문 면접은 과목 특성상 박은우 선생님이 따로 맡는다. 제시문 면접을 보는
+ *  의대는 두 묶음이 모두 붙는다 — 의대 강사진에서 두 분을 빼지 말 것. */
+export const UNIV_TEACHER_GROUPS: Record<"uidae" | "jesimun", readonly TeacherCard[]> = {
+  uidae: [UNIV_TEACHERS.ryu, UNIV_TEACHERS.general],
+  jesimun: [UNIV_TEACHERS.jesimun],
+};
 
 export type TeacherCard = {
   id: string;
@@ -124,6 +140,10 @@ export type TeacherCard = {
   focus: string;
   /** 사진 — 보통 비워 둔다. 카드가 lib/teachers.ts 에서 id 로 찾는다 */
   photo?: string;
+  /** 아래 셋은 lib/teachers.ts 의 프로필에서 그대로 따라온다(...TEACHER_PROFILES.x) */
+  halfPhoto?: string;
+  facing?: "left" | "right";
+  career?: readonly string[];
 };
 
 /** =========================================================================

@@ -24,7 +24,7 @@ import {
 } from "../_site/components";
 import { ConceptStrip, FieldChooser, PricePlans, ShareCard } from "./_interview";
 import { TeacherCards } from "../univ/_booking";
-import { UNIV_TEACHERS } from "@/lib/mmi-schedule";
+import { UNIV_TEACHER_GROUPS } from "@/lib/mmi-schedule";
 import {
   CLASS_FEATURES,
   CLASS_FLOW,
@@ -261,10 +261,14 @@ export default function InterviewHubPage() {
         eyebrow="INSTRUCTORS"
         EyebrowIcon={Users}
         title="담당 강사"
-        subtitle="제시문 면접은 박은우 선생님, 그 밖의 면접(인성·서류 기반·MMI)은 이세인 선생님이 맡습니다. 의·치·한·약·수 모두 같은 기준이며, 대학별 담당은 각 대학 페이지에 있습니다."
+        subtitle="의대 면접은 의대 출신 류지연·이세인 선생님이 맡고, 제시문 면접은 과목 특성상 박은우 선생님이 따로 맡습니다. 대학별 담당은 각 대학 페이지에 있습니다."
         tone="muted"
       >
-        <TeacherCards teachers={[UNIV_TEACHERS.general, UNIV_TEACHERS.jesimun]} />
+        {/* 약력(detailed)은 이 페이지와 수업 팝업에서만 펼친다 — 대학 페이지에 깔면 본문 중복이 된다 */}
+        <TeacherCards
+          teachers={[...UNIV_TEACHER_GROUPS.uidae, ...UNIV_TEACHER_GROUPS.jesimun]}
+          detailed
+        />
       </PromoSection>
 
       <PromoSection eyebrow="MORE" EyebrowIcon={MessagesSquare} title="함께 보기">

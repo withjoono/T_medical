@@ -494,11 +494,12 @@ const ASSIGN: Record<string, Assign> = {
  *  주 형식이 제시문인 대학 → 박은우, 그 밖(MMI·인적성) → 이세인.
  *  고려대는 제시문 면접(수학·과학)과 인·적성 MMI 를 함께 보므로 두 사람이 나눠 맡는다.
  *  분류되지 않았거나 면접이 없는 대학은 빈 배열. */
-export function univTeacherKeys(slug: string): ("general" | "jesimun")[] {
+export function univTeacherKeys(slug: string): ("uidae" | "jesimun")[] {
   const a = ASSIGN[slug];
   if (!a) return [];
-  if (slug === "korea") return ["general", "jesimun"];
-  return a.primary === "jesimun" ? ["jesimun"] : ["general"];
+  // 의대 강사진(의대 출신 두 분)은 모든 의대 페이지에 붙는다. 제시문 면접을 보는
+  // 대학에는 제시문 전담이 **추가로** 붙는다 — 두 분을 빼고 대체하지 않는다.
+  return a.primary === "jesimun" || slug === "korea" ? ["uidae", "jesimun"] : ["uidae"];
 }
 
 /** 의예과 면접 한눈에 — 면접을 보는 의대를 가장 이른 면접일 순으로.
