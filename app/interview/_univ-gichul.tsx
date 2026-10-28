@@ -217,7 +217,12 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
 
   if (nothingHere) {
     return (
-      <PromoSection eyebrow="PAST QUESTIONS" EyebrowIcon={FileSearch} title={`${u.short} 면접 기출 분석`}>
+      <PromoSection
+        eyebrow="PAST QUESTIONS"
+        EyebrowIcon={FileSearch}
+        title={`${u.short} 면접 기출 분석`}
+        subtitle={`${u.short} ${unit} 면접 문항은 선행학습 영향평가 보고서에 따로 공개되지 않았습니다. 같은 대학 다른 계열 페이지에 실은 공개 문항 분석을 참고하세요.`}
+      >
         <OtherPages u={u} field={field} />
       </PromoSection>
     );

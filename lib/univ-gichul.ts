@@ -106,13 +106,16 @@ export type GichulLayout = {
 
 /** 같은 대학 여러 페이지에 공통 블록을 한 번씩만 배치한다.
  *  · 주 페이지 = 계열 순서상 첫 페이지(의대 > 치대 > 한의대 > 약대 > 수의대)
- *  · 인성 표·준비 순서는 나머지 페이지 중 문항이 적은 쪽부터 하나씩 */
+ *  · 인성 표·준비 순서는 나머지 페이지 중 문항이 적은 쪽부터 하나씩
+ *  · 자기 문항이 하나도 없는 페이지에는 공통 블록을 두지 않는다 — 다른 계열 기준으로 쓴
+ *    준비 순서가 그 계열 안내처럼 읽힌다(아주대 약학과). 그런 페이지는 링크만 싣는다. */
 export function gichulLayout(u: UnivGichul): GichulLayout {
   const fields = gichulFields(u);
   const primary = fields[0];
   const rest = fields
     .slice(1)
-    .map((f, i) => ({ f, i, n: gichulQuestionsOn(u, f).length }))
+    .map((f, i) => ({ f, i, n: gichulQuestionsOn(u, f).length + gichulExamplesOn(u, f).length }))
+    .filter((x) => x.n > 0)
     .sort((a, b) => a.n - b.n || b.i - a.i)
     .map((x) => x.f);
   const inseong = rest[0] ?? primary;

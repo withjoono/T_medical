@@ -1,7 +1,9 @@
 /** 대학별 면접 기출 분석 데이터 목록 — lib/univ-gichul.ts 가 읽는다.
  *  대학 파일(<key>.json)을 추가하면 아래에 import 한 줄과 배열 항목을 함께 넣는다. */
 
+import ajou from "./ajou.json";
 import catholic from "./catholic.json";
+import cau from "./cau.json";
 import cha from "./cha.json";
 import chosun from "./chosun.json";
 import cnu from "./cnu.json";
@@ -25,6 +27,7 @@ import jbnu from "./jbnu.json";
 import jeju from "./jeju.json";
 import jnu from "./jnu.json";
 import kangwon from "./kangwon.json";
+import keimyung from "./keimyung.json";
 import khu from "./khu.json";
 import knu from "./knu.json";
 import konkukGlocal from "./konkuk-glocal.json";
@@ -39,9 +42,12 @@ import syu from "./syu.json";
 import ulsan from "./ulsan.json";
 import wonkwang from "./wonkwang.json";
 import woosuk from "./woosuk.json";
+import yeungnam from "./yeungnam.json";
 
 export const GICHUL_DATA: unknown[] = [
+  ajou,
   catholic,
+  cau,
   cha,
   chosun,
   cnu,
@@ -65,6 +71,7 @@ export const GICHUL_DATA: unknown[] = [
   jeju,
   jnu,
   kangwon,
+  keimyung,
   khu,
   knu,
   konkukGlocal,
@@ -79,4 +86,5 @@ export const GICHUL_DATA: unknown[] = [
   ulsan,
   wonkwang,
   woosuk,
+  yeungnam,
 ];
