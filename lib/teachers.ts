@@ -35,7 +35,8 @@ export const TEACHER_PROFILES = {
     credential: "이화여자대학교 의과대학",
     photo: "/images/teachers/lee-sein.jpg",
     halfPhoto: "/images/teachers/lee-sein-half.jpg",
-    facing: "left",
+    // 반신 사진에서 몸이 화면 오른쪽으로 틀어져 있다 → 왼쪽 칸에 서서 가운데를 본다
+    facing: "right",
     career: ["T메디 면접 컨설팅 수업", "의대 준비반 수학·과학 수업"],
   },
   ryu: {
@@ -44,9 +45,10 @@ export const TEACHER_PROFILES = {
     credential: "차의과학대학교 의학전문대학원(장학생)",
     photo: "/images/teachers/ryu-jiyeon.jpg",
     halfPhoto: "/images/teachers/ryu-jiyeon-half.jpg",
-    facing: "right",
+    // 반신 사진에서 몸이 화면 왼쪽으로 틀어져 있다 → 오른쪽 칸에 서서 가운데를 본다
+    facing: "left",
     career: [
-      "2020년 대치동 아이엔지학원 때부터 면접·컨설팅 수업",
+      "2020년 대치동 아이엔지학원 때부터 면접·컨설팅 수업으로 거북쌤과 동행",
       "의대 · 의전원 면접 수업, 합격생 다수 배출",
       "2022년 메디게이트뉴스 인턴기자",
       "2024년 The 18th Asian Institute in Statistical Genetic and Genomics Scholarship Program",
