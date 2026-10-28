@@ -32,7 +32,9 @@ function basisLabel(q: UnivGichulQuestion) {
 }
 
 function QuestionCard({ q, n }: { q: UnivGichulQuestion; n: number }) {
-  const meta = [`${q.year}학년도`, q.unit, q.kind, q.subject].filter(Boolean).join(" · ");
+  // 가이드북 예시는 출제 학년도가 아니라 가이드북 학년도다 — '2026학년도'로 쓰면 기출처럼 읽힌다
+  const yearText = /가이드북/.test(q.src ?? "") ? `${q.year} 가이드북 예시` : `${q.year}학년도`;
+  const meta = [yearText, q.unit, q.kind, q.subject].filter(Boolean).join(" · ");
   return (
     <article className="border border-hair-strong bg-white p-6 sm:p-8">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
