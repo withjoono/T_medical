@@ -89,6 +89,13 @@ function QuestionCard({ q, n }: { q: UnivGichulQuestion; n: number }) {
   );
 }
 
+/** 주격 조사 — '건국대 글로컬이', '서울대가'. 한글이 아닌 끝(WISE)은 모음으로 본다 */
+function iga(word: string) {
+  const c = word.charCodeAt(word.length - 1);
+  if (c < 0xac00 || c > 0xd7a3) return `${word}가`;
+  return (c - 0xac00) % 28 ? `${word}이` : `${word}가`;
+}
+
 /** 페이지 머리 문장 — 문항 수·공개 범위를 데이터에서 계산한다 */
 function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
   const years = [...new Set(u.questions.map((q) => q.year))].sort();
@@ -103,12 +110,12 @@ function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
       ? " 보고서가 학과를 나누지 않고 공개해, 계열 페이지에는 과목 성격에 맞춰 나눠 실었습니다."
       : "";
   if (total === 0) {
-    return `${u.short}가 공개한 선행학습 영향평가 보고서에는 이 계열 면접의 문항 예시가 없습니다. 보고서가 밝힌 면접 성격과 준비 방향만 정리했습니다.`;
+    return `${iga(u.short)} 공개한 선행학습 영향평가 보고서에는 이 계열 면접의 문항 예시가 없습니다. 보고서가 밝힌 면접 성격과 준비 방향만 정리했습니다.`;
   }
   if (fields.length === 1 || qs.length === total) {
-    return `${u.short}가 선행학습 영향평가 보고서로 공개한 ${yearText}면접 문항 ${total}개를 하나씩 분석했습니다.${scopeText}`;
+    return `${iga(u.short)} 선행학습 영향평가 보고서로 공개한 ${yearText}면접 문항 ${total}개를 하나씩 분석했습니다.${scopeText}`;
   }
-  return `${u.short}가 공개한 ${yearText}면접 문항 ${total}개 가운데 ${qs.length}개입니다.${scopeText}`;
+  return `${iga(u.short)} 공개한 ${yearText}면접 문항 ${total}개 가운데 ${qs.length}개입니다.${scopeText}`;
 }
 
 function OtherPages({ u, field }: { u: UnivGichul; field: GichulField }) {
