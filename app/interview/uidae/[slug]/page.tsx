@@ -56,7 +56,7 @@ import {
 } from "@/lib/mmi-schedule";
 import { teachersForField } from "@/lib/teachers";
 import { univTeacherKeys } from "@/lib/interview-types";
-import { gachonGichulFor } from "@/lib/gachon-gichul";
+import { GACHON_CONCEPT, gachonGichulFor } from "@/lib/gachon-gichul";
 import { GachonGichul } from "../../_gichul";
 
 /** =========================================================================
@@ -412,7 +412,9 @@ export default async function UidaeInterviewUnivPage({
           EyebrowIcon={Users}
           title="담당 강사"
           subtitle={
-            teacherKeys.includes("jesimun")
+            gichul === "uidae"
+              ? GACHON_CONCEPT.teacherLine(u.short)
+              : teacherKeys.includes("jesimun")
               ? `${u.short} 면접은 제시문 면접이라, 의대 출신 두 분과 제시문 전담 박은우 선생님이 나눠 맡습니다. 약력과 수업 방식은 아래 수업 안내에서 펼쳐 보실 수 있습니다.`
               : `${u.short} 면접은 의대 출신 류지연·이세인 선생님이 맡습니다. 약력과 수업 방식은 아래 수업 안내에서 펼쳐 보실 수 있습니다.`
           }

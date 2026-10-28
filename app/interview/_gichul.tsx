@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpenCheck, FileSearch, ListChecks, TrendingUp, Users } from "lucide-react";
 import { PromoSection } from "../_site/components";
 import {
+  GACHON_CONCEPT,
   GACHON_INSEONG,
   GACHON_PAGES,
   GACHON_PREP,
@@ -153,6 +154,13 @@ export function GachonGichul({ page }: { page: GichulPage }) {
           <div className="mx-auto mb-8 max-w-4xl border-l-2 border-brass-400 bg-brass-50 px-5 py-4 text-[13px] font-light leading-[1.8] text-ink-700">
             2027학년도 가천대 한의예과는 면접을 보는 전형이 없습니다(논술·교과). 아래는 2026학년도까지 한의예과가 의예·약학과와 함께
             치른 가천의약학 면접의 공개 기출로, 가천대 의대·약대를 함께 지원한다면 그대로 해당됩니다.
+          </div>
+        )}
+        {page === "uidae" && (
+          <div className="mx-auto mb-8 max-w-4xl border border-hair-strong bg-white px-6 py-6">
+            <p className="eyebrow text-brass-600">한마디로</p>
+            <p className="display mt-3 text-[1.25rem] leading-snug text-ink-900">{GACHON_CONCEPT.oneLine}</p>
+            <p className="mt-3 text-[13px] font-light leading-[1.8] text-ink-600">{GACHON_CONCEPT.evidence}</p>
           </div>
         )}
         {page === "uidae" && (

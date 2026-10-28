@@ -37,7 +37,7 @@ export const TEACHER_PROFILES = {
     halfPhoto: "/images/teachers/lee-sein-half.jpg",
     // 반신 사진에서 몸이 화면 오른쪽으로 틀어져 있다 → 왼쪽 칸에 서서 가운데를 본다
     facing: "right",
-    career: ["T메디 면접 컨설팅 수업", "의대 준비반 수학·과학 수업"],
+    career: ["T메디 면접 컨설팅 수업", "의대 준비반 수학·화학·생명과학 수업"],
   },
   ryu: {
     id: "ryu",
@@ -50,6 +50,7 @@ export const TEACHER_PROFILES = {
     career: [
       "2020년 대치동 아이엔지학원 때부터 면접·컨설팅 수업으로 거북쌤과 동행",
       "의대 · 의전원 면접 수업, 합격생 다수 배출",
+      "화학 · 생명과학 수능 · 논술 수업",
       "2022년 메디게이트뉴스 인턴기자",
       "2024년 The 18th Asian Institute in Statistical Genetic and Genomics Scholarship Program",
       "2025년 Travel Award in 2025 AACR-KCA Joint Conference",
