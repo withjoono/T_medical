@@ -1,7 +1,5 @@
 /** 대학별 면접 기출 분석 데이터 목록 — lib/univ-gichul.ts 가 읽는다.
- *  대학 파일(<key>.json)을 추가하면 아래에 import 한 줄과 배열 항목을 함께 넣는다.
- *  ⚠️ 보고서에 '상업적 사용 금지' 문구가 있는 대학(부산대·성균관대·건국대·연세대·연세대 미래·서울대 입학본부 문항)은
- *     게시 여부를 정하기 전까지 싣지 않는다(2026-10-29). */
+ *  대학 파일(<key>.json)을 추가하면 아래에 import 한 줄과 배열 항목을 함께 넣는다. */
 
 import ajou from "./ajou.json";
 import catholic from "./catholic.json";
@@ -33,15 +31,22 @@ import keimyung from "./keimyung.json";
 import khu from "./khu.json";
 import knu from "./knu.json";
 import konkukGlocal from "./konkuk-glocal.json";
+import konkukSeoul from "./konkuk-seoul.json";
 import konyang from "./konyang.json";
+import korea from "./korea.json";
 import kosin from "./kosin.json";
+import pusan from "./pusan.json";
 import sch from "./sch.json";
 import semyung from "./semyung.json";
+import skku from "./skku.json";
+import snu from "./snu.json";
 import syu from "./syu.json";
 import ulsan from "./ulsan.json";
 import wonkwang from "./wonkwang.json";
 import woosuk from "./woosuk.json";
 import yeungnam from "./yeungnam.json";
+import yonsei from "./yonsei.json";
+import yonseiMirae from "./yonsei-mirae.json";
 
 export const GICHUL_DATA: unknown[] = [
   ajou,
@@ -74,13 +79,20 @@ export const GICHUL_DATA: unknown[] = [
   khu,
   knu,
   konkukGlocal,
+  konkukSeoul,
   konyang,
+  korea,
   kosin,
+  pusan,
   sch,
   semyung,
+  skku,
+  snu,
   syu,
   ulsan,
   wonkwang,
   woosuk,
   yeungnam,
+  yonsei,
+  yonseiMirae,
 ];

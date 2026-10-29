@@ -45,7 +45,8 @@ function cardHtml(c) {
             ? // 같은 달이면 뒤쪽 '○월' 을 떼어 한 줄에 들어가게 한다
               ds[0].slice(0, 7) === ds[1].slice(0, 7)
               ? `${koDate(ds[0])} · ${Number(ds[1].slice(8))}일`
-              : `${koDate(ds[0])} · ${koDate(ds[1])}`
+              : // 달이 다르면 '11/28 · 12/5' 로 줄인다('○월 ○일' 둘은 칸을 넘쳐 줄이 깨진다)
+                `${ds.map((x) => `${Number(x.slice(5, 7))}/${Number(x.slice(8))}`).join(" · ")}`
             : `${koDate(ds[0])} 외 ${ds.length - 1}일`;
 
   const facts = [
