@@ -806,9 +806,12 @@ export function PricePlans({ sessionLabel }: { sessionLabel: string }) {
       </div>
 
       <p className="mx-auto mt-8 max-w-3xl text-center text-[12px] font-light leading-relaxed text-ink-400">
-        수업을 신청하지 않고 AI 모의면접만 쓰실 수도 있습니다. 그 가격은 아래 표에 따로 있고, 지금은
-        전부 무료입니다 — 실전 모의 형식이 고려대 의학과 하나뿐이고 제시문도 검수 전이라, 형식을
-        늘리고 검수를 마친 뒤에 엽니다.
+        수업을 신청하지 않고 AI 모의면접만 쓰실 수도 있습니다. 실전 모의면접은 1회 무료로 체험하실 수
+        있고, 그 뒤 가격은{" "}
+        <Link href="/interview/ai#paths" className="underline underline-offset-2">
+          AI 모의면접 페이지
+        </Link>
+        에 따로 있습니다.
       </p>
     </div>
   );

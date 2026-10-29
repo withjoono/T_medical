@@ -30,7 +30,7 @@ updated: 2026-10-25
 | 1회 시간 | 현재 100분 (이전 150분) | `lib/mmi-schedule.ts` `SESSION_MINUTES` |
 | 1회 가격 | 현재 회당 35만원 (이전 38만원) | `lib/mmi-schedule.ts` `TUITION` |
 | 수업+AI 묶음 | 현재 38만원, AI 시즌 무제한 포함 | `lib/mmi-schedule.ts` `BUNDLE` |
-| AI 단품 | 말하기·태도 연습 무료(open), 나머지 `preparing` | `lib/mmi-schedule.ts` `AI_TIERS` |
+| AI 단품 | **무료는 실전 모의 1회 체험뿐**, 그 뒤 3회·5회·1주·시즌 유료(2026-10-29 사용자 확정). 말하기·태도 연습(로그인 없는 기기 안 도구)은 무료로 둠 | `lib/mmi-schedule.ts` `AI_TIERS` |
 | 표시용 라벨 | 가격·시간 문자열을 페이지에 다시 적지 말 것 | `lib/class-summary.ts` |
 | 대학별 예외 | **가천대(의대·약대·한의대) = AI 모의면접 없음, 1회 2시간 30분 · 38만원**(2026-10-28 사용자 확정) | `lib/mmi-schedule.ts` `CLASS_PLAN_OVERRIDES` · `classPlanFor` |
 

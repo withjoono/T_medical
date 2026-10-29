@@ -17,13 +17,15 @@ import { CONTACT_ANCHOR } from "../../_site/chrome";
  *  ⚠️ AI 기록이 선생님에게 자동으로 넘어간다고 쓰지 않는다 — 그런 연동은 아직 없다.
  * ========================================================================= */
 
-const PAID_TIERS = AI_TIERS.filter((t) => t.price > 0);
-const OPEN_PAID = PAID_TIERS.filter((t) => t.status === "open");
-/** 유료 항목이 하나도 열리지 않았으면 지금은 AI 가 전부 무료다 */
-const AI_FREE_NOW = OPEN_PAID.length === 0;
-const AI_HEADLINE = AI_FREE_NOW
-  ? "지금은 무료"
-  : `${[...OPEN_PAID].sort((a, b) => a.price - b.price)[0].priceLabel}부터`;
+/** 무료는 실전 모의 1회 체험뿐이다(2026-10-29 사용자 확정) — 그 뒤는 가장 싼 유료 항목부터 */
+const TRIAL = AI_TIERS.find((t) => t.key === "trial" && t.status === "open");
+const CHEAPEST_PAID = AI_TIERS.filter((t) => t.price > 0 && t.status === "open").sort(
+  (a, b) => a.price - b.price,
+)[0];
+const AI_HEADLINE = TRIAL ? `${TRIAL.meta} 무료` : CHEAPEST_PAID ? `${CHEAPEST_PAID.priceLabel}부터` : "준비 중";
+const AI_AFTER_TRIAL = CHEAPEST_PAID
+  ? `그 뒤는 ${CHEAPEST_PAID.label} ${CHEAPEST_PAID.priceLabel}부터`
+  : "유료 항목은 준비 중";
 
 /** 선생님 수업 흐름 — 수업 구조 띠에 깐다 */
 const CLASS_STEPS = [
@@ -63,11 +65,9 @@ const PATHS: PathCard[] = [
     eyebrow: "혼자 반복하기",
     title: "AI 모의면접만",
     price: AI_HEADLINE,
-    priceNote: AI_FREE_NOW
-      ? "유료 항목은 준비 중이라 아직 과금하지 않습니다"
-      : "말하기·태도 연습은 계속 무료",
+    priceNote: TRIAL ? `실전 모의면접 · ${AI_AFTER_TRIAL}` : AI_AFTER_TRIAL,
     pros: [
-      "비용 부담이 거의 없습니다.",
+      "실전 모의면접을 1회 무료로 먼저 겪어 볼 수 있고, 그 뒤로도 선생님 수업보다 훨씬 적은 비용으로 반복합니다.",
       "언제든, 몇 번이든 — 1단계 발표 다음 날 새벽에도 바로 연습할 수 있습니다.",
       "대학 면접 형식 그대로 AI 면접관이 꼬리질문을 던집니다.",
       "말하기·태도 연습은 영상이 기기 밖으로 나가지 않습니다.",
@@ -108,7 +108,7 @@ const PATHS: PathCard[] = [
 const COMPARE_ROWS: [string, string, string][] = [
   [
     "비용",
-    AI_FREE_NOW ? "지금은 무료 (유료 항목 준비 중)" : AI_HEADLINE,
+    TRIAL ? `실전 모의 ${AI_HEADLINE} · ${AI_AFTER_TRIAL}` : AI_HEADLINE,
     `1회 ${TUITION.perSessionLabel} · ${TUITION.pack.sessions}회 선결제 ${TUITION.pack.priceLabel}`,
   ],
   ["AI 모의면접", "단품 가격표 적용", "무제한 포함 — 단품 가격 없음"],

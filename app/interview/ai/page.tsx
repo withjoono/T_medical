@@ -35,7 +35,7 @@ export default function Page() {
         ]}
       />
       <PromoHero
-        badge="무료"
+        badge="실전 모의 1회 무료"
         title="AI 모의면접"
         highlight="혼자서 실전처럼 연습하기"
         body="말하기·태도 연습은 시선·표정·자세·목소리 크기·말 빠르기를 분석해 고칠 점을 알려 드립니다. MMI 실전 모의면접은 대학 면접 형식 그대로 AI 면접관이 꼬리질문을 던지고, 끝나면 답변 구조를 기준 6가지로 점검해 드립니다."
