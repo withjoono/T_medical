@@ -193,7 +193,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
 
       <PromoHero
         badge={`${field.label} · ${u.zone} · ${meta.label}`}
-        title={`${u.short} ${field.unitLabel}`}
+        title={`${u.short} ${field.short} 면접`}
         highlight={u.headline}
         body={
           none

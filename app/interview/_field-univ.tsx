@@ -138,7 +138,7 @@ export function FieldUnivGrid({ field }: { field: FieldPage }) {
 
               <h3 className="display mt-3 flex items-center gap-2 text-[1.0625rem] leading-snug text-ink-900">
                 <span className="link-underline">
-                  {u.short} {field.unitLabel}
+                  {u.short} {field.short} 면접
                 </span>
                 <ArrowRight
                   className="h-4 w-4 shrink-0 text-brass-600 transition-transform duration-300 group-hover:translate-x-1"
@@ -539,7 +539,7 @@ export function FieldSiblings({
             className="group flex items-center gap-2 border border-hair-strong bg-white px-4 py-2.5 text-[13px] font-light text-ink-700 transition-colors duration-300 hover:border-jade-600 hover:text-ink-900"
           >
             <Target className="h-3.5 w-3.5 shrink-0 text-jade-600" strokeWidth={1.75} />
-            <span>{u.short}</span>
+            <span>{u.short} {field.short} 면접</span>
             <ArrowRight
               className="h-3.5 w-3.5 shrink-0 text-brass-600 transition-transform duration-300 group-hover:translate-x-0.5"
               strokeWidth={1.75}

@@ -145,7 +145,7 @@ export default async function UnivPage({
         primaryHref="#contact"
         primaryLabel={`${u.short} 지원 상담하기`}
         secondaryHref={interviewHref}
-        secondaryLabel={noInterview ? "면접 미실시 안내" : "면접 안내 보기"}
+        secondaryLabel={noInterview ? "면접 미실시 안내" : `${u.short} 의대 면접 방식·일정 보기`}
         Icon={GraduationCap}
         stats={[
           { icon: Scale, label: u.admission ? `수시 ${u.admission.quota}명` : "전형 준비 중" },
