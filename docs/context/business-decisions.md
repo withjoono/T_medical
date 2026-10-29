@@ -30,7 +30,7 @@ updated: 2026-10-25
 | 1회 시간 | 현재 100분 (이전 150분) | `lib/mmi-schedule.ts` `SESSION_MINUTES` |
 | 1회 가격 | 현재 회당 35만원 (이전 38만원) | `lib/mmi-schedule.ts` `TUITION` |
 | 수업+AI 묶음 | 현재 38만원, AI 시즌 무제한 포함 | `lib/mmi-schedule.ts` `BUNDLE` |
-| AI 단품 | **무료는 실전 모의 1회 체험뿐**, 그 뒤 3회·5회·1주·시즌 유료(2026-10-29 사용자 확정). 말하기·태도 연습(로그인 없는 기기 안 도구)은 무료로 둠 | `lib/mmi-schedule.ts` `AI_TIERS` |
+| AI 단품 | **T수시와 가격을 따로 간다**(T수시는 이용권 5회 29,000원 — Susi 리포). 3회·5회는 유지, 1주·시즌 무제한은 다른 안으로 바꿀 예정. 무료는 **정상 1회가 아니라 맛보기**로 — 실제 1회를 통째로 주지 않는다(2026-10-29 사용자 확정, 맛보기 범위는 미정) | `lib/mmi-schedule.ts` `AI_TIERS` |
 | 표시용 라벨 | 가격·시간 문자열을 페이지에 다시 적지 말 것 | `lib/class-summary.ts` |
 | 대학별 예외 | **가천대(의대·약대·한의대) = AI 모의면접 없음, 1회 2시간 30분 · 38만원**(2026-10-28 사용자 확정) | `lib/mmi-schedule.ts` `CLASS_PLAN_OVERRIDES` · `classPlanFor` |
 
