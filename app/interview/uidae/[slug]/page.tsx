@@ -46,7 +46,6 @@ import { crossFieldLinks } from "@/lib/field-crosslinks";
 import { JsonLdAll } from "@/components/json-ld";
 import { article, breadcrumb, course } from "@/lib/jsonld";
 import {
-  BUNDLE,
   formatKo,
   getUniv as getMmiUniv,
   summarize,
@@ -62,6 +61,7 @@ import { GACHON_CONCEPT, gachonGichulFor } from "@/lib/gachon-gichul";
 import { GachonGichul } from "../../_gichul";
 import { univGichulFor } from "@/lib/univ-gichul";
 import { UnivGichulBlock } from "../../_univ-gichul";
+import { ClassCurriculum } from "../../_curriculum";
 
 /** =========================================================================
  *  /interview/uidae/[slug] — 대학별 의대 **면접** 페이지 (2026-10-23 분리)
@@ -166,7 +166,7 @@ export default async function UidaeInterviewUnivPage({
   const gichul = gachonGichulFor("uidae", u.slug);
   /** 가천대 외 대학의 공개 기출 분석(lib/univ-gichul.ts) */
   const univGichul = univGichulFor("uidae", u.slug);
-  /** 수업 조건 — 가천대는 AI 없이 1회 2시간 30분(lib/mmi-schedule.ts CLASS_PLAN_OVERRIDES) */
+  /** 수업 조건 — 모든 대학 동일(lib/mmi-schedule.ts DEFAULT_CLASS_PLAN · CLASS_PLAN_OVERRIDES) */
   const plan = classPlanFor(`/interview/uidae/${u.slug}`);
 
   /** 이 대학 면접을 누가 맡는가 — lib/interview-types.ts 가 판단한다 */
@@ -238,12 +238,13 @@ export default async function UidaeInterviewUnivPage({
                     classContext || iv?.styleLabel || "면접 실시"
                   }. ${
                     plan.withAi
-                      ? "반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다."
-                      : `AI 모의면접 없이 선생님 1:1 수업, 1회 ${minutesLabel(plan.minutes)}.`
+                      ? `AI 모의면접을 먼저 보고 그 기록으로 선생님이 수업합니다. 1회 ${minutesLabel(plan.minutes)} · ${plan.priceLabel}, ${plan.pack?.sessions ?? 3}회 선결제 ${plan.pack?.priceLabel ?? ""}.`
+                      : `한 선생님이 회차를 이어서 맡는 1:1 수업. 1회 ${minutesLabel(plan.minutes)} · ${plan.priceLabel}, ${plan.pack?.sessions ?? 3}회 선결제 ${plan.pack?.priceLabel ?? ""}.`
                   }`,
                   price: plan.price,
-                  bundlePrice: plan.withAi ? BUNDLE.price : undefined,
+                  packPrice: plan.pack?.price,
                   minutes: plan.minutes,
+                  withAi: plan.withAi,
                 }),
               ]),
         ]}
@@ -412,6 +413,9 @@ export default async function UidaeInterviewUnivPage({
           </div>
         ) : null}
       </PromoSection>
+
+      {/* 수업 회차 구성 — 고려대·가천대처럼 교과 기반 면접이라 회차가 정해진 대학만(lib/class-curriculum.ts) */}
+      {!noInterview && <ClassCurriculum path={`/interview/uidae/${u.slug}`} />}
 
       {/* ===== 공개 기출 분석 — 가천대(lib/gachon-gichul.ts) · 나머지 대학(lib/univ-gichul.ts).
           같은 대학의 여러 계열 페이지가 겹치지 않게 나눠 싣는다 ===== */}

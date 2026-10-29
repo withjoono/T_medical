@@ -6,7 +6,7 @@ import {
   type PeerContext,
 } from "@/lib/field-crosslinks";
 import type { FieldPage } from "@/lib/field-registry";
-import { BUNDLE, formatKo, minutesLabel, type ClassPlan } from "@/lib/mmi-schedule";
+import { AI_IN_CLASS, TUITION, formatKo, minutesLabel, type ClassPlan } from "@/lib/mmi-schedule";
 import { CLASS_PRICE, SESSION_HOURS_LABEL } from "@/lib/interview-types";
 import { ClassDetailButton } from "./_class-modal";
 
@@ -145,19 +145,29 @@ export function FieldClassLine({
               </>
             ) : null}
             {plan && !plan.withAi
-              ? `줌 1:1 ${minutesLabel(plan.minutes)} · AI 모의면접 없이 선생님 1:1 수업으로 준비합니다`
-              : `줌 1:1 ${SESSION_HOURS_LABEL} · 반복은 AI 모의면접이 맡아 선생님 수업은 2회로 끝납니다`}
+              ? `줌 1:1 ${minutesLabel(plan.minutes)} · 한 선생님이 회차를 이어서 맡는 1:1 수업입니다`
+              : `줌 1:1 ${SESSION_HOURS_LABEL} · ${AI_IN_CLASS.structure}`}
           </p>
           {plan && !plan.withAi ? (
             <p className="mt-3.5 text-[15px] font-light">
-              선생님 1:1 · 1회 {minutesLabel(plan.minutes)}{" "}
+              1회{" "}
               <span className="tnum display text-[1.5rem] text-brass-300">{plan.priceLabel}</span>
+              {plan.pack ? (
+                <span className="text-[13px] text-paper/55">
+                  {" "}
+                  · {plan.pack.sessions}회 선결제 {plan.pack.priceLabel}(회당 {plan.pack.perSessionLabel})
+                </span>
+              ) : null}
             </p>
           ) : (
             <p className="mt-3.5 text-[15px] font-light">
-              선생님 1회 + AI 무제한{" "}
-              <span className="tnum display text-[1.5rem] text-brass-300">{BUNDLE.priceLabel}</span>
-              <span className="text-[13px] text-paper/55"> · 수업만 {CLASS_PRICE.label}</span>
+              1회{" "}
+              <span className="tnum display text-[1.5rem] text-brass-300">{CLASS_PRICE.label}</span>
+              <span className="text-[13px] text-paper/55">
+                {" "}
+                · {TUITION.pack.sessions}회 선결제 {TUITION.pack.priceLabel}(회당{" "}
+                {TUITION.pack.perSessionLabel}) · {AI_IN_CLASS.meta}
+              </span>
             </p>
           )}
         </div>

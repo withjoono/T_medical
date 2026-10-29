@@ -172,7 +172,10 @@ export type PriceTier = {
   status: PriceStatus;
 };
 
-/** AI 모의면접 단품. 수업에 붙을 때는 BUNDLE 로 무료 제공한다. */
+/** AI 모의면접 단품 — **수업을 듣지 않고 AI 만 쓰려는 학생용 가격표**다.
+ *
+ *  ⚠️ 수업 신청자에게는 이 가격이 적용되지 않는다. AI 모의면접은 수업에 무제한
+ *     포함되며, 부가 상품이 아니라 **수업의 재료**다 (AI_IN_CLASS 참고). */
 export const AI_TIERS: PriceTier[] = [
   { key: "coach", label: "말하기·태도 연습", meta: "무제한 · 로그인 없이",
     price: 0, priceLabel: "무료", status: "open" },
@@ -188,19 +191,79 @@ export const AI_TIERS: PriceTier[] = [
     price: 149000, priceLabel: "149,000원", status: "preparing" },
 ];
 
-/** 선생님 수업 + AI 묶음. AI 는 시즌 무제한으로 넣는다 —
- *  1주만 주면 면접 직전에 끊겨 추가 처방을 못 받는다. */
-export const BUNDLE = {
-  price: 380000,
-  priceLabel: "38만원",
-  aiMeta: "AI 실전 모의 시즌 무제한 포함",
+/** 🔑 이 서비스의 구조 — 사이트 전체에서 반복되어야 하는 문장.
+ *
+ *  AI 모의면접은 수업에 끼워 주는 사은품이 아니다. **학생이 AI 모의면접을 먼저 보고,
+ *  그 기록과 피드백을 교재 삼아 선생님이 수업한다.** 수업 시간을 "모의면접 한 번 돌리는
+ *  데" 쓰지 않기 때문에 100분을 전부 교정에 쓸 수 있고, 그래서 회차가 줄어든다.
+ *
+ *  문구를 바꿀 때 이 인과를 흐리지 말 것 — 'AI 무제한 제공'으로만 적으면
+ *  부가 서비스로 읽히고, 가격을 설명할 근거가 사라진다. */
+export const AI_IN_CLASS = {
+  /** 한 줄 요약 — 가격 옆에 붙인다 */
+  meta: "AI 모의면접 무제한 포함",
+  /** 구조 설명 — 섹션 소제목·본문에 쓴다 */
+  structure:
+    "AI 모의면접을 먼저 보고, 그 기록과 피드백을 가지고 선생님이 수업합니다",
+  /** 짧은 형 — 배지·카드처럼 좁은 자리에 */
+  short: "AI 로 모의면접 → 그 결과로 수업",
+  /** 왜 그래야 하는가 — 설득이 필요한 자리에 */
+  why:
+    "수업 시간에 모의면접을 돌리면 100분 중 절반이 녹화로 사라집니다. 모의면접은 AI 가 미리 받아 두고, 선생님은 그 기록에서 무엇이 무너졌는지만 짚습니다.",
 } as const;
 
+/** 선생님 1:1 수업료 — 2026-10-29 사용자 확정.
+ *
+ *  구조:
+ *    - **1회 35만원.** 처음 오시는 분께는 1회만 해 보시라고 권한다(문턱 낮추기).
+ *    - **3회 선결제 99만원.** 회당 33만원 — 회당 2만원, 모두 6만원 싸다.
+ *    - 두 경우 모두 AI 모의면접 무제한이 포함된다. AI 를 따로 팔지 않는다.
+ *    - 예외 대학 없음(2026-10-29, 가천대 예외 폐기) — CLASS_PLAN_OVERRIDES 참고.
+ *
+ *  ⚠️ 환불 규칙이 이 가격표의 핵심이다. 선결제를 받되 **할인분을 토해내게 하지 않는다** —
+ *     수강한 회차를 묶음 회당가(33만원)로 빼고 나머지를 전액 돌려준다.
+ *     정가 35만원으로 차감하는 흔한 방식과 다르다. 이 차이를 문구에서 지우지 말 것. */
 export const TUITION = {
   perSession: 350000,
   perSessionLabel: "35만원",
   unit: "1회 · 1:1 개인지도",
+
+  /** 3회 선결제 */
+  pack: {
+    sessions: 3,
+    price: 990000,
+    priceLabel: "99만원",
+    perSession: 330000,
+    perSessionLabel: "33만원",
+    savingPerSession: 20000,
+    savingPerSessionLabel: "회당 2만원",
+    savingTotal: 60000,
+    savingTotalLabel: "6만원",
+  },
+
+  /** 환불 — 수강한 회차를 묶음 회당가로 차감한다 */
+  refund: {
+    perSession: 330000,
+    perSessionLabel: "33만원",
+    rule:
+      "3회 선결제 후 중간에 그만두시면, 수강하신 회차만 회당 33만원으로 빼고 나머지를 전액 돌려드립니다.",
+    fairness:
+      "할인받은 만큼을 다시 물리지 않습니다 — 정가 35만원이 아니라 할인가 33만원으로 뺍니다.",
+  },
 } as const;
+
+/** 3회 선결제 후 n회 수강했을 때 돌려받는 금액. */
+export function refundAfter(sessionsUsed: number): number {
+  const left = TUITION.pack.price - sessionsUsed * TUITION.refund.perSession;
+  return Math.max(0, left);
+}
+
+/** 환불 예시 — 가격표 아래에 그대로 깐다. 말로 설명하면 아무도 안 읽는다. */
+export const REFUND_EXAMPLES = [
+  { used: 0, label: "수업 전 전액 환불", amount: refundAfter(0) },
+  { used: 1, label: "1회 수강 후", amount: refundAfter(1) },
+  { used: 2, label: "2회 수강 후", amount: refundAfter(2) },
+] as const;
 
 /** 1회 수업은 1시간 40분(100분). 식사 시간(11:00~12:00 / 17:00~18:00)은 타임에서 뺀다.
  *
@@ -448,22 +511,25 @@ export const UNIVS: Univ[] = [
     short: "고려대",
     region: "서울",
     style: "variant",
-    styleLabel: "제시문 면접 + 인·적성 MMI 2회",
-    headline: "제시문 면접에 인·적성 8분 × 2회가 더 붙는다",
+    styleLabel: "교과 융합 제시문 면접 + 인·적성 MMI 2회",
+    headline: "수학·과학 교과 제시문 면접에, 인·적성 8분 × 2회가 더 붙는다",
     lede:
-      "의과대학 지원자만 제시문 기반 면접 외에 상황제시문 인·적성 면접을 두 번 더 봅니다. 각 8분, 짧습니다. 8분 안에 결론까지 가지 못하면 평가할 내용이 남지 않습니다.",
+      "고려대 의학과는 면접을 세 번 봅니다. 첫 번째는 자연계 공통 제시문 면접입니다 — 물리·화학·생명과학·지구과학·수학 제시문을 21분 동안 읽고, 그 제시문들을 꿰는 공통 개념을 찾아 7분 동안 설명합니다. 생기부가 아니라 교과 개념을 그 자리에서 쓰는 면접입니다. 이어서 상황제시문 인·적성 면접을 준비 시간 없이 8분씩 두 번 봅니다.",
     format: [
-      "제시문 기반 면접(자연계 공통)",
-      "의과대학 추가: 상황제시문 기반 인·적성 면접 2회, 각 8분",
-      "계열적합전형 1단계 서류 100%(5배수) → 2단계 1단계 60% + 면접 40%",
-      "면접 비중 40% — 주요 대학 중 가장 높은 축",
+      "① 자연계 공통 제시문 면접 — 준비 21분 · 면접 7분. 여러 과목의 교과 제시문을 하나의 공통 개념으로 엮어 설명하는 융합형이다 (2026 '이중성': 빛의 이중성 · 역함수 · 문학 · 통합사회 / 2025 '대칭': 화학 · 생명과학 · 수학Ⅱ · 지구과학 · 물리 · 통합사회)",
+      "출제범위는 수학Ⅰ·Ⅱ · 미적분 · 확률과 통계 · 기하와 물리 · 화학 · 생명과학 · 지구과학 Ⅰ·Ⅱ — 과목을 고르지 않는다. 의대 전용 문항이 아니라 자연계 오전 조 모집단위 공통 문항이다",
+      "② · ③ 상황제시문 기반 인·적성 면접 Ⅰ·Ⅱ — 준비 없이 각 8분. 평가요소 전공적합성 20 · 종합적 사고력 30 · 인성 40 · 면접태도 10",
+      "인·적성 면접에도 교과 개념이 섞여 나온다 — 대뇌 운동 영역(생명과학Ⅰ), 양성·음성 예측도(조건부확률), 항생제 내성의 자연선택(통합과학)",
+      "계열적합전형 1단계 서류 100%(5배수) → 2단계 1단계 60% + 면접 40% (2025 50% → 2026부터 40%)",
     ],
     drills: [
+      "교과 제시문은 과목 지식 시험이 아니다. 서로 다른 과목의 제시문에서 공통 개념 하나(대칭 · 이중성 · 평형)를 찾아내는 것이 핵심이다 — 21분 안에 '공통 개념 → 제시문별 근거 → 수학·사회로 확장' 메모를 만들어 들어간다",
+      "과목을 고를 수 없다. 내가 선택하지 않은 과학 과목의 제시문도 Ⅰ 수준 개념은 교과서 문장으로 설명할 수 있어야 한다",
       "8분 타이머 훈련. 30초 안에 쟁점을 특정하고 6분 안에 결론까지 도달하는 압축 답변",
       "면접 40% 반영이라 1단계 성적 열세를 뒤집을 수 있는 구간. 뒤집기를 전제로 목표치를 잡는다",
       "계열적합전형은 수능 전(11월 8일) 면접이다. 수능 공부와 면접 준비가 정면으로 겹치는 2주를 어떻게 쓸지가 실제 승부처",
       "상황제시문 2회 연속 — 첫 방에서 쓴 논리를 둘째 방에서 반복하지 않도록 관점을 갈아 끼우는 연습",
-      "자연계 공통 제시문 면접(수학·과학 교과, 준비 21분 · 면접 7분)은 박은우 선생님이 따로 맡는다. 과목 지식보다 처음 보는 제시문을 읽고 연결하는 훈련",
+      "자연계 공통 제시문 면접(수학·과학 교과, 준비 21분 · 면접 7분)은 박은우 선생님이 따로 맡는다. 과목 지식보다 처음 보는 제시문을 읽고 공통 개념으로 연결하는 훈련이다. 인·적성 Ⅰ·Ⅱ는 의대 출신 선생님이 맡는다",
     ],
     tracks: [
       {
@@ -1260,35 +1326,61 @@ export function shortestWindow(u: Univ): number | null {
 }
 
 /* -------------------------------------------------------------------------
- * 대학별 수업 조건 — 기본은 AI 모의면접 + 선생님 수업(SESSION_MINUTES · TUITION · BUNDLE).
- * 예외 대학만 CLASS_PLAN_OVERRIDES 에 페이지 경로로 적는다.
+ * 대학별 수업 조건 — 기본은 100분 · 1회 35만원 · 3회 선결제 99만원 · AI 모의면접 무제한
+ * (SESSION_MINUTES · TUITION · AI_IN_CLASS). 예외 대학만 CLASS_PLAN_OVERRIDES 에 경로로 적는다.
  *
- * 가천대(의대·약대·한의대) — 2026-10-28 사용자 확정:
- *   AI 모의면접 없음, 선생님 1:1 수업 1회 2시간 30분 · 38만원.
- *   가천의약학 면접은 생기부 속 수학·화학·생명과학 개념을 묻는 면접이라(lib/gachon-gichul.ts)
- *   AI 반복 훈련 구조를 쓰지 않는다.
+ * 2026-10-29 사용자 확정: **가격 예외 대학 없음.** 가천대도 다른 대학과 똑같이
+ *   100분 · 1회 35만원 · 3회 선결제 99만원 · 같은 환불 규칙이다
+ *   (이전의 가천대 150분 · 38만원 예외는 폐기). 회차 구성은 lib/class-curriculum.ts.
+ *   가천대만 다른 점 두 가지: ① AI 모의면접을 쓰지 않는다(교과 개념 면접이라)
+ *   ② 류지연 · 이세인 선생님 두 분만 맡는다(박은우 선생님 제외) — 둘 다 수학·화학·생명과학.
+ *   ⚠️ 시간당 환산 단가는 사이트에 내지 않는다 — AI 모의면접이 포함된 값이라
+ *   시간당으로만 보면 비싸 보인다(사용자 지시). 내부 문서에만 둔다.
  * ---------------------------------------------------------------------- */
 export type ClassPlan = {
   minutes: number;
+  /** 1회 결제가 */
   price: number;
   priceLabel: string;
-  /** false 면 AI 모의면접을 팔지 않는다 — 묶음가·'2회로 끝' 문구를 띄우지 않는다 */
+  /** 3회 선결제. 없는 대학(가천대)은 undefined — 묶음가를 띄우지 않는다 */
+  pack?: {
+    sessions: number;
+    price: number;
+    priceLabel: string;
+    perSessionLabel: string;
+    savingPerSessionLabel: string;
+  };
+  /** false 면 AI 모의면접을 쓰지 않는다 — 'AI 로 모의면접 → 그 결과로 수업' 구조를 띄우지 않는다 */
   withAi: boolean;
+  /** 이 대학을 맡는 선생님(lib/teachers.ts id). 있으면 수업 띠·팝업이 이 선생님만 보여 준다 */
+  teacherIds?: readonly string[];
 };
 
 export const DEFAULT_CLASS_PLAN: ClassPlan = {
   minutes: SESSION_MINUTES,
   price: TUITION.perSession,
   priceLabel: TUITION.perSessionLabel,
+  pack: {
+    sessions: TUITION.pack.sessions,
+    price: TUITION.pack.price,
+    priceLabel: TUITION.pack.priceLabel,
+    perSessionLabel: TUITION.pack.perSessionLabel,
+    savingPerSessionLabel: TUITION.pack.savingPerSessionLabel,
+  },
   withAi: true,
 };
 
-const GACHON_PLAN: ClassPlan = { minutes: 150, price: 380000, priceLabel: "38만원", withAi: false };
+/** 가천대 — 가격·시간은 기본과 같고, AI 모의면접 없음 + 담당 두 분만 */
+const GACHON_PLAN: ClassPlan = {
+  ...DEFAULT_CLASS_PLAN,
+  withAi: false,
+  teacherIds: ["ryu", "lsi"],
+};
 
+/** 대학별 차이는 페이지 경로로 적는다. 가천대 한의예과는 2027 면접이 없어 넣지 않는다. */
 export const CLASS_PLAN_OVERRIDES: Record<string, ClassPlan> = {
   "/interview/uidae/gachon": GACHON_PLAN,
   "/interview/yakdae/gachon-y": GACHON_PLAN,
-  "/interview/hanuidae/gachon": GACHON_PLAN,
 };
 
 export function classPlanFor(path: string): ClassPlan {

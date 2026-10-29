@@ -22,12 +22,13 @@ import {
   SourceNote,
 } from "../_site/components";
 import { CrossFieldLinks, FieldClassLine, FieldPeerFacts } from "./_crossfield";
-import { teachersForField, type FieldTeacherKey } from "@/lib/teachers";
+import { profile, teachersForField, type FieldTeacherKey } from "@/lib/teachers";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
 import { gachonGichulFor } from "@/lib/gachon-gichul";
 import { GachonGichul } from "./_gichul";
 import { univGichulFor } from "@/lib/univ-gichul";
 import { UnivGichulBlock } from "./_univ-gichul";
+import { ClassCurriculum } from "./_curriculum";
 import {
   FieldAxisPair,
   FieldCountdown,
@@ -42,7 +43,7 @@ import {
   type FieldPage,
 } from "@/lib/field-registry";
 import { admissionHrefOf } from "@/lib/field-admission";
-import { BUNDLE, classPlanFor, formatKo, minutesLabel } from "@/lib/mmi-schedule";
+import { classPlanFor, formatKo, minutesLabel } from "@/lib/mmi-schedule";
 import { JsonLdAll } from "@/components/json-ld";
 import { abs, article, breadcrumb, course } from "@/lib/jsonld";
 
@@ -144,12 +145,14 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   const gichul = gachonGichulFor(field.key, u.slug);
   /** 가천대 외 대학의 공개 기출 분석(lib/univ-gichul.ts) */
   const univGichul = univGichulFor(field.key, u.slug);
-  /** 수업 조건 — 가천대는 AI 없이 1회 2시간 30분(lib/mmi-schedule.ts CLASS_PLAN_OVERRIDES) */
+  /** 수업 조건 — 모든 대학 동일(lib/mmi-schedule.ts DEFAULT_CLASS_PLAN · CLASS_PLAN_OVERRIDES) */
   const plan = classPlanFor(`${field.base}/${u.slug}`);
   const peer = fieldPeerContext(field, u);
   const cross = crossFieldLinks(u.short, field.key);
   // 담당 선생님은 lib/teachers.ts 한 곳이 정한다 — 계열 전담이 등록되면 자동 반영
-  const teachers = teachersForField(field.key as FieldTeacherKey, u.style);
+  const teachers = plan.teacherIds
+    ? plan.teacherIds.map((id) => profile(id)).filter((p): p is NonNullable<typeof p> => Boolean(p))
+    : teachersForField(field.key as FieldTeacherKey, u.style);
   // 띠 문구에 이 대학에만 성립하는 조각을 붙인다(50개 띠가 같은 문장이 되지 않게)
   const classContext = [
     first ? `면접 ${formatKo(first)}` : null,
@@ -180,12 +183,13 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
                     classContext || u.styleLabel
                   }. ${
                     plan.withAi
-                      ? "반복은 AI 모의면접이 맡고 선생님 수업은 2회로 끝납니다."
-                      : `AI 모의면접 없이 선생님 1:1 수업, 1회 ${minutesLabel(plan.minutes)}.`
+                      ? `AI 모의면접을 먼저 보고 그 기록으로 선생님이 수업합니다. 1회 ${minutesLabel(plan.minutes)} · ${plan.priceLabel}, ${plan.pack?.sessions ?? 3}회 선결제 ${plan.pack?.priceLabel ?? ""}.`
+                      : `한 선생님이 회차를 이어서 맡는 1:1 수업. 1회 ${minutesLabel(plan.minutes)} · ${plan.priceLabel}, ${plan.pack?.sessions ?? 3}회 선결제 ${plan.pack?.priceLabel ?? ""}.`
                   }`,
                   price: plan.price,
-                  bundlePrice: plan.withAi ? BUNDLE.price : undefined,
+                  packPrice: plan.pack?.price,
                   minutes: plan.minutes,
+                  withAi: plan.withAi,
                 }),
               ]),
         ]}
@@ -286,6 +290,9 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
           />
         </PromoSection>
       )}
+
+      {/* 수업 회차 구성 — 교과 기반 면접이라 회차가 정해진 대학만(lib/class-curriculum.ts) */}
+      {!none && <ClassCurriculum path={`${field.base}/${u.slug}`} />}
 
       {/* 공개 기출 분석 — 가천대(lib/gachon-gichul.ts) · 나머지 대학(lib/univ-gichul.ts). 계열 페이지가 겹치지 않게 나눠 싣는다 */}
       {gichul && <GachonGichul page={gichul} />}

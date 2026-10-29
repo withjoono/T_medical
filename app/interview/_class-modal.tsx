@@ -3,7 +3,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, X } from "lucide-react";
-import { AI_TIERS, BUNDLE, CLASS_PRICE_LABEL, SESSION_LABEL, type ClassPlan } from "@/lib/class-summary";
+import {
+  AI_IN_CLASS,
+  CLASS_PRICE_LABEL,
+  PACK_PER_SESSION_LABEL,
+  PACK_PRICE_LABEL,
+  PACK_SAVING_LABEL,
+  REFUND_EXAMPLES,
+  REFUND_PER_SESSION_LABEL,
+  SESSION_LABEL,
+  TUITION,
+  wonLabel,
+  type ClassPlan,
+} from "@/lib/class-summary";
 import { ALL_TEACHERS } from "@/lib/teachers";
 
 /** =========================================================================
@@ -29,7 +41,8 @@ export function ClassDetailButton({
   plan,
 }: {
   label?: string;
-  /** 대학별 수업 조건. withAi=false(가천대)면 AI 구조·묶음가를 보여 주지 않는다 */
+  /** 대학별 수업 조건. withAi=false(가천대)면 AI 구조를 보여 주지 않는다(가격·환불은 같다).
+   *  teacherIds 가 있으면 그 선생님만 보여 준다 */
   plan?: ClassPlan;
 }) {
   const [open, setOpen] = useState(false);
@@ -78,36 +91,49 @@ export function ClassDetailButton({
               {noAi && plan ? (
                 <>
                   <p className="text-[14px] font-light leading-[1.85] text-ink-600">
-                    이 대학 면접은 AI 모의면접 없이 선생님 1:1 수업으로 준비합니다. 1회{" "}
-                    {minutesText(plan.minutes)}, 줌 온라인 수업입니다.
+                    이 대학 면접은 세특 속 교과 개념을 묻는 면접이라, 한 선생님이 과목별 회차를 이어서
+                    맡는 1:1 수업으로 준비합니다. 지난 회차 과제를 다음 회차에서 검사하고 피드백합니다.
+                    1회 {minutesText(plan.minutes)}, 줌 온라인 수업입니다.
                   </p>
                   <div className="mt-7 border border-hair-strong">
                     <div className="flex items-baseline justify-between bg-ink px-5 py-4 text-paper">
-                      <span className="text-[14px] font-semibold">
-                        선생님 1:1 · 줌 {minutesText(plan.minutes)}
-                      </span>
+                      <span className="text-[14px] font-semibold">1회 결제</span>
                       <span className="tnum display text-[1.375rem] text-brass-300">
                         {plan.priceLabel}
                       </span>
                     </div>
-                    <p className="px-5 py-3 text-[12px] font-light text-ink-400">
-                      1회 수업료입니다. 묶음 결제나 선납은 없고, 회차는 필요한 만큼만 잡습니다.
+                    {plan.pack ? (
+                      <div className="flex items-baseline justify-between border-t border-hair px-5 py-4">
+                        <span className="text-[14px] font-semibold text-ink-900">
+                          {plan.pack.sessions}회 선결제 · 회당 {plan.pack.perSessionLabel}
+                        </span>
+                        <span className="tnum display text-[1.375rem] text-ink-900">
+                          {plan.pack.priceLabel}
+                        </span>
+                      </div>
+                    ) : null}
+                    <p className="border-t border-hair px-5 py-3 text-[12px] font-light leading-relaxed text-ink-500">
+                      선결제 후 그만두면 수강한 회차를 회당 {REFUND_PER_SESSION_LABEL}(할인가)으로 빼고
+                      나머지를 돌려드립니다 —{" "}
+                      {REFUND_EXAMPLES.filter((r) => r.used > 0)
+                        .map((r) => `${r.label} ${wonLabel(r.amount)}`)
+                        .join(" · ")}
+                      .
                     </p>
                   </div>
                 </>
               ) : (
               <>
               <p className="text-[14px] font-light leading-[1.85] text-ink-600">
-                면접은 아는 것을 늘려서 되는 일이 아니라 반복해 몸에 붙이는 일입니다. 반복은 AI
-                모의면접이 맡고, 선생님 시간은 소재를 고르고 설계하는 데만 씁니다. 그래서 선생님
-                수업이 2회로 끝납니다.
+                <strong className="font-semibold text-ink-900">{AI_IN_CLASS.structure}.</strong>{" "}
+                {AI_IN_CLASS.why}
               </p>
 
               <ul className="mt-6 space-y-2.5">
                 {[
-                  "1회차 — 진단과 설계. 생기부에서 쓸 소재를 고르고 지원 대학 평가축에 맞춰 뼈대를 세웁니다",
-                  "AI 훈련 — 선생님이 회차를 처방합니다. 부족하면 추가 처방이 나가고 추가 비용은 없습니다",
-                  "2회차 — 실전 점검. 지원 대학 형식 그대로 모의면접을 돌리고 즉시 교정합니다",
+                  "수업 전 — AI 모의면접을 지원 대학 형식으로 돌립니다. 답변 구조·말 빠르기·시선·꼬리질문 대응이 기록으로 남습니다",
+                  "수업 중 — 선생님이 그 기록을 펼치고 무너진 지점만 짚습니다. 모의면접을 처음부터 돌리지 않으므로 100분을 전부 교정에 씁니다",
+                  "수업 후 — 다시 AI 로 반복합니다. 횟수 제한도 추가 비용도 없습니다",
                 ].map((x) => (
                   <li key={x} className="flex gap-2.5 text-[13px] font-light leading-[1.8] text-ink-700">
                     <Check className="mt-1.5 h-3.5 w-3.5 shrink-0 text-jade-600" strokeWidth={2} />
@@ -118,28 +144,47 @@ export function ClassDetailButton({
 
               <div className="mt-7 border border-hair-strong">
                 <div className="flex items-baseline justify-between bg-ink px-5 py-4 text-paper">
-                  <span className="text-[14px] font-semibold">선생님 1회 + AI 무제한</span>
+                  <span className="text-[14px] font-semibold">
+                    선생님 1:1 · 줌 {SESSION_LABEL}
+                  </span>
                   <span className="tnum display text-[1.375rem] text-brass-300">
-                    {BUNDLE.priceLabel}
+                    {CLASS_PRICE_LABEL}
+                    <span className="ml-1 text-[13px] font-light text-paper/70">/ 1회</span>
                   </span>
                 </div>
                 <ul className="px-5 py-3">
-                  <li className="flex items-baseline justify-between py-1.5 text-[13px]">
-                    <span className="font-light text-ink-600">선생님 1:1 · 줌 {SESSION_LABEL}</span>
-                    <span className="tnum font-medium">{CLASS_PRICE_LABEL}</span>
-                  </li>
-                  {AI_TIERS.filter((t) => t.price === 0).map((t) => (
-                    <li key={t.key} className="flex items-baseline justify-between py-1.5 text-[13px]">
-                      <span className="font-light text-ink-600">
-                        AI {t.label} · {t.meta}
+                  <li className="flex items-baseline justify-between bg-jade-50 py-2.5 pl-3 pr-2 text-[13px]">
+                    <span className="font-medium text-ink-900">
+                      {TUITION.pack.sessions}회 선결제
+                      <span className="ml-1.5 font-light text-ink-500">
+                        회당 {PACK_PER_SESSION_LABEL} · {PACK_SAVING_LABEL} 할인
                       </span>
-                      <span className="tnum font-medium text-jade-700">{t.priceLabel}</span>
-                    </li>
-                  ))}
+                    </span>
+                    <span className="tnum font-semibold text-jade-700">{PACK_PRICE_LABEL}</span>
+                  </li>
+                  <li className="flex items-baseline justify-between py-1.5 text-[13px]">
+                    <span className="font-light text-ink-600">{AI_IN_CLASS.meta}</span>
+                    <span className="tnum font-medium text-jade-700">포함</span>
+                  </li>
                 </ul>
-                <p className="border-t border-hair px-5 py-3 text-[12px] font-light text-ink-400">
-                  묶음 결제나 선납은 없습니다. 회차는 필요한 만큼만 잡습니다.
-                </p>
+                <div className="border-t border-hair px-5 py-3">
+                  <p className="text-[12px] font-semibold text-ink-700">
+                    처음이시면 1회만 해 보셔도 됩니다
+                  </p>
+                  <p className="mt-1.5 text-[12px] font-light leading-[1.75] text-ink-500">
+                    {TUITION.refund.rule} {TUITION.refund.fairness}
+                  </p>
+                  <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                    {REFUND_EXAMPLES.filter((r) => r.used > 0).map((r) => (
+                      <li key={r.used} className="text-[12px] font-light text-ink-500">
+                        {r.label} —{" "}
+                        <span className="tnum font-medium text-ink-800">
+                          {wonLabel(r.amount)} 환불
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
               </>
               )}
@@ -149,7 +194,10 @@ export function ClassDetailButton({
                 {/* 약력까지 여기서 펼쳐도 안전하다 — 팝업 내용은 열어야 DOM 에 생기므로
                     페이지 HTML 에 복제되지 않는다. 본문에 그대로 옮기지는 말 것. */}
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {ALL_TEACHERS.map((t) => (
+                  {(plan?.teacherIds
+                    ? ALL_TEACHERS.filter((t) => plan.teacherIds!.includes(t.id))
+                    : ALL_TEACHERS
+                  ).map((t) => (
                     <div key={t.id} className="border border-hair bg-white p-5">
                       {t.photo ? (
                         // eslint-disable-next-line @next/next/no-img-element

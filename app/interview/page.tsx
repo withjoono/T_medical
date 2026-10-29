@@ -22,6 +22,7 @@ import {
   SourceNote,
   StepList,
 } from "../_site/components";
+import { AdmissionsCalendar } from "../_site/admissions-calendar";
 import { ConceptStrip, FieldChooser, PricePlans, ShareCard } from "./_interview";
 import { TeacherCards } from "../univ/_booking";
 import { UNIV_TEACHER_GROUPS } from "@/lib/mmi-schedule";
@@ -51,7 +52,7 @@ export const metadata: Metadata = {
         url: "https://tmedi.kr/og/concept/concept.png",
         width: 1200,
         height: 630,
-        alt: "면접은 공부가 아니라 훈련입니다 — 반복은 AI 가, 판단은 선생님이, 선생님 수업 2회로 완성",
+        alt: "AI 모의면접을 먼저 보고, 그 기록으로 선생님이 수업합니다 — 1회 35만원, 3회 선결제 99만원",
       },
     ],
   },
@@ -93,13 +94,18 @@ const PREP_STEPS = [
     body:
       "지원 대학 형식 그대로 모의면접을 돌리고 즉시 교정합니다. 취약한 소재를 다시 손보고, 당일 입실 동선과 모르는 질문이 나왔을 때의 처리까지 맞춰 둡니다.",
   },
+  {
+    title: "3회차 — 당일 리허설 (선택)",
+    body:
+      "면접 직전에 복장을 갖추고 실제 시간표대로 한 번 더 돌립니다. 3회 선결제를 하신 분은 이 회차가 포함되고, 1회씩 결제하신 분은 필요할 때만 잡으시면 됩니다.",
+  },
 ];
 
 /** AI 와 선생님의 역할 분담. 이 경계가 흐려지면 '싼 모의면접'이 된다. */
 const ROLE_ROWS = [
   ["무엇을 보나", "구조 · 분량 · 말 빠르기 · 시선", "소재 선택 · 서사 · 진정성 · 태도"],
-  ["횟수", "선생님이 처방 — 기준 충족까지", "최대 2회"],
-  ["언제", "수업 사이 상시", "1회차 진단·설계 / 2회차 실전 점검"],
+  ["횟수", "무제한 — 수업에 포함", "1회부터 · 보통 2~3회"],
+  ["언제", "수업 전에 먼저, 수업 사이에도 계속", "AI 기록이 쌓인 뒤에"],
 ];
 
 function range(days: string[]) {
@@ -163,6 +169,26 @@ export default function InterviewHubPage() {
         ]}
       />
 
+      <AdmissionsCalendar
+        id="interview-calendar"
+        kinds={["announce", "interview"]}
+        eyebrow="INTERVIEW CALENDAR"
+        title={
+          <>
+            2027 의·치·한·약·수
+            <br />
+            1차 발표 · 면접일
+          </>
+        }
+        lead={
+          <>
+            계열을 고르면 그 계열 일정만 남습니다. 날짜를 누르면 대학과 전형이 나옵니다.
+            <br />
+            2027학년도 수시 · 실제 고사일은 2026년입니다.
+          </>
+        }
+      />
+
       <ConceptStrip sessionLabel={SESSION_HOURS_LABEL} />
 
       <div id="fields" className="scroll-mt-24" />
@@ -178,8 +204,8 @@ export default function InterviewHubPage() {
       <PromoSection
         eyebrow="PROCESS"
         EyebrowIcon={Brain}
-        title="선생님 수업 2회로 끝냅니다"
-        subtitle="면접은 아는 것을 늘려서 되는 일이 아니라, 압박 속에서 같은 구조를 반복해 몸에 붙이는 일입니다. 그래서 반복은 AI 가 맡고, 선생님 시간은 판단과 설계에만 씁니다."
+        title="AI 모의면접을 보고, 그 기록으로 수업합니다"
+        subtitle="수업 시간에 모의면접을 처음 돌리면 100분 중 절반이 녹화로 사라집니다. 모의면접은 AI 가 미리 받아 두고, 선생님은 그 기록에서 무엇이 무너졌는지만 짚습니다. AI 는 따로 파는 상품이 아니라 수업의 교재입니다."
         tone="muted"
       >
         <StepList steps={PREP_STEPS} />
@@ -192,7 +218,7 @@ export default function InterviewHubPage() {
         </div>
         <div className="mt-14">
           <NoteBox
-            title="2회차 시점은 대학이 정합니다"
+            title="실전 점검 회차의 시점은 대학이 정합니다"
             items={[
               "의대 72개 전형의 1단계 발표에서 면접까지는 중앙값 9일이지만 편차가 큽니다.",
               "3~4일인 대학(을지대·연세대 미래·부산대·인하대 등)은 발표를 보고 시작하면 유형을 익히다 끝납니다. 2회차를 발표 전에 끝내야 합니다.",
@@ -225,12 +251,18 @@ export default function InterviewHubPage() {
             items={CLASS_INCLUDES}
             notes={[
               { icon: MonitorPlay, label: `줌 온라인 · 1회 ${SESSION_HOURS_LABEL}` },
-              { icon: ClipboardCheck, label: "수업 전·후 과제 포함" },
-              { icon: CalendarDays, label: "묶음·선납 없음" },
+              { icon: ClipboardCheck, label: CLASS_PRICE.aiMeta },
+              {
+                icon: CalendarDays,
+                label: `${CLASS_PRICE.packSuffix.replace("/ ", "")} ${CLASS_PRICE.packLabel} · ${CLASS_PRICE.packUnit}`,
+              },
             ]}
             href="#contact"
             label="면접 수업 문의하기"
           />
+          <p className="mx-auto mt-6 max-w-2xl text-center text-[12px] font-light leading-[1.8] text-ink-500">
+            처음이시면 1회만 해 보셔도 됩니다. {CLASS_PRICE.refundRule}
+          </p>
         </div>
       </PromoSection>
 
@@ -238,20 +270,20 @@ export default function InterviewHubPage() {
         eyebrow="PRICING"
         EyebrowIcon={Wallet}
         title="비용"
-        subtitle="AI 가 반복을, 선생님이 판단을 맡으면 회차가 줄고 비용이 내려갑니다. 대치동 의대 MMI 특강은 6시간 180만원, 1:1 12시간은 240만원 선입니다. 묶음 결제나 선납은 없습니다."
+        subtitle="AI 모의면접이 반복을 맡으면 선생님 회차가 줄고 비용이 내려갑니다. 대치동 의대 MMI 특강은 6시간 180만원, 1:1 12시간은 240만원 선입니다. 저희는 1회 35만원이고, 3회를 미리 잡으시면 회당 2만원 싸집니다."
       >
         <PricePlans sessionLabel={SESSION_HOURS_LABEL} />
         <div className="mt-16">
           <ShareCard
             src="/og/concept/compare.png"
-            alt="의약학 면접 수업 비교 — 대형 학원 1:1 은 12시간 240만원 묶음 결제, T메디는 선생님 100분 1회 38만원에 AI 모의면접 무제한. 1회씩 결제해 직접 비교할 수 있습니다"
-            caption="묶음도 선납도 없습니다. 1회만 해 보고 판단하셔도 됩니다 · 비교 수치는 2026년 언론 보도 기준"
+            alt="의약학 면접 수업 비교 — 대형 학원 1:1 은 12시간 240만원, T메디는 선생님 100분 1회 35만원에 AI 모의면접 무제한 포함. 3회 선결제는 99만원으로 회당 33만원입니다"
+            caption="1회만 해 보고 판단하셔도 됩니다 · 비교 수치는 2026년 언론 보도 기준"
           />
         </div>
         <div className="mt-16">
           <ShareCard
             src="/og/concept/pricing.png"
-            alt="T메디 의약학 면접 수업 비용 — 선생님 1회 + AI 무제한 38만원, AI 모의면접은 현재 전부 무료, 선생님 1:1 100분 35만원"
+            alt="T메디 의약학 면접 수업 비용 — 선생님 1:1 100분 1회 35만원, 3회 선결제 99만원(회당 33만원), AI 모의면접 무제한 포함"
             caption="비용 한 장 요약 · 저장하거나 공유해서 쓰십시오"
           />
         </div>

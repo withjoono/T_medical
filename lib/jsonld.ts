@@ -109,9 +109,13 @@ export function course({
   /** 수업 형태 — 전부 온라인(줌) 1:1 */
   startDate,
   endDate,
-  bundlePrice,
+  packPrice,
+  packSessions = 3,
   minutes = SESSION_MINUTES,
+  withAi = true,
 }: {
+  /** false 면 가격 분류에 'AI 모의면접 무제한 포함' 을 붙이지 않는다(가천대) */
+  withAi?: boolean;
   /** 1회 수업 길이(분). 대학별 예외가 있으면 lib/mmi-schedule.ts classPlanFor 값 */
   minutes?: number;
   path: string;
@@ -121,9 +125,11 @@ export function course({
   price: number;
   startDate?: string;
   endDate?: string;
-  /** 선생님 1회 + AI 무제한 묶음가. 화면 띠에 보이므로 함께 마크업한다 */
-  bundlePrice?: number;
+  /** 3회 선결제가. 화면 띠에 보이므로 함께 마크업한다 */
+  packPrice?: number;
+  packSessions?: number;
 }) {
+  const ai = withAi ? " (AI 모의면접 무제한 포함)" : "";
   return {
     "@context": "https://schema.org",
     "@type": "Course",
@@ -138,17 +144,17 @@ export function course({
         "@type": "Offer",
         price: String(price),
         priceCurrency: "KRW",
-        category: "1회 수업료",
+        category: `1회 수업료${ai}`,
         availability: "https://schema.org/InStock",
         url: abs(path),
       },
-      ...(bundlePrice
+      ...(packPrice
         ? [
             {
               "@type": "Offer" as const,
-              price: String(bundlePrice),
+              price: String(packPrice),
               priceCurrency: "KRW",
-              category: "선생님 1회 + AI 모의면접 무제한",
+              category: `${packSessions}회 선결제${ai}`,
               availability: "https://schema.org/InStock",
               url: abs(path),
             },

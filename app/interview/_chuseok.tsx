@@ -418,7 +418,7 @@ export function ChuseokPage() {
           notes={[
             { icon: MonitorPlay, label: `줌 온라인 · 1회 ${SESSION_HOURS_LABEL}` },
             { icon: CalendarDays, label: `연휴 ${ALL_DAYS.length}일 · 하루 5타임` },
-            { icon: ClipboardCheck, label: "묶음·선납 없음" },
+            { icon: ClipboardCheck, label: CLASS_PRICE.aiMeta },
           ]}
           href="#contact"
           label="연휴 자리 문의하기"

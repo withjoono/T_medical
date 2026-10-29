@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   CALENDAR_EVENTS,
@@ -41,23 +41,102 @@ const KIND_LABEL: Record<EventKind, string> = {
 const MONTHS = [10, 11, 12] as const;
 const WEEK = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
-export function AdmissionsCalendar() {
-  const [month, setMonth] = useState<number>(11);
-  const [field, setField] = useState<FieldKey | "all">("all");
+/** 오늘(한국 시간) YYYY-MM-DD */
+function seoulToday(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+type Props = {
+  /** 한 계열로 고정한다. 주면 계열 필터 버튼이 사라진다 (계열별 면접 페이지). */
+  field?: FieldKey;
+  /** 보여줄 일정 종류. 기본은 전부. 면접 페이지는 ["announce", "interview"].
+   *  수능(common)은 면접이 수능 전/후인지 가르는 기준이라 항상 남는다. */
+  kinds?: readonly KindKey[];
+  /** 제목 id — 같은 사이트 안에서 앵커가 겹치지 않도록 페이지마다 다르게 */
+  id?: string;
+  eyebrow?: string;
+  title?: ReactNode;
+  lead?: ReactNode;
+};
+
+export function AdmissionsCalendar({
+  field: lockedField,
+  kinds: allowedKinds,
+  id = "admissions-calendar-title",
+  eyebrow = "ADMISSIONS CALENDAR",
+  title,
+  lead,
+}: Props = {}) {
+  const kindList = allowedKinds ? KINDS.filter((k) => allowedKinds.includes(k.key)) : KINDS;
+  const kindKey = kindList.map((k) => k.key).join(",");
+
+  /** 지난 일정은 숨긴다.
+   *  ⚠️ 정적 export 라 빌드 날짜로 거르면 배포 며칠 뒤 낡은 달력이 된다. 그래서 오늘은 브라우저에서
+   *     정한다. 첫 렌더(정적 HTML)는 전부 그리고, 마운트 뒤 오늘 이전을 걷어낸다 — 하이드레이션 불일치 없음. */
+  const [today, setToday] = useState<string | null>(null);
+  useEffect(() => setToday(seoulToday()), []);
+
+  /** 이 달력이 다루는 범위 — 고정 계열 · 허용 종류 · 오늘 이후 */
+  const scoped = useMemo(() => {
+    const keys = kindKey.split(",");
+    return CALENDAR_EVENTS.filter((e) => {
+      if (today && e.date < today) return false;
+      if (e.kind !== "common" && !keys.includes(e.kind)) return false;
+      if (lockedField && !COMMON_IDS.has(e.id) && e.field !== lockedField) return false;
+      return true;
+    });
+  }, [lockedField, kindKey, today]);
+
+  /** 첫 화면은 그 범위에서 대학 일정이 가장 많은 달 (동률이면 이른 달) */
+  const busiest = useMemo(() => {
+    let best = 11;
+    let max = -1;
+    for (const m of MONTHS) {
+      const p = `2026-${String(m).padStart(2, "0")}`;
+      const n = scoped.filter((e) => e.univ && e.date.startsWith(p)).length;
+      if (n > max) {
+        max = n;
+        best = m;
+      }
+    }
+    return best;
+  }, [scoped]);
+
+  const [month, setMonth] = useState<number>(busiest);
+  const [field, setField] = useState<FieldKey | "all">(lockedField ?? "all");
   const [kind, setKind] = useState<KindKey | "all">("all");
   const [day, setDay] = useState<string | null>(null);
+
+  /** 이미 끝난 달로는 돌아가지 않는다. 수시가 다 끝난 뒤(2027년)에는 마지막 달에 머문다. */
+  const lastMonth = MONTHS[MONTHS.length - 1];
+  const minMonth: number = !today
+    ? MONTHS[0]
+    : today.slice(0, 4) > "2026"
+      ? lastMonth
+      : Math.min(Math.max(Number(today.slice(5, 7)), MONTHS[0]), lastMonth);
+  useEffect(() => {
+    if (month < minMonth) {
+      setMonth(minMonth);
+      setDay(null);
+    }
+  }, [minMonth, month]);
 
   const prefix = `2026-${String(month).padStart(2, "0")}`;
 
   const filtered = useMemo(() => {
-    return CALENDAR_EVENTS.filter((e) => {
+    return scoped.filter((e) => {
       if (!e.date.startsWith(prefix)) return false;
       if (kind !== "all" && e.kind !== kind && e.kind !== "common") return false;
       // 공통 일정은 계열 필터를 타지 않는다
       if (field !== "all" && !COMMON_IDS.has(e.id) && e.field !== field) return false;
       return true;
     });
-  }, [prefix, field, kind]);
+  }, [scoped, prefix, field, kind]);
 
   const visible = day ? filtered.filter((e) => e.date === day) : [];
 
@@ -80,20 +159,28 @@ export function AdmissionsCalendar() {
     field === "all" ? "의·치·한·약·수 전체" : FIELDS.find((f) => f.key === field)!.label;
 
   return (
-    <section className="admissions-calendar" aria-labelledby="admissions-calendar-title">
+    <section className="admissions-calendar" aria-labelledby={id}>
       <div className="calendar-heading">
         <div>
-          <p className="eyebrow text-brass-600">ADMISSIONS CALENDAR</p>
-          <h2 id="admissions-calendar-title">
-            2027 의·치·한·약·수
-            <br />
-            1차 발표 · 면접 · 합격 발표
+          <p className="eyebrow text-brass-600">{eyebrow}</p>
+          <h2 id={id}>
+            {title ?? (
+              <>
+                2027 의·치·한·약·수
+                <br />
+                1차 발표 · 면접 · 합격 발표
+              </>
+            )}
           </h2>
         </div>
         <p>
-          계열을 고르면 그 계열 일정만 남습니다.
-          <br />
-          2027학년도 수시 · 실제 고사일은 2026년입니다.
+          {lead ?? (
+            <>
+              계열을 고르면 그 계열 일정만 남습니다.
+              <br />
+              2027학년도 수시 · 실제 고사일은 2026년입니다.
+            </>
+          )}
         </p>
       </div>
 
@@ -101,7 +188,7 @@ export function AdmissionsCalendar() {
         <div className="calendar-month">
           <button
             type="button"
-            disabled={month === MONTHS[0]}
+            disabled={month <= minMonth}
             aria-label="이전 달"
             onClick={() => {
               setMonth(month - 1);
@@ -124,6 +211,7 @@ export function AdmissionsCalendar() {
           </button>
         </div>
 
+        {!lockedField && (
         <div className="calendar-filters" aria-label="계열">
           <button
             type="button"
@@ -149,6 +237,7 @@ export function AdmissionsCalendar() {
             </button>
           ))}
         </div>
+        )}
       </div>
 
       <div className="calendar-filters calendar-filters-kind" aria-label="일정 종류">
@@ -162,7 +251,7 @@ export function AdmissionsCalendar() {
         >
           전체 일정
         </button>
-        {KINDS.map((k) => (
+        {kindList.map((k) => (
           <button
             type="button"
             key={k.key}
@@ -197,7 +286,7 @@ export function AdmissionsCalendar() {
             <button
               type="button"
               key={iso}
-              className="calendar-day"
+              className={today && iso < today ? "calendar-day is-past" : "calendar-day"}
               aria-pressed={day === iso}
               aria-label={`${month}월 ${date}일, 일정 ${entries.length}개${
                 names.length ? `, ${names.join(", ")}` : ""
@@ -301,13 +390,17 @@ export function AdmissionsCalendar() {
       </div>
 
       <p className="calendar-disclaimer">
-        각 대학 2027학년도 수시 모집요강에서 확인된 날짜만 표시합니다 — 의예{" "}
-        {CALENDAR_TOTALS.byField.uiye}교 · 치의예 {CALENDAR_TOTALS.byField.chiuiye}교 · 한의예{" "}
-        {CALENDAR_TOTALS.byField.hanuiye}교 · 약학 {CALENDAR_TOTALS.byField.yakhak}교 · 수의예{" "}
-        {CALENDAR_TOTALS.byField.suuiye}교. 요강에 날짜가 없는 전형은 표시하지 않으며, 그것이
-        &lsquo;일정 없음&rsquo;이나 &lsquo;미실시&rsquo;를 뜻하지는 않습니다. 수능일과 합격자 발표
-        마감은 대교협 공통 일정이라 계열과 무관하게 항상 표시됩니다. 고사 시간·장소·변경 사항은 반드시
-        대학 입학처의 최종 공지로 확인하세요.
+        각 대학 2027학년도 수시 모집요강에서 확인된 날짜만 표시합니다 —{" "}
+        {(lockedField ? FIELDS.filter((f) => f.key === lockedField) : FIELDS)
+          .map((f) => `${f.label} ${CALENDAR_TOTALS.byField[f.key]}교`)
+          .join(" · ")}
+        . 요강에 날짜가 없는 전형은 표시하지 않으며, 그것이 &lsquo;일정 없음&rsquo;이나
+        &lsquo;미실시&rsquo;를 뜻하지는 않습니다.{" "}
+        {kindList.some((k) => k.key === "final")
+          ? "수능일과 합격자 발표 마감은 대교협 공통 일정이라 계열과 무관하게 항상 표시됩니다."
+          : "수능일은 면접이 수능 전인지 후인지 가르는 기준이라 함께 표시합니다."}{" "}
+        이미 지난 날짜의 일정은 숨깁니다. 고사 시간·장소·변경 사항은 반드시 대학 입학처의 최종 공지로
+        확인하세요.
       </p>
     </section>
   );

@@ -19,6 +19,7 @@ import {
   PromoSection,
   SourceNote,
 } from "../../_site/components";
+import { AdmissionsCalendar } from "../../_site/admissions-calendar";
 import { UnivStatRow } from "../../univ/_univ";
 import {
   ClassCtaBand,
@@ -131,6 +132,27 @@ export default function UidaeInterviewPage() {
           { icon: ClipboardCheck, label: "요강 기준 방식 · 일정 수록" },
           { icon: MonitorPlay, label: `1:1 줌 ${SESSION_HOURS_LABEL}` },
         ]}
+      />
+
+      <AdmissionsCalendar
+        id="uidae-calendar"
+        field="uiye"
+        kinds={["announce", "interview"]}
+        eyebrow="INTERVIEW CALENDAR"
+        title={
+          <>
+            2027 의예과
+            <br />
+            1차 발표 · 면접일
+          </>
+        }
+        lead={
+          <>
+            날짜를 누르면 그날 1차 발표·면접이 있는 대학과 전형이 나옵니다.
+            <br />
+            2027학년도 수시 · 실제 고사일은 2026년입니다.
+          </>
+        }
       />
 
       <div id="univ" className="scroll-mt-24" />

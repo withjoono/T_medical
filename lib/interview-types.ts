@@ -1,5 +1,5 @@
-import { ClipboardList, GraduationCap, MonitorPlay, Target, type LucideIcon } from "lucide-react";
-import { SESSION_MINUTES, TUITION } from "./mmi-schedule";
+import { Bot, ClipboardList, GraduationCap, MonitorPlay, Target, type LucideIcon } from "lucide-react";
+import { AI_IN_CLASS, SESSION_MINUTES, TUITION } from "./mmi-schedule";
 import { UNIV_PAGES, type UnivPage } from "./univ";
 
 /** =========================================================================
@@ -323,7 +323,7 @@ export const INTERVIEW_TYPES: InterviewType[] = [
       "숙지 시간(보통 10분) → 면접 시간(5~10분)의 2단계 구조",
       "연세대 미래는 숙지 10분 + 면접 10분이다(같은 대학 타 모집단위는 면접 5분)",
       "제시문은 생명윤리 · 의료 상황 · 사회 쟁점이거나, 자료 · 그래프 해석이다",
-      "고려대 의학과는 예외로 수학 · 과학 교과 제시문이 나온다 — 인·적성 MMI 2회와 별도로 자연계 공통 제시문 면접(준비 21분 · 면접 7분)을 보며, 출제범위가 수학Ⅰ·Ⅱ·미적분·확률과 통계·기하와 물리·화학·생명과학·지구과학 Ⅰ·Ⅱ다. 과목을 고르지 않고, 지식보다 제시문을 읽고 연결 · 적용하는 힘을 본다",
+      "고려대 의학과는 예외로 수학 · 과학 교과 제시문이 나온다 — 인·적성 MMI 2회와 별도로 자연계 공통 제시문 면접(준비 21분 · 면접 7분)을 보며, 출제범위가 수학Ⅰ·Ⅱ·미적분·확률과 통계·기하와 물리·화학·생명과학·지구과학 Ⅰ·Ⅱ다. 과목을 고르지 않고, 여러 과목 제시문을 공통 개념(2025 대칭, 2026 이중성)으로 엮는 융합형이라 지식보다 제시문을 읽고 연결 · 적용하는 힘을 본다. 의대 전용이 아니라 자연계 오전 조 공통 문항이다",
       "서울대처럼 제시문 여러 개를 스테이션으로 이어 약 60분간 진행하는 대학도 있다 — 지구력이 별개 변수로 붙는다",
       "기출이 공개된 유일한 유형이다 — 연세대 미래는 입학처가 면접 기출문제와 선행학습영향평가결과보고서를 공개한다",
       "제시문만으로 끝나지 않는 대학이 있다. 서류확인 면접과 함께 보거나, 전형에 따라 준비물이 갈린다",
@@ -448,7 +448,7 @@ type Assign = {
 const ASSIGN: Record<string, Assign> = {
   /* --- MMI : 면접실(스테이션)을 옮겨 다니는 대학 ------------------------ */
   snu: { primary: "mmi", also: ["jesimun"], tag: "제시문 다중 스테이션 · 약 60분" },
-  korea: { primary: "mmi", also: ["jesimun"], tag: "제시문 면접 + 인·적성 MMI 2회" },
+  korea: { primary: "mmi", also: ["jesimun"], tag: "교과 융합 제시문 면접 + 인·적성 MMI 2회" },
   ulsan: { primary: "mmi", also: ["jesimun"], tag: "다대일 다면평가 · 학생부 + 제시문" },
   hallym: { primary: "mmi", tag: "3개 면접실 — 인성 / 상황 / 모의상황" },
   keimyung: { primary: "mmi", tag: "3개 고사실 · 미흡 판정 시 불합격 규정" },
@@ -478,7 +478,7 @@ const ASSIGN: Record<string, Assign> = {
   "dongguk-wise": { primary: "injeokseong", tag: "서류평가 기반 확인면접" },
   eulji: { primary: "injeokseong", tag: "정원외 2개 전형만 인성면접 · 5%" },
   ewha: { primary: "injeokseong", tag: "제출서류 기반 일반면접 · 30%" },
-  gachon: { primary: "injeokseong", tag: "서류 기반 개별면접 · 2단계 면접 50%" },
+  gachon: { primary: "injeokseong", tag: "생기부 교과 개념 면접 · 2단계 면접 50%" },
   gnu: { primary: "injeokseong", tag: "3인 1조 개별면접 15분 · 제시문 없음" },
   jbnu: { primary: "injeokseong", tag: "3인 면접위원 서류확인 면접 10분" },
   jeju: { primary: "injeokseong", tag: "블라인드 개별면접 15분 · 과락 규정" },
@@ -607,6 +607,12 @@ export const SESSION_HOURS_LABEL = `${Math.floor(SESSION_MINUTES / 60)}시간 ${
 /** T메디 면접 수업의 특징 4가지 (사용자 확정, 2026-09-30). /interview · /interview/chuseok 에서 쓴다. */
 export const CLASS_FEATURES: { icon: LucideIcon; title: string; body: string }[] = [
   {
+    icon: Bot,
+    title: "AI 모의면접을 보고, 그 결과로 수업합니다",
+    body:
+      "수업 시간에 모의면접을 처음 돌리면 100분 중 절반이 녹화로 사라집니다. 모의면접은 AI 가 미리 받아 두고, 선생님은 그 기록에서 무엇이 무너졌는지만 짚습니다. AI 는 따로 파는 상품이 아니라 수업의 교재입니다.",
+  },
+  {
     icon: ClipboardList,
     title: "예상문제를 먼저 과제로 받습니다",
     body:
@@ -639,14 +645,14 @@ export const CLASS_FLOW: { title: string; body: string }[] = [
       "지원 대학과 면접일을 알려주시면 남은 기간에 맞춰 수업 횟수와 날짜를 잡습니다. 1단계 발표 전이라면 결과를 기다리는 자리로 먼저 잡아 둘 수 있습니다.",
   },
   {
-    title: "수업 전 과제 부여",
+    title: "AI 모의면접 — 수업 전에 먼저 봅니다",
     body:
-      "수업 전에 과제를 먼저 드립니다. 생기부 기반 예상 질문 정리, 제시문 풀이, 답변 녹음 등 지원 대학의 면접 유형에 맞춰 나갑니다. 준비된 상태에서 시작하므로 수업 시간을 전부 실전에 씁니다.",
+      "지원 대학 형식으로 AI 모의면접을 돌립니다. 답변 구조, 말 빠르기, 시선, 꼬리질문 대응이 기록으로 남습니다. 횟수 제한이 없고, 수업을 신청하신 분께는 추가 비용도 없습니다. 이 기록이 다음 수업의 교재가 됩니다.",
   },
   {
     title: `줌 온라인 1:1 수업 · 1회 ${SESSION_HOURS_LABEL}`,
     body:
-      "줌으로 강사 1명 : 학생 1명으로 진행합니다. 실전과 같은 조건으로 모의면접을 돌리고, 답변 논리와 표현 · 태도 · 시선을 그 자리에서 교정합니다.",
+      "선생님은 AI 기록을 먼저 펼칩니다. 어디서 논리가 끊겼는지, 어떤 소재가 안 먹혔는지를 짚고 그 자리에서 다시 답하게 합니다. 모의면접을 처음부터 돌리는 데 시간을 쓰지 않으므로 100분을 전부 교정에 씁니다.",
   },
   {
     title: "다음 수업 과제",
@@ -656,6 +662,7 @@ export const CLASS_FLOW: { title: string; body: string }[] = [
 ];
 
 export const CLASS_INCLUDES: string[] = [
+  "AI 모의면접 무제한 — 수업 전에 보고, 그 기록으로 수업합니다",
   "1:1 개인지도 — 강사 1명 : 학생 1명",
   `줌 온라인 수업 · 1회 ${SESSION_HOURS_LABEL}`,
   "수업 전 과제 → 수업 → 다음 과제로 이어지는 반복 구조",
@@ -668,6 +675,13 @@ export const CLASS_PRICE = {
   label: TUITION.perSessionLabel,
   suffix: "/ 1회",
   unit: TUITION.unit,
+  /** 3회 선결제 */
+  packLabel: TUITION.pack.priceLabel,
+  packSuffix: `/ ${TUITION.pack.sessions}회 선결제`,
+  packUnit: `회당 ${TUITION.pack.perSessionLabel} · ${TUITION.pack.savingPerSessionLabel} 할인`,
+  /** 가격 옆에 늘 붙는 한 줄 */
+  aiMeta: AI_IN_CLASS.meta,
+  refundRule: TUITION.refund.rule,
 } as const;
 
 /* -------------------------------------------------------------------------

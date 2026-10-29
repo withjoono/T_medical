@@ -3,8 +3,9 @@ import { ArrowRight, CalendarDays, MonitorPlay } from "lucide-react";
 import { earliestInterview, interviewTrackCount } from "@/lib/univ";
 import {
   formatKo,
+  AI_IN_CLASS,
   AI_TIERS,
-  BUNDLE,
+  REFUND_EXAMPLES,
   TUITION,
 } from "@/lib/mmi-schedule";
 import {
@@ -259,9 +260,9 @@ export function ClassCtaBand({ typeName }: { typeName: string }) {
 
         <div className="mx-auto mt-10 grid max-w-3xl gap-px bg-paper/15 sm:grid-cols-3">
           {[
-            { no: "01", t: "AI 모의면접", d: "무제한 · 선생님이 회차 처방" },
-            { no: "02", t: `선생님 1:1 ${SESSION_HOURS_LABEL}`, d: "진단·설계 / 실전 점검" },
-            { no: "03", t: "2회로 완성", d: "묶음·선납 없음" },
+            { no: "01", t: "AI 모의면접", d: "수업 전에 먼저 · 무제한" },
+            { no: "02", t: `선생님 1:1 ${SESSION_HOURS_LABEL}`, d: "AI 기록을 펼치고 교정" },
+            { no: "03", t: "1회부터", d: `3회 선결제 시 ${TUITION.pack.savingPerSessionLabel} ↓` },
           ].map((x) => (
             <div key={x.no} className="bg-ink px-5 py-6">
               <p className="tnum text-[11px] font-semibold tracking-[0.2em] text-brass-300">{x.no}</p>
@@ -272,11 +273,18 @@ export function ClassCtaBand({ typeName }: { typeName: string }) {
         </div>
 
         <p className="mt-10 text-[15px] font-light text-paper/85">
-          선생님 1회 + AI 무제한{" "}
+          1회{" "}
           <span className="tnum text-[1.25rem] font-semibold text-brass-300">
-            {BUNDLE.priceLabel}
+            {CLASS_PRICE.label}
           </span>
-          <span className="text-paper/55"> · 선생님 수업만 1회 {CLASS_PRICE.label}</span>
+          <span className="text-paper/55">
+            {" "}
+            · {TUITION.pack.sessions}회 선결제 {TUITION.pack.priceLabel}(회당{" "}
+            {TUITION.pack.perSessionLabel}) · {AI_IN_CLASS.meta}
+          </span>
+        </p>
+        <p className="mt-3 text-[13px] font-light text-paper/55">
+          처음이시면 1회만 해 보셔도 됩니다. {TUITION.refund.rule}
         </p>
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
@@ -488,8 +496,8 @@ export function FieldChooser({
 /* -------------------------------------------------------------------------
  * 가격표 — AI 단품 · 선생님 수업 · 묶음
  *
- *  ⚠️ 숫자를 여기에 쓰지 않는다. lib/mmi-schedule.ts 의 AI_TIERS / BUNDLE /
- *     TUITION 이 SSOT 다. status: "preparing" 인 항목은 '준비 중'으로 나가고
+ *  ⚠️ 숫자를 여기에 쓰지 않는다. lib/mmi-schedule.ts 의 AI_TIERS / TUITION /
+ *     AI_IN_CLASS 가 SSOT 다. status: "preparing" 인 항목은 '준비 중'으로 나가고
  *     결제 버튼이 붙지 않는다.
  * ---------------------------------------------------------------------- */
 
@@ -497,12 +505,71 @@ export function PriceTiers({ sessionLabel }: { sessionLabel: string }) {
   const preparing = AI_TIERS.filter((t) => t.status === "preparing").length;
   return (
     <div className="mx-auto max-w-4xl">
+      {/* 본 상품은 '선생님 수업'이다. AI 단품표를 위에 두면 AI 를 따로 파는 것처럼 읽히므로
+          반드시 수업이 먼저 오고, AI 단품은 맨 아래 부록으로 둔다. */}
       <div className="border border-hair-strong bg-white">
         <div className="border-b border-hair bg-paper-100 px-7 py-4">
-          <p className="eyebrow text-brass-600">AI 모의면접</p>
+          <p className="eyebrow text-brass-600">선생님 1:1 수업</p>
           <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-600">
-            반복 훈련을 맡습니다. 선생님이 회차를 처방하고, 부족하면 추가 처방이 나갑니다.
-            추가 비용은 없습니다.
+            <strong className="font-semibold text-ink-900">{AI_IN_CLASS.structure}.</strong>{" "}
+            {AI_IN_CLASS.why}
+          </p>
+        </div>
+        <ul>
+          <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-hair px-7 py-4">
+            <span className="flex flex-wrap items-baseline gap-x-2.5">
+              <span className="text-[15px] font-medium text-ink-900">1회</span>
+              <span className="text-[12px] font-light text-ink-400">
+                줌 1:1 · {sessionLabel} · {AI_IN_CLASS.meta}
+              </span>
+            </span>
+            <span className="tnum text-[15px] font-semibold text-ink-900">
+              {TUITION.perSessionLabel}
+            </span>
+          </li>
+          <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 bg-jade-50 px-7 py-5">
+            <span className="flex flex-wrap items-baseline gap-x-2.5">
+              <span className="text-[15px] font-semibold text-ink-900">
+                {TUITION.pack.sessions}회 선결제
+              </span>
+              <span className="text-[12px] font-light text-ink-500">
+                회당 {TUITION.pack.perSessionLabel} · {TUITION.pack.savingPerSessionLabel} 할인
+                (모두 {TUITION.pack.savingTotalLabel})
+              </span>
+            </span>
+            <span className="tnum text-[15px] font-semibold text-jade-700">
+              {TUITION.pack.priceLabel}
+            </span>
+          </li>
+        </ul>
+
+        {/* 환불 규칙 — 선결제를 받는 이상 이 블록이 가격표의 핵심이다 */}
+        <div className="border-b border-hair px-7 py-5">
+          <p className="text-[13px] font-semibold text-ink-900">
+            처음이시면 1회만 해 보셔도 됩니다
+          </p>
+          <p className="mt-2 text-[13px] font-light leading-[1.8] text-ink-600">
+            {TUITION.refund.rule}{" "}
+            <span className="text-ink-900">{TUITION.refund.fairness}</span>
+          </p>
+          <ul className="mt-3 grid gap-px bg-hair sm:grid-cols-3">
+            {REFUND_EXAMPLES.map((r) => (
+              <li key={r.used} className="bg-white px-4 py-3">
+                <p className="text-[12px] font-light text-ink-500">{r.label}</p>
+                <p className="tnum mt-1 text-[15px] font-semibold text-ink-900">
+                  {r.amount === 0 ? "환불 없음" : `${r.amount / 10000}만원`}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* AI 단품 — 수업을 듣지 않고 AI 만 쓰려는 경우 */}
+        <div className="border-b border-hair bg-paper-100 px-7 py-4">
+          <p className="eyebrow text-brass-600">AI 모의면접만 따로 쓰실 경우</p>
+          <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-600">
+            수업을 신청하시면 아래 가격은 적용되지 않습니다 — 수업에는 무제한으로 들어 있습니다.
+            수업 없이 AI 만 쓰실 분을 위한 가격표입니다.
           </p>
         </div>
         <ul>
@@ -530,37 +597,10 @@ export function PriceTiers({ sessionLabel }: { sessionLabel: string }) {
             </li>
           ))}
         </ul>
-
-        <div className="border-b border-hair bg-paper-100 px-7 py-4">
-          <p className="eyebrow text-brass-600">선생님 1:1</p>
-          <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-600">
-            판단과 설계를 맡습니다. 1회차는 진단과 설계, 2회차는 실전 점검입니다.
-          </p>
-        </div>
-        <ul>
-          <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-hair px-7 py-4">
-            <span className="flex flex-wrap items-baseline gap-x-2.5">
-              <span className="text-[15px] font-medium text-ink-900">선생님 1:1 수업 1회</span>
-              <span className="text-[12px] font-light text-ink-400">줌 · {sessionLabel}</span>
-            </span>
-            <span className="tnum text-[15px] font-semibold text-ink-900">{TUITION.perSessionLabel}</span>
-          </li>
-          <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 bg-jade-50 px-7 py-5">
-            <span className="flex flex-wrap items-baseline gap-x-2.5">
-              <span className="text-[15px] font-semibold text-ink-900">
-                선생님 1회 + AI 무제한
-              </span>
-              <span className="text-[12px] font-light text-ink-500">{BUNDLE.aiMeta}</span>
-            </span>
-            <span className="tnum text-[15px] font-semibold text-jade-700">
-              {BUNDLE.priceLabel}
-            </span>
-          </li>
-        </ul>
       </div>
 
       <p className="mt-5 text-[12px] font-light leading-relaxed text-ink-400">
-        묶음 결제나 선납은 없습니다. 회차는 필요한 만큼만 잡습니다.
+        수업료 외에 교재비·자료비를 따로 받지 않습니다.
         {preparing > 0 &&
           " ‘준비 중’ 인 AI 항목은 아직 과금하지 않습니다 — 지금 여는 실전 모의 형식이 고려대 의학과 하나뿐이고 제시문도 검수 전이라, 형식을 늘리고 검수를 마친 뒤에 엽니다. 그때까지는 무료로 쓰실 수 있습니다."}
       </p>
@@ -575,18 +615,18 @@ export function PriceTiers({ sessionLabel }: { sessionLabel: string }) {
 const CONCEPT_PANELS = [
   {
     no: "01",
-    title: "반복은 AI 가",
-    body: "무제한 모의면접으로 훈련의 임계량을 채웁니다. 선생님이 회차를 처방하고, 부족하면 더 보냅니다.",
+    title: "먼저 AI 모의면접",
+    body: "수업 전에 지원 대학 형식으로 돌립니다. 답변 구조·말 빠르기·시선·꼬리질문 대응이 기록으로 남습니다. 횟수 제한도 추가 비용도 없습니다.",
   },
   {
     no: "02",
-    title: "판단은 선생님이",
-    body: "생기부에서 쓸 소재를 고르고, 지원 대학의 평가축에 맞춰 답변 뼈대를 설계합니다.",
+    title: "그 기록으로 수업",
+    body: "선생님은 AI 기록을 펼치고 무너진 지점만 짚습니다. 모의면접을 처음부터 돌리지 않으므로 100분을 전부 교정에 씁니다.",
   },
   {
     no: "03",
-    title: "그래서 2회로",
-    body: "1회차는 진단과 설계, 2회차는 실전 점검. 반복을 선생님 시간으로 사지 않습니다.",
+    title: "그래서 회차가 준다",
+    body: "반복을 선생님 시간으로 사지 않습니다. 1회만 해 보고 정하셔도 되고, 3회를 미리 잡으시면 회당 2만원 싸집니다.",
   },
 ];
 
@@ -594,7 +634,7 @@ export function ConceptStrip({ sessionLabel }: { sessionLabel: string }) {
   return (
     <section className="border-t border-hair bg-ink px-6 py-20 text-paper sm:px-12 sm:py-24">
       <div className="mx-auto max-w-5xl">
-        <p className="eyebrow text-center text-brass-300">왜 2회로 끝나는가</p>
+        <p className="eyebrow text-center text-brass-300">왜 회차가 적어도 되는가</p>
         <h2 className="display mt-6 text-center text-[1.75rem] leading-[1.3] sm:text-[2.25rem]">
           면접은 공부가 아니라 <span className="text-brass-300">훈련</span>입니다
         </h2>
@@ -617,15 +657,19 @@ export function ConceptStrip({ sessionLabel }: { sessionLabel: string }) {
           <ShareCard
             tone="ink"
             src="/og/concept/concept.png"
-            alt="면접은 공부가 아니라 훈련입니다 — 반복은 AI 가, 판단은 선생님이, 그래서 선생님 수업 2회로 끝납니다"
+            alt="면접은 공부가 아니라 훈련입니다 — AI 모의면접을 먼저 보고 그 기록으로 선생님이 수업합니다. 1회 35만원, 3회 선결제 99만원"
             caption="컨셉 한 장 요약 · 저장하거나 공유해서 쓰십시오"
           />
         </div>
 
         <p className="mt-12 text-center text-[15px] font-light text-paper/80">
-          선생님 1회 + AI 무제한{" "}
-          <span className="tnum font-semibold text-brass-300">{BUNDLE.priceLabel}</span>
-          <span className="text-paper/50"> · 줌 1:1 {sessionLabel}</span>
+          1회 <span className="tnum font-semibold text-brass-300">{CLASS_PRICE.label}</span>
+          <span className="text-paper/50">
+            {" "}
+            · {TUITION.pack.sessions}회 선결제{" "}
+            <span className="tnum font-semibold text-brass-300">{TUITION.pack.priceLabel}</span> · 줌
+            1:1 {sessionLabel} · {AI_IN_CLASS.meta}
+          </span>
         </p>
       </div>
     </section>
@@ -702,59 +746,69 @@ function PlanCard({
 }
 
 export function PricePlans({ sessionLabel }: { sessionLabel: string }) {
-  const paid = AI_TIERS.filter((t) => t.price > 0);
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* AI 는 선택지가 아니라 전제다 — 카드를 'AI / 선생님' 으로 가르지 않고
+          결제 방식(1회 / 3회)으로 가른다. */}
+      <div className="border border-hair-strong bg-ink px-7 py-6 text-paper">
+        <p className="eyebrow text-brass-300">수업 구조</p>
+        <p className="display mt-3 text-[1.25rem] leading-snug">{AI_IN_CLASS.structure}</p>
+        <p className="mt-3 text-[13px] font-light leading-[1.8] text-paper/70">
+          {AI_IN_CLASS.why} AI 모의면접은 따로 파는 상품이 아니라 수업의 교재입니다 — 수업을
+          신청하시면 횟수 제한 없이 쓰십니다.
+        </p>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <PlanCard
-          eyebrow="반복 훈련"
-          title="AI 모의면접"
-          price="무료"
-          priceNote="지금은 전부 무료 · 준비 중"
-          lines={[
-            { label: "말하기·태도 연습", value: "무제한" },
-            ...paid.map((t) => ({ label: t.label, value: t.priceLabel, muted: true })),
-          ]}
-        />
-        <PlanCard
-          eyebrow="판단과 설계"
-          title={`선생님 1:1 · ${sessionLabel}`}
+          eyebrow="처음이라면"
+          title="1회"
           price={TUITION.perSessionLabel}
-          priceNote="1회 · 줌 온라인"
+          priceNote={`줌 1:1 · ${sessionLabel}`}
           lines={[
-            { label: "1회차", value: "진단과 설계" },
-            { label: "2회차", value: "실전 점검" },
-            { label: "수업 전·후 과제", value: "포함" },
-            { label: "묶음·선납", value: "없음" },
+            { label: "AI 모의면접", value: "무제한 포함" },
+            { label: "수업 전 과제", value: "포함" },
+            { label: "선결제", value: "없음" },
+            { label: "먼저 해 보고 결정", value: "가능" },
           ]}
         />
-      </div>
-
-      <div className="mt-8 flex flex-col items-center">
-        <span className="h-8 w-px bg-hair-strong" aria-hidden="true" />
-        <p className="py-3 text-[12px] font-semibold tracking-tight text-ink-400">함께 쓰면</p>
-        <span className="h-8 w-px bg-hair-strong" aria-hidden="true" />
-      </div>
-
-      <div className="mx-auto mt-2 max-w-xl">
         <PlanCard
           tone="ink"
           eyebrow="권장"
-          title="선생님 1회 + AI 무제한"
-          price={BUNDLE.priceLabel}
-          priceNote="1회당"
+          title={`${TUITION.pack.sessions}회 선결제`}
+          price={TUITION.pack.priceLabel}
+          priceNote={`회당 ${TUITION.pack.perSessionLabel} · ${TUITION.pack.savingPerSessionLabel} 할인`}
           lines={[
-            { label: "선생님 1:1", value: sessionLabel },
-            { label: "AI 실전 모의", value: "시즌 무제한" },
-            { label: "추가 처방", value: "비용 없음" },
+            { label: "AI 모의면접", value: "무제한 포함" },
+            { label: "아끼는 금액", value: TUITION.pack.savingTotalLabel },
+            { label: "중간 환불", value: `회당 ${TUITION.refund.perSessionLabel} 차감` },
+            { label: "할인분 반환", value: "없음" },
           ]}
         />
       </div>
 
+      {/* 환불 — 선결제를 권하는 이상 같은 화면에 있어야 한다 */}
+      <div className="mt-6 border border-hair-strong bg-white px-7 py-6">
+        <p className="text-[14px] font-semibold text-ink-900">중간에 그만두시면</p>
+        <p className="mt-2 text-[13px] font-light leading-[1.8] text-ink-600">
+          {TUITION.refund.rule} <span className="text-ink-900">{TUITION.refund.fairness}</span>
+        </p>
+        <ul className="mt-4 grid gap-px bg-hair sm:grid-cols-3">
+          {REFUND_EXAMPLES.map((r) => (
+            <li key={r.used} className="bg-white px-4 py-3">
+              <p className="text-[12px] font-light text-ink-500">{r.label}</p>
+              <p className="tnum mt-1 text-[16px] font-semibold text-ink-900">
+                {r.amount === 0 ? "환불 없음" : `${r.amount / 10000}만원`}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <p className="mx-auto mt-8 max-w-3xl text-center text-[12px] font-light leading-relaxed text-ink-400">
-        AI 유료 항목은 아직 과금하지 않습니다 — 지금 여는 실전 모의 형식이 고려대 의학과 하나뿐이고
-        제시문도 검수 전이라, 형식을 늘리고 검수를 마친 뒤에 엽니다. 그때까지는 무료로 쓰실 수
-        있습니다.
+        수업을 신청하지 않고 AI 모의면접만 쓰실 수도 있습니다. 그 가격은 아래 표에 따로 있고, 지금은
+        전부 무료입니다 — 실전 모의 형식이 고려대 의학과 하나뿐이고 제시문도 검수 전이라, 형식을
+        늘리고 검수를 마친 뒤에 엽니다.
       </p>
     </div>
   );
