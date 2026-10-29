@@ -32,16 +32,6 @@ jobs:
         with:
           path: T_Medi
 
-      - name: Checkout shared satellite header
-        uses: actions/checkout@v4
-        with:
-          repository: withjoono/Music_College
-          ref: 94861ac84b3b55b8a1a75c04e74be2b70e3ae7d1
-          token: ${{ secrets.SATELLITE_HEADER_TOKEN }}
-          path: Music_College
-          sparse-checkout: packages/satellite-header
-          persist-credentials: false
-
       - uses: pnpm/action-setup@v4
         with:
           version: 9 # pnpm-lock.yaml 이 lockfileVersion 9.0
@@ -52,8 +42,12 @@ jobs:
           cache: pnpm
           cache-dependency-path: T_Medi/pnpm-lock.yaml
 
+      # 공통 헤더(@withjoono/satellite-header)는 GitHub Packages 비공개 패키지다.
+      # .npmrc 가 이 토큰(read:packages PAT)을 읽는다. Hub·geobuk-shared 와 같은 시크릿.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       # next.config.mjs 가 typescript.ignoreBuildErrors 를 켜 두어
       # `pnpm build` 는 타입 에러를 그냥 통과시킨다. 게이트를 여기서 따로 건다.

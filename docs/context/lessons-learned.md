@@ -14,7 +14,7 @@ AGENTS.md 에 이미 있는 것(target 없는 Firebase 배포로 Hub 덮어씀, 
 - **청크 404 → "Application error" 색인 (2026-10).** Firebase 배포는 파일 세트를 통째로 바꿔 옛 해시 청크가 즉시 사라진다.
   옛 HTML 을 렌더한 구글봇이 청크 404 → `/univ/cau` 가 "제목없음 / Application error" 로 색인됐다.
   → `deploy.yml` 이 지난 `_next/static` 을 14일 보관해 함께 올린다. **수동 배포는 이 단계를 건너뛰므로** 위험이 그대로다. CI 로 배포할 것.
-- **CI 가 `Checkout shared satellite header` 에서 실패하던 이력.** `SATELLITE_HEADER_TOKEN`(Music_College 읽기)·`FIREBASE_TOKEN` 리포 Secret 이 없으면 배포가 안 된다(2026-10-23 기준 미등록). 푸시 후 Actions 탭에서 성공 여부를 확인한다.
+- **CI 가 한 번도 성공한 적 없다(2026-10-29 기준 43회).** 원인 셋: 리포 Secret `NODE_AUTH_TOKEN`(공통 헤더 패키지)·`FIREBASE_TOKEN` 미등록, gitignore 된 `public/ai-interview/` 부재. (`SATELLITE_HEADER_TOKEN` 은 헤더가 GitHub Packages 로 옮겨져 더는 필요 없다.) 푸시 후 Actions 탭에서 성공 여부를 확인한다.
 - `serve out` 으로 검증할 때 **`-s` 금지** — SPA 리라이트라 모든 경로가 홈으로 뜬다.
 - 301 은 1단으로. `/promo/mmi`→`/mmi`→`/univ` 처럼 체인이 생기면 구체 규칙을 일반 `/promo` 규칙보다 **앞에** 둔다(`firebase.json`).
 
@@ -40,6 +40,6 @@ AGENTS.md 에 이미 있는 것(target 없는 Firebase 배포로 Hub 덮어씀, 
 ## 원격 셸(Claude 데스크톱 연결)로 작업할 때
 
 - 마운트에서 pnpm 심볼릭 링크를 못 읽는다(`Input/output error`) → `tsc`·`pnpm build` 는 로컬 셸 직접 실행이나 클라우드 사본에서.
-  클라우드 사본에서는 `@tskool/satellite-header`(`link:../Music_College/...`)를 검증용으로만 스텁한다.
+  클라우드 사본에서는 `NODE_AUTH_TOKEN` 이 없으면 `@tskool/satellite-header` 설치가 안 되므로 검증용으로만 스텁한다.
 - git 명령 후 `.git/index.lock` 이 지워지지 않고 남을 수 있다 → `GIT_OPTIONAL_LOCKS=0`, 남으면 지운다.
 - 루트에 검증 증거 파일(`tmedi-*.png/json/csv/dom.txt`, `.verification-evidence/`)이 많이 깔려 있다. **`git add -A` 금지** — 바꾼 파일만 지정해서 커밋한다.

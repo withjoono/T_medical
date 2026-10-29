@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@tskool/satellite-header'],
+  transpilePackages: ['@tskool/satellite-header', '@withjoono/satellite-header'],
   eslint: {
     ignoreDuringBuilds: true,
   },

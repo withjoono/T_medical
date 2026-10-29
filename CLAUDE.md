@@ -25,7 +25,7 @@ Claude Code 는 이 파일을 자동으로 읽는다. 아래 두 파일을 함�
    (`next.config.mjs` 가 타입 에러를 무시하므로 CI 의 tsc 게이트에서 막히면 배포도 막힌다).
 3. **바꾼 파일만 지정해서 `git add`** 한다. 루트에 검증 증거 파일(`tmedi-*.png/json/csv/dom.txt`, `.verification-evidence/`, `.firebase/` 캐시)이 많다 — `git add -A`·`git add .` 금지.
 4. 문서만 바꾼 커밋(`**/*.md`, `docs/**`)은 배포를 돌리지 않는다. 코드가 섞이면 배포된다.
-5. 푸시 후 GitHub Actions 결과를 확인한다. `SATELLITE_HEADER_TOKEN`·`FIREBASE_TOKEN` Secret 이 없으면 배포 단계가 실패한다 —
+5. 푸시 후 GitHub Actions 결과를 확인한다. `NODE_AUTH_TOKEN`·`FIREBASE_TOKEN` Secret 이 없으면 배포 단계가 실패한다 —
    실패하면 사용자에게 알리고, 수동 배포는 `firebase deploy --only hosting:medical-front --project ts-front-479305` (target 필수, `--only hosting` 단독 금지).
 6. 클라우드 세션(웹·핸드폰)에서 `main` 푸시가 거부되면 작업 브랜치로 푸시하고 그 사실을 알린다.
 
@@ -33,8 +33,8 @@ Claude Code 는 이 파일을 자동으로 읽는다. 아래 두 파일을 함�
 
 - `E:\Dev\_work\...` 원천 CSV·요강, 형제 리포(Hub·Music_College·Interview·Susi)는 클론에 없다.
   → 데이터 재추출·사이트맵 재생성(Hub)·`public/ai-interview/` 갱신은 PC 에서 한다.
-- `@tskool/satellite-header` 가 `link:../Music_College/...` 라 클론 단독으로는 `pnpm install` 이 깨질 수 있다.
-  CI 처럼 `withjoono/Music_College` 를 형제 폴더에 받아야 빌드된다(커밋 해시는 `deploy.yml`).
+- `@tskool/satellite-header` 는 GitHub Packages(`@withjoono/satellite-header`) 비공개 패키지라
+  `NODE_AUTH_TOKEN`(read:packages) 환경변수가 없으면 `pnpm install` 이 깨진다.
 
 ## 넣지 말 것
 

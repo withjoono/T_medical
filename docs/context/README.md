@@ -19,7 +19,7 @@
 | [`lessons-learned.md`](lessons-learned.md) | 배포·렌더링·이미지 생성·원격 셸 작업 전 — 실제로 겪은 함정 |
 | [`seo-indexing.md`](seo-indexing.md) | 서치콘솔·네이버·IndexNow, 배포 후 색인 작업 |
 | [`static-export-and-deploy.md`](static-export-and-deploy.md) | 정적 export 제약, 수동 배포 |
-| [`satellite-header.md`](satellite-header.md) | 공통 헤더, CI Secret(`SATELLITE_HEADER_TOKEN`) |
+| [`satellite-header.md`](satellite-header.md) | 공통 헤더(GitHub Packages), CI Secret(`NODE_AUTH_TOKEN`) |
 | [`site-structure.md`](site-structure.md) | 네비게이션·죽은 `navigation.tsx` |
 | [`sibling-apps-drift.md`](sibling-apps-drift.md) | 형제 앱(Kwakiwon·Sakwan)과 공유하는 코드를 고칠 때 |
 
