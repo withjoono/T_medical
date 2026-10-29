@@ -4,6 +4,7 @@ import { NoteBox, PromoHero, PromoSection } from "../../_site/components";
 import { JsonLdAll } from "@/components/json-ld";
 import { breadcrumb } from "@/lib/jsonld";
 import { AiTabs } from "./_ai-tabs";
+import { TwoPaths } from "./_two-paths";
 
 /** =========================================================================
  *  /interview/ai — AI 모의면접.
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/interview/ai" },
   title: "AI 모의면접 | T Medi — 의·치·한·약·수 면접 답변을 카메라 앞에서 연습",
   description:
-    "의대·치대·한의대·약대·수의대 면접 질문에 실제처럼 답하면 시선·표정·자세·목소리 크기·말 빠르기를 분석해 고칠 점을 알려 줍니다(영상은 기기 밖으로 나가지 않음). MMI 실전 모의면접에서는 대학 형식 그대로 AI 면접관의 꼬리질문에 답하고 답변 구조 피드백을 받습니다. tmedi.kr",
+    "의대·치대·한의대·약대·수의대 면접 질문에 실제처럼 답하면 시선·표정·자세·목소리 크기·말 빠르기를 분석해 고칠 점을 알려 줍니다(영상은 기기 밖으로 나가지 않음). MMI 실전 모의면접에서는 대학 형식 그대로 AI 면접관의 꼬리질문에 답하고 답변 구조 피드백을 받습니다. AI 모의면접만 쓰는 방법과, AI 결과로 선생님이 피드백하는 1:1 수업의 비용·차이도 안내합니다. tmedi.kr",
 };
 
 export default function Page() {
@@ -40,8 +41,8 @@ export default function Page() {
         body="말하기·태도 연습은 시선·표정·자세·목소리 크기·말 빠르기를 분석해 고칠 점을 알려 드립니다. MMI 실전 모의면접은 대학 면접 형식 그대로 AI 면접관이 꼬리질문을 던지고, 끝나면 답변 구조를 기준 6가지로 점검해 드립니다."
         primaryHref="#coach"
         primaryLabel="바로 연습하기"
-        secondaryHref="/interview"
-        secondaryLabel="1:1 면접 수업 보기"
+        secondaryHref="#paths"
+        secondaryLabel="AI만 / 선생님 수업 비교"
         Icon={Camera}
         stats={[
           { icon: Eye, label: "시선·표정·자세" },
@@ -79,6 +80,17 @@ export default function Page() {
             ]}
           />
         </div>
+      </PromoSection>
+
+      {/* 체험 뒤의 두 갈래 — AI 만 / 선생님 수업(AI 결과로 피드백). 결과 화면이 #paths 로 보낸다 */}
+      <div id="paths" className="scroll-mt-24" />
+      <PromoSection
+        eyebrow="AFTER THE TRIAL"
+        title="써 보셨다면, 두 가지로 이어 가실 수 있습니다"
+        subtitle="AI 모의면접만 계속 쓰셔도 되고, 선생님 1:1 수업을 받으셔도 됩니다. 선생님 수업은 학생이 본 AI 모의면접 결과를 가지고 선생님이 피드백하는 방식입니다."
+        tone="muted"
+      >
+        <TwoPaths />
       </PromoSection>
     </>
   );

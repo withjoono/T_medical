@@ -645,6 +645,16 @@ function Result({
           처음으로
         </button>
       </div>
+      {/* 체험 뒤 갈림길 — page.tsx 의 #paths(_two-paths.tsx) 로 보낸다 */}
+      <div className="mt-8 border border-jade-700/40 bg-jade-50 px-5 py-4">
+        <p className="text-[14px] font-semibold text-ink-900">이 결과로 무엇을 할까요?</p>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-600">
+          AI 로 계속 반복하셔도 되고, 이 결과를 가지고 선생님 1:1 수업에서 피드백을 받으셔도 됩니다. 두 방법의 비용과 차이를 정리해 두었습니다.
+        </p>
+        <a href="#paths" className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-jade-700 underline underline-offset-4">
+          AI 만 / 선생님 수업 비교 보기 →
+        </a>
+      </div>
     </div>
   );
 }
