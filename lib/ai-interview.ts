@@ -56,6 +56,11 @@ export const COACH_TRACKS: CoachTrack[] = [
   },
 ];
 
+/** 면접 세트로 여는 iframe 주소 — 세트 공개 파일은 scripts/build-interview-sets.ts 가 public/interview-sets 에 만든다(lib/interview-sets.ts) */
+export function coachSetSrc(setPath: string): string {
+  return `/ai-interview/embed.html#${new URLSearchParams({ set: setPath }).toString()}`;
+}
+
 /** 같은 출처 iframe 주소 — 파일은 Interview 저장소 tools/sync-coach-to-tmedi.mjs 가 public/ai-interview 에 넣는다 */
 export function coachSrc(questions: string[]): string {
   const qs = new URLSearchParams();

@@ -5,6 +5,7 @@ import { JsonLdAll } from "@/components/json-ld";
 import { breadcrumb } from "@/lib/jsonld";
 import { AiTabs } from "./_ai-tabs";
 import { TwoPaths } from "./_two-paths";
+import { setIndex } from "@/lib/interview-sets";
 
 /** =========================================================================
  *  /interview/ai — AI 모의면접.
@@ -53,10 +54,10 @@ export default function Page() {
       <PromoSection
         eyebrow="AI 모의면접"
         title="두 가지로 연습하세요"
-        subtitle="말하기·태도 연습은 로그인 없이 바로, MMI 실전 모의면접은 로그인 후 쓸 수 있습니다. 둘 다 마이크 권한이 필요합니다."
+        subtitle="말하기·태도 연습은 학과·대학·전형을 고르면 그 대학이 공개한 기출로 연습합니다(로그인 없이). MMI 실전 모의면접은 로그인 후 쓸 수 있습니다. 둘 다 마이크 권한이 필요합니다."
       >
         <div id="coach" className="scroll-mt-24">
-          <AiTabs />
+          <AiTabs entries={setIndex()} />
         </div>
         <div className="mx-auto mt-8 grid max-w-5xl gap-6 lg:grid-cols-2">
           <NoteBox

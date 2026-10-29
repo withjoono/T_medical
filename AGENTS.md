@@ -211,7 +211,8 @@ Vite 앱과 다르다. Next 앱에는 마커 블록이 있는 `index.html` 이 �
 ```bash
 pnpm install
 pnpm dev -- -p 3023      # :3023  ← 포트 인자 필수 (package.json 에 없음)
-pnpm build               # next build → out/ (타입/린트 게이트 없음)
+pnpm build               # 면접 세트 생성 → next build → out/ (타입/린트 게이트 없음)
+pnpm sets                # 면접 세트 공개 파일만 다시 만들기 (public/interview-sets, 기출 데이터에서 생성 · gitignore)
 npx tsc --noEmit         # 타입 검사는 따로
 
 # 배포 — CI 가 없으므로 수동. target 을 반드시 명시, `--only hosting` 단독 금지.

@@ -37,3 +37,6 @@ next-env.d.ts
 
 # 면접 카드 이미지 생성 중간 산출물 (scripts/interview-og)
 .cache/
+
+# 면접 세트 공개 파일 — scripts/build-interview-sets.ts 가 빌드 때 만든다(원본은 lib/gichul-data)
+/public/interview-sets/

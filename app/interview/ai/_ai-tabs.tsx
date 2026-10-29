@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Camera, MessagesSquare } from "lucide-react";
 import { CoachFrame } from "./_coach-frame";
 import { MmiSim } from "./_mmi-sim";
+import type { PickerEntry } from "@/lib/interview-sets";
 
 /** /interview/ai 의 두 모드.
  *  - 말하기·태도: Interview 저장소 코치(iframe, 기기 안 분석, 로그인 없음)
@@ -15,7 +16,8 @@ const TABS = [
 ] as const;
 type TabKey = (typeof TABS)[number]["key"];
 
-export function AiTabs() {
+/** entries: 면접 세트 목록(lib/interview-sets.ts setIndex) — 말하기·태도 탭의 면접 고르기에 쓴다 */
+export function AiTabs({ entries }: { entries: PickerEntry[] }) {
   const [tab, setTab] = useState<TabKey>("coach");
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export function AiTabs() {
           );
         })}
       </div>
-      {tab === "coach" ? <CoachFrame /> : <MmiSim />}
+      {tab === "coach" ? <CoachFrame entries={entries} onMmi={() => pick("mmi")} /> : <MmiSim />}
     </div>
   );
 }
