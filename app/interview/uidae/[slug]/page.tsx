@@ -89,7 +89,9 @@ export async function generateMetadata({
   const first = tracks.find((t) => t.interview);
   const noInterview = u.hasInterview === false;
 
+  const search = u.interview?.search;
   const sentences = [
+    search?.lead ?? "",
     noInterview
       ? `${u.name} 2027학년도 수시는 면접을 실시하지 않습니다. 면접 대신 준비할 것을 정리했습니다.`
       : `${u.name} 2027학년도 수시 면접 안내.`,
@@ -101,9 +103,11 @@ export async function generateMetadata({
   const description = sentences.join(" ");
 
   // 실제 검색어는 "○○대 의대 면접" — 제목 앞머리에 그대로 둔다(2026-10-21 노출 점검).
-  const title = noInterview
-    ? `${u.short} 의대 면접 2027 — 면접 미실시 | T Medi`
-    : `${u.short} 의대 면접 2027 — 방식·일정·대비 | T Medi`;
+  const title =
+    search?.title ??
+    (noInterview
+      ? `${u.short} 의대 면접 2027 — 면접 미실시 | T Medi`
+      : `${u.short} 의대 면접 2027 — 방식·일정·대비 | T Medi`);
   const url = `/interview/uidae/${u.slug}`;
 
   return {
