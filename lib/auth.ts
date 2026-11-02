@@ -52,10 +52,14 @@ export async function exchangeSsoCode(ssoCode: string): Promise<{ token: string;
   };
 }
 
+/** 로그인·로그아웃을 같은 탭의 다른 화면(면접 시스템 등)에 알리는 이벤트 — storage 이벤트는 다른 탭에만 간다 */
+export const AUTH_EVENT = 'medical-auth';
+
 export function saveAuth(token: string, user: HubUser) {
   if (typeof window === 'undefined') return;
   localStorage.setItem('medical_token', token);
   localStorage.setItem('medical_user', JSON.stringify(user));
+  window.dispatchEvent(new Event(AUTH_EVENT));
 }
 
 export function loadAuth(): { token: string | null; user: HubUser | null } {
@@ -72,6 +76,7 @@ export function clearAuth() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem('medical_token');
   localStorage.removeItem('medical_user');
+  window.dispatchEvent(new Event(AUTH_EVENT));
 }
 
 export { HUB_URL, HUB_API_URL };

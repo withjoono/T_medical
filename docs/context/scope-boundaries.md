@@ -2,7 +2,7 @@
 name: scope-boundaries
 description: T메디 리포가 맡는 것과 다른 리포(Hub·T수시/Susi·Interview·Music_College·형제 앱)가 맡는 것의 경계 — 어디를 고쳐야 하는지
 type: project
-updated: 2026-10-25
+updated: 2026-11-02
 ---
 
 # 범위 경계 — 이건 이 리포에서 고치는가?
@@ -15,6 +15,8 @@ updated: 2026-10-25
 | 로그인(SSO) | Hub 백엔드 | 자체 로그인·DB·API 금지(AGENTS.md) |
 | 공통 위성앱 헤더 | `Music_College/packages/satellite-header` | 소스 복제 금지, `link:` 의존성([`satellite-header.md`](satellite-header.md)) |
 | AI 모의면접 엔진·빌드 | `Interview` 리포 (`tools/sync-coach-to-tmedi.mjs` → `public/ai-interview/`) | 산출물만 받는다(gitignore). iframe 주소 `lib/ai-interview.ts` |
+| 면접 시스템 서버(예약·수업 일정·선생님 연결·과제) | **Susi `susi-back`** (공용) — 나중에 Interview 로 분리 | 화면만 `features/interview-system/`. 서버를 만들지 않는다([`interview-system.md`](interview-system.md)) |
+| 선생님 과제 면접(제시문·예상문제 세트) | 공용 T면접 앱(tinterview.kr, Susi 빌드) | 링크로 보낸다 |
 | 생기부 기반 면접 예상문항 기능 | **T수시**(`Susi` 리포 — `Susi/docs/context/면접예상문항-구현.md`) | T메디에 넣지 않는다. 학생부 처리·법적 위험(초·중등교육법 제25조의2)·결제 보류 결정은 그쪽 문서 |
 | T수시 면접 수업 강사(문과 이수경 선생님 등) | T수시 | T메디 강사 SSOT(`lib/teachers.ts`)와 섞지 않는다 |
 | 형제 앱 공통 코드(auth 등) | Kwakiwon·Sakwan·T_Medi 각각 | 한 곳을 고치면 셋 다 확인([`sibling-apps-drift.md`](sibling-apps-drift.md)) |

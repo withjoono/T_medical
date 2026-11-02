@@ -77,6 +77,9 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/interview/suuidae", label: "수의대 면접" },
       { href: "/interview/chuseok", label: "추석/10월 연휴 면접", group: "시즌 특강" },
       { href: "/interview/ai", label: "AI 모의면접", group: "혼자 연습" },
+      // 면접 시스템(수시앱에서 가져옴) — 로그인 학생 화면. 검색에는 내지 않는다(noindex)
+      { href: "/interview/me", label: "내 면접 · 수업 일정", group: "내 수업" },
+      { href: "/interview/class", label: "면접 수업 예약", group: "내 수업" },
     ],
   },
   { href: "/tamgu", label: "탐구보고서" },

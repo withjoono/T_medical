@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   BotMessageSquare,
   Brain,
@@ -273,6 +274,12 @@ export default function InterviewHubPage() {
         subtitle="AI 모의면접이 반복을 맡으면 선생님 회차가 줄고 비용이 내려갑니다. 대치동 의대 MMI 특강은 6시간 180만원, 1:1 12시간은 240만원 선입니다. 저희는 1회 35만원이고, 3회를 미리 잡으시면 회당 2만원 싸집니다."
       >
         <PricePlans sessionLabel={SESSION_HOURS_LABEL} />
+        <p className="mt-8 text-center">
+          <Link href="/interview/class#booking" className="inline-flex items-center gap-2 bg-ink-900 px-6 py-3 text-[15px] font-semibold text-white hover:bg-ink-800">
+            계좌이체로 바로 예약하기
+          </Link>
+          <span className="mt-2 block text-[12.5px] text-ink-500">예약하면 「내 면접」에서 선생님 연결 · 수업 일정 · 과제를 이어 갑니다</span>
+        </p>
         <div className="mt-16">
           <ShareCard
             src="/og/concept/compare.png"

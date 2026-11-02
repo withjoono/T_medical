@@ -10,6 +10,7 @@
 | [`interview-2session-curriculum.md`](interview-2session-curriculum.md) | 선생님 2회 + AI 구조의 화면·문구·기능을 설계할 때 |
 | [`data-rules.md`](data-rules.md) | 입결·요강·면접 데이터를 추가·수정할 때 (실측만, 원천 위치, 필터, 분류 두 축) |
 | [`uiye-db-cleanup.md`](uiye-db-cleanup.md) | `lib/ipkyul/uiye.ts` 전형 행을 정리할 때 |
+| [`interview-system.md`](interview-system.md) | 내 면접·면접 수업 예약·선생님 연결·내 수업(수시앱에서 가져온 면접 시스템, 공용 서버)을 고칠 때 |
 | [`scope-boundaries.md`](scope-boundaries.md) | "이걸 이 리포에서 고치나?"가 애매할 때 (Hub·Susi·Interview·Music_College) |
 
 ## 운영·교훈

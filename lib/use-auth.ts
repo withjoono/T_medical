@@ -3,6 +3,12 @@
 import { useEffect, useState, useCallback } from "react"
 import { exchangeSsoCode, saveAuth, loadAuth, clearAuth, getLoginUrl, type HubUser } from "@/lib/auth"
 
+function withoutSsoCode(): string {
+  const url = new URL(window.location.href)
+  url.searchParams.delete("sso_code")
+  return url.pathname + url.search + url.hash
+}
+
 /**
  * Hub SSO 인증 상태를 관리하는 커스텀 훅
  */
@@ -33,14 +39,12 @@ export function useAuth() {
           saveAuth(token, ssoUser)
           setUser(ssoUser)
           setIsAuthenticated(true)
-          // URL에서 sso_code 제거
-          const newUrl = window.location.pathname
-          window.history.replaceState({}, document.title, newUrl)
+          // URL에서 sso_code 만 제거 — ?class=(선생님 초대)·?set= 같은 다른 값은 남긴다
+          window.history.replaceState({}, document.title, withoutSsoCode())
         })
         .catch(() => {
           // SSO 실패 시 URL 정리
-          const newUrl = window.location.pathname
-          window.history.replaceState({}, document.title, newUrl)
+          window.history.replaceState({}, document.title, withoutSsoCode())
         })
         .finally(() => setIsLoading(false))
     }
