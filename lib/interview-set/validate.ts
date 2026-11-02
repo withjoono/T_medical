@@ -6,7 +6,7 @@ import type { InterviewSet, SetEngine, SetIndexEntry, SetItem, SetSite } from '.
 const SITES: SetSite[] = ['medi', 'susi']
 const ENGINES: SetEngine[] = ['question', 'passage', 'mmi']
 const PICKS = ['student', 'random', 'order']
-const SOURCE_KINDS = ['기출', '대학 예시문항', '자체 제작']
+const SOURCE_KINDS = ['기출', '대학 예시문항', '자체 제작', '학생 입력']
 
 export type SetCheck = { ok: true; set: InterviewSet } | { ok: false; errors: string[] }
 
@@ -17,7 +17,7 @@ const isStrList = (v: unknown) => Array.isArray(v) && v.every((s) => typeof s ==
 
 /**
  * 세트 하나를 검사한다.
- * publicFile: 공개 파일(사이트 정적 경로·브라우저)로 쓸 세트 — 면접관 메모(memo)가 있으면 실패
+ * publicFile: 공개 파일(사이트 정적 경로·브라우저)로 쓸 세트 — 면접관 메모(memo)가 있거나 학생이 넣은 세트('학생 입력')면 실패
  */
 export function validateSet(x: unknown, opts: { publicFile?: boolean } = {}): SetCheck {
   const e: string[] = []
@@ -43,7 +43,11 @@ export function validateSet(x: unknown, opts: { publicFile?: boolean } = {}): Se
   const src = s.source
   if (!isObj(src) || !SOURCE_KINDS.includes(src.kind as string) || !isText(src.label)) {
     e.push(`source 는 { kind: ${SOURCE_KINDS.join('|')}, label } 이어야 한다`)
+  } else if (opts.publicFile && src.kind === '학생 입력') {
+    e.push("source.kind '학생 입력' — 학생이 넣은 기출은 공개 파일로 만들지 않는다")
   }
+
+  if (s.grading !== undefined) gradingErrors(s.grading).forEach((m) => e.push(m))
 
   const f = s.format
   const rooms = isObj(f) && Array.isArray(f.rooms) ? f.rooms : null
@@ -94,6 +98,28 @@ export function validateSet(x: unknown, opts: { publicFile?: boolean } = {}): Se
   }
 
   return e.length ? { ok: false, errors: e } : { ok: true, set: x as unknown as InterviewSet }
+}
+
+function gradingErrors(g: unknown): string[] {
+  const e: string[] = []
+  if (!isObj(g)) return ['grading 이 객체가 아니다']
+  const fs = Array.isArray(g.factors) ? g.factors : null
+  if (!fs?.length) e.push('grading.factors 가 비었다')
+  fs?.forEach((f, i) => {
+    const at = `grading.factors[${i}]`
+    if (!isObj(f)) return void e.push(`${at} 가 객체가 아니다`)
+    if (!isText(f.name)) e.push(`${at}.name 이 비었다`)
+    if (typeof f.weight !== 'number' || !(f.weight > 0) || f.weight > 100) e.push(`${at}.weight 는 0 초과 100 이하`)
+    if (f.looksAt !== undefined && typeof f.looksAt !== 'string') e.push(`${at}.looksAt 은 글`)
+  })
+  if (fs?.length && fs.every(isObj)) {
+    const sum = fs.reduce((n, f) => n + (typeof f.weight === 'number' ? f.weight : 0), 0)
+    if (Math.abs(sum - 100) > 0.5) e.push(`grading.factors 비중 합은 100 이어야 한다 (받은 값: ${sum})`)
+    if (fs.filter((f) => f.delivery === true).length > 1) e.push('grading.factors 의 delivery(면접 태도)는 하나까지')
+    if (fs.every((f) => f.delivery === true)) e.push('grading.factors 에 AI 가 채점할 요소(delivery 아님)가 없다')
+  }
+  if (g.rubricText !== undefined && typeof g.rubricText !== 'string') e.push('grading.rubricText 는 글')
+  return e
 }
 
 /** 면접관 메모가 들어 있나 */

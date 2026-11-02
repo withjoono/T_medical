@@ -22,7 +22,13 @@ export interface InterviewSet {
   engine: SetEngine
   format: SetFormat
   items: SetItem[]
-  source: { kind: '기출' | '대학 예시문항' | '자체 제작'; label: string; url?: string }
+  /**
+   * '학생 입력' = 학생이 입학처에서 직접 받아 온 기출을 넣어 만든 세트(그 학생의 그 회차에만 쓴다).
+   * 공개 파일·DB 에 저장하지 않는다 — validateSet(…, { publicFile: true }) 가 막는다.
+   */
+  source: { kind: SetSourceKind; label: string; url?: string }
+  /** 평가 요소·채점 기준 — 있으면 호스트의 evaluateSession 으로 세 문항을 함께 채점한다(engine 'passage') */
+  grading?: SetGrading
   /** 선생님 검수 전 초안 */
   draft?: boolean
   /** 제시문 원문 없이 요약만 있는 기출 세트 — 문제지 사진 올리기를 권한다 */
@@ -32,6 +38,29 @@ export interface InterviewSet {
   tips?: string[]
   /** 세트 공통 내용 평가 의도. 문항별 hint.intent 가 있으면 그쪽이 먼저 */
   evalIntent?: string
+}
+
+export type SetSourceKind = '기출' | '대학 예시문항' | '자체 제작' | '학생 입력'
+
+/** 채점 틀 — 평가 요소 이름·비중은 요강 그대로 */
+export interface SetGrading {
+  /** 비중 합은 100 */
+  factors: SetFactor[]
+  /**
+   * 채점 기준·문항 해설 글(학생이 올린 선행학습 영향평가 보고서의 문항카드 등).
+   * 면접 중에는 보이지 않고 채점에만 쓰며, 결과 화면에서 공개한다. 없으면 AI 가 문제만 보고 채점표를 만든다
+   */
+  rubricText?: string
+}
+
+export interface SetFactor {
+  name: string
+  /** 비중(%) */
+  weight: number
+  /** 「무엇을 보나」 — 요강에 설명이 없으면 우리 해석(화면에 그렇게 적는다) */
+  looksAt?: string
+  /** 기기 안 태도·발성 분석으로 매기는 요소(면접 태도). AI 채점에는 보내지 않는다 */
+  delivery?: boolean
 }
 
 export interface SetTarget {
@@ -125,7 +154,7 @@ export interface SetIndexEntry {
   target: SetTarget
   title: string
   engine: SetEngine
-  sourceKind: InterviewSet['source']['kind']
+  sourceKind: SetSourceKind
   draft?: boolean
   items: number
   /** 공개 파일 경로(같은 출처) */
