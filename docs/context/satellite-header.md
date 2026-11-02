@@ -14,7 +14,11 @@
 CI는 더 이상 Music_College를 체크아웃하지 않는다(`SATELLITE_HEADER_TOKEN` 불필요).
 대신 설치 단계에 리포 Secret **`NODE_AUTH_TOKEN`**(read:packages PAT, Hub·geobuk-shared 와 같은 값)이 필요하다.
 배포에는 `FIREBASE_TOKEN`도 필요하다. 2026-10-29 기준 이 리포에는 Secret이 하나도 없어 CI 는 43회 전부 실패했다.
-또 `public/ai-interview/` 는 gitignore 대상이라 CI 에 없고, `scripts/check-ai-interview.mjs` 가 빌드를 멈춘다.
+또 `public/ai-interview/` 는 gitignore 대상(약 70MB)이라 CI 에 없다. 2026-11-02 부터 빌드가
+`public/ai-interview/manifest.json`(파일·크기·sha256)을 함께 배포하고, CI 는 빌드 전에
+`scripts/fetch-ai-interview.mjs` 로 **지금 tmedi.kr 에서 서비스 중인 파일**을 그 목록대로 받아 다시 올린다.
+→ AI 모의면접을 바꾸는 건 여전히 PC(Interview `tools/sync-coach-to-tmedi.mjs` → 빌드·수동 배포)에서 한다.
+CI 는 서비스 중인 것을 유지할 뿐이다. 실서비스에 manifest 가 없으면 CI 빌드가 멈추므로, 처음 한 번은 PC 에서 수동 배포해야 한다.
 자격증명을 임의로 생성하거나 다른 앱의 운영 브랜치를 변경하지 않는다.
 
 외부 연결 주소는 T음대 앱 레지스트리와 대조했고 공개 주소 11개에 HTTP 200을 확인했다.
