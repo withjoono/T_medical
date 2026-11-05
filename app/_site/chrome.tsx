@@ -60,7 +60,16 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/ipkyul/yakhak", label: "약학과 입결", group: "입결" },
     ],
   },
-  { href: "/uidae-class", label: "의대 진학반" },
+  {
+    href: "/uidae-consulting",
+    label: "컨설팅",
+    // 관리형 상품 묶음. 첫 줄이 드롭다운의 진입로(부모 label 은 버튼이 된다)
+    children: [
+      { href: "/uidae-consulting", label: "고1·고2 의대 컨설팅" },
+      { href: "/uidae-class", label: "의대 진학반" },
+      { href: "/tamgu", label: "탐구보고서 컨설팅" },
+    ],
+  },
   {
     href: "/interview",
     label: "면접",
@@ -82,7 +91,6 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/interview/class", label: "면접 수업 예약", group: "내 수업" },
     ],
   },
-  { href: "/tamgu", label: "탐구보고서" },
   { href: "/guide", label: "사용법" },
   { href: "/blog", label: "블로그" },
 ];
@@ -116,6 +124,7 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
       heading: "수업 · 자료",
       links: [
         { href: "/ipkyul", label: "입시결과" },
+        { href: "/uidae-consulting", label: "고1·고2 의대 컨설팅" },
   { href: "/uidae-class", label: "의대 진학반" },
         { href: "/interview", label: "의약학 면접 수업 안내" },
         { href: "/interview/uidae", label: "의대 면접 대비" },
