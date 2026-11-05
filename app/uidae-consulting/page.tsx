@@ -60,7 +60,7 @@ import {
 
 const { months, plannerCheck } = UIDAE_CONSULTING;
 
-const DESCRIPTION = `생기부만 봐주는 컨설팅이 아닙니다. 담당 선생님 한 명이 생기부 컨설팅부터 학습 플래너 ${plannerCheck} 검사, 생기북 앱 내신 성적관리, 모고 앱 모의고사 관리까지 ${months}개월 동안 직접 관리합니다. 고1·고2 대상, ${UIDAE_CONSULTING_PERIOD} ${UIDAE_CONSULTING_PRICE}.`;
+const DESCRIPTION = `생기부만 봐주는 컨설팅이 아닙니다. 담당 선생님 한 명이 ${UIDAE_CONSULTING_SESSIONS}부터 학습 플래너 ${plannerCheck} 검사, 생기북 앱 내신 성적관리, 모고 앱 모의고사 관리까지 ${months}개월 동안 직접 관리합니다. 고1·고2 대상, ${UIDAE_CONSULTING_PERIOD} ${UIDAE_CONSULTING_PRICE}.`;
 
 export const metadata: Metadata = {
   alternates: { canonical: UIDAE_CONSULTING_PATH },
@@ -290,7 +290,7 @@ export default function UidaeConsultingPage() {
         Icon={Stethoscope}
         stats={[
           { icon: CalendarDays, label: `${UIDAE_CONSULTING_PERIOD} 관리` },
-          { icon: FileText, label: "생기부 컨설팅" },
+          { icon: FileText, label: UIDAE_CONSULTING_SESSIONS },
           { icon: ClipboardList, label: `플래너 ${plannerCheck} 검사` },
           { icon: LineChart, label: "내신 · 모의고사 관리" },
         ]}
