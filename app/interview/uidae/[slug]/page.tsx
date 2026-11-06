@@ -34,13 +34,7 @@ import {
   InterviewDates,
 } from "@/app/univ/_univ";
 import { UNIV_PAGES, getUnivPage, quotaByType } from "@/lib/univ";
-import {
-  BookingBoard,
-  LeakageNotice,
-  ScheduleCalendar,
-  TeacherCards,
-  Timetable,
-} from "@/app/univ/_booking";
+import { TeacherCards } from "@/app/univ/_booking";
 import { CrossFieldLinks, FieldClassLine } from "../../_crossfield";
 import { WaitCalendar } from "../../_wait-calendar";
 import { crossFieldLinks } from "@/lib/field-crosslinks";
@@ -49,9 +43,6 @@ import { article, breadcrumb, course } from "@/lib/jsonld";
 import {
   formatKo,
   getUniv as getMmiUniv,
-  summarize,
-  TUITION,
-  univDays,
   UNIV_TEACHER_GROUPS,
   classPlanFor,
   minutesLabel,
@@ -158,7 +149,6 @@ export default async function UidaeInterviewUnivPage({
   const noInterview = u.hasInterview === false;
   /** 특강 일정·예약 블록은 mmi-schedule SSOT 에 데이터가 있는 대학만 렌더한다. */
   const mmiUniv = u.hasClassPage ? getMmiUniv(u.slug) : undefined;
-  const booking = mmiUniv ? summarize(univDays(mmiUniv)) : undefined;
   const unverified = u.confidence === "low";
 
   const interviewDays = [
@@ -447,50 +437,6 @@ export default async function UidaeInterviewUnivPage({
         </PromoSection>
       )}
 
-      {/* ===== 이어보기 ===== */}
-      {mmiUniv && booking && (
-        <>
-          <PromoSection
-            eyebrow="CALENDAR"
-            EyebrowIcon={CalendarDays}
-            title="수업 캘린더"
-            subtitle="1차 발표일부터 면접 전날까지 열려 있는 자리입니다. 숫자는 그 날의 잔여 회차입니다."
-            tone="muted"
-          >
-            <ScheduleCalendar univ={mmiUniv} />
-          </PromoSection>
-
-          <PromoSection
-            eyebrow="AVAILABILITY"
-            EyebrowIcon={Clock}
-            title="예약 현황"
-            subtitle={`${u.short} 구간 전체 ${booking.total}회 중 ${
-              booking.booked + booking.waitlist
-            }회가 찼습니다. 남은 자리는 아래와 같습니다.`}
-          >
-            <BookingBoard univ={mmiUniv} />
-          </PromoSection>
-
-          <PromoSection
-            eyebrow="TIMETABLE"
-            EyebrowIcon={ListChecks}
-            title="수업 일정표"
-            subtitle="세로가 타임, 가로가 날짜입니다. 칸 안의 표시가 강사별 예약 상태입니다."
-            tone="muted"
-          >
-            <Timetable univ={mmiUniv} />
-          </PromoSection>
-
-          <PromoSection
-            eyebrow="WAITLIST"
-            EyebrowIcon={Repeat}
-            title="1차 불합격으로 풀리는 자리"
-          >
-              <LeakageNotice univ={mmiUniv} />
-          </PromoSection>
-        </>
-      )}
-
       {/* 수업 띠는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다(예약 보드만
           mmiUniv 에 걸려 있다). ⚠️ 여기에 ClassCtaBand 같은 큰 공통 블록을 되돌리지 말 것 —
           같은 문단이 39개 의대 페이지에 박혀 2026-10-24 에 걷어낸 중복이 되살아난다.
@@ -513,8 +459,8 @@ export default async function UidaeInterviewUnivPage({
         </PromoSection>
       )}
 
-      {/* 예약 현황 달력 — MMI 특강 블록(mmiUniv)이 없는 대학. 내용은 클라이언트에서 오늘 기준으로 그린다 */}
-      {!noInterview && !mmiUniv && (
+      {/* 예약 안내 달력 — 모든 면접 대학에서 한 번만 표시. 내용은 클라이언트에서 오늘 기준으로 그린다 */}
+      {!noInterview && (
         <PromoSection eyebrow="BOOKING" EyebrowIcon={CalendarDays} title="면접 수업 예약 현황">
           <WaitCalendar univShort={u.short} interviewDays={interviewDays} />
         </PromoSection>

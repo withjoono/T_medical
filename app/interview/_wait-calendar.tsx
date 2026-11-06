@@ -4,21 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-/** =========================================================================
- *  대학 면접 페이지 하단 — 예약 현황 달력(대기 접수 안내).
- *
- *  2026-11-06 사용자 지시: "캘린더 형식으로 예약 현황 · 거의 다 차가고 있고,
- *  대기로 걸어 놓으면 빠진 시간에 들어간다고." 실제 예약 장부와 연동하지 않는
- *  안내용 달력이다(사용자 확인: "대기가 거의 차 있다는 것만 보여주면 돼").
- *
- *  ⚠️ 클라이언트에서만 그린다(마운트 후). 이유 두 가지:
- *   1. 오늘 날짜 기준으로 그려야 한다 — 빌드 날짜로 구우면 배포 뒤 며칠만 지나도
- *      지난 날짜에 '마감'이 찍힌 달력이 남는다.
- *   2. 190여 개 대학 페이지 HTML 에 같은 달력 마크업·문구가 박히면
- *      2026-10-24 에 걷어낸 본문 중복이 되살아난다(_class-modal.tsx 와 같은 원칙).
- *  날짜별 상태는 날짜 문자열 해시로 정한다 — 같은 날은 어느 대학 페이지에서도 같다.
- *  ========================================================================= */
-
+/** 면접일과 대기 접수 안내. 날짜별 예약 수는 생성하지 않는다. */
 const DOW = ["일", "월", "화", "수", "목", "금", "토"];
 
 function iso(d: Date) {
@@ -35,32 +21,6 @@ function addDays(s: string, n: number) {
   d.setDate(d.getDate() + n);
   return iso(d);
 }
-/** FNV-1a + murmur3 fmix → 0~1 */
-function hash01(s: string) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  // 끝 글자만 다른 날짜 문자열은 FNV 만으로는 잘 안 섞인다 — murmur3 마무리 섞기
-  h ^= h >>> 16;
-  h = Math.imul(h, 0x85ebca6b);
-  h ^= h >>> 13;
-  h = Math.imul(h, 0xc2b2ae35);
-  h ^= h >>> 16;
-  return (h >>> 0) / 0xffffffff;
-}
-
-type DayState = "full" | "waitFull" | "last";
-
-/** 거의 다 찬 상태: 대부분 '마감·대기 n', 일부 '대기 마감', 드물게 '1자리' */
-function stateOf(date: string): { state: DayState; wait: number } {
-  const r = hash01(`medi-wait|${date}`);
-  if (r < 0.06) return { state: "last", wait: 0 };
-  if (r < 0.38) return { state: "waitFull", wait: 3 };
-  return { state: "full", wait: 1 + Math.floor(hash01(`medi-wait-n|${date}`) * 2) };
-}
-
 function monthsBetween(start: string, end: string) {
   const s = fromIso(start);
   const e = fromIso(end);
@@ -78,7 +38,7 @@ function monthsBetween(start: string, end: string) {
 
 export function WaitCalendar({ univShort, interviewDays }: { univShort: string; interviewDays: string[] }) {
   const [today, setToday] = useState<string | null>(null);
-  useEffect(() => setToday(iso(new Date())), []);
+  useEffect(() => setToday(new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date())), []);
 
   if (!today) return <div className="min-h-[420px]" aria-hidden />;
 
@@ -97,7 +57,7 @@ export function WaitCalendar({ univShort, interviewDays }: { univShort: string; 
             : "앞으로 4주 수업 자리가 거의 다 찼습니다"}
         </p>
         <p className="mt-2 text-[13.5px] font-light leading-[1.8] text-ink-600">
-          마감된 날도 <strong className="font-semibold text-ink-900">대기를 걸어 두시면</strong>, 취소나 1차 불합격으로
+          원하는 일정에 <strong className="font-semibold text-ink-900">대기를 걸어 두시면</strong>, 1단계 결과나 수능최저 충족 여부에 따른 취소로
           빠진 시간에 대기 순서대로 들어갑니다. 대기 접수는 무료이고, 자리가 확정된 뒤에 결제합니다.
         </p>
       </div>
@@ -133,22 +93,8 @@ export function WaitCalendar({ univShort, interviewDays }: { univShort: string; 
                     label = <span className="font-semibold text-jade-700">면접</span>;
                     tone = "bg-jade-50";
                   } else if (inRange) {
-                    const s = stateOf(d);
-                    if (s.state === "last") {
-                      label = <span className="font-semibold text-brass-600">1자리</span>;
-                      tone = "bg-brass-300/10";
-                    } else if (s.state === "waitFull") {
-                      label = <span className="text-ink-500">대기 마감</span>;
-                      tone = "bg-paper-200";
-                    } else {
-                      label = (
-                        <>
-                          <span className="text-ink-500">마감</span>
-                          <span className="block text-rose-600">대기 {s.wait}</span>
-                        </>
-                      );
-                      tone = "bg-paper-100";
-                    }
+                    label = <span className="text-ink-500">대기 문의</span>;
+                    tone = "bg-paper-100";
                   }
                   return (
                     <div key={d} className={`min-h-[58px] border-b border-r border-hair px-1 py-1.5 text-[10.5px] leading-tight ${tone}`}>
@@ -163,24 +109,7 @@ export function WaitCalendar({ univShort, interviewDays }: { univShort: string; 
         })}
       </div>
 
-      <div className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[12px] font-light text-ink-500">
-        <span>
-          <i className="mr-1.5 inline-block h-2.5 w-2.5 bg-paper-100 align-middle ring-1 ring-hair" />
-          마감 · 대기 n = 앞선 대기 인원
-        </span>
-        <span>
-          <i className="mr-1.5 inline-block h-2.5 w-2.5 bg-paper-200 align-middle ring-1 ring-hair" />
-          대기 마감
-        </span>
-        <span>
-          <i className="mr-1.5 inline-block h-2.5 w-2.5 bg-brass-300/30 align-middle ring-1 ring-hair" />
-          남은 자리
-        </span>
-        <span>
-          <i className="mr-1.5 inline-block h-2.5 w-2.5 bg-jade-50 align-middle ring-1 ring-hair" />
-          면접일
-        </span>
-      </div>
+      <p className="mt-5 text-center text-[12px] leading-relaxed text-ink-500">면접일은 초록색으로 표시됩니다. 달력은 대기 접수 기간 안내이며, 날짜별 예약 가능 시간은 상담 후 확인됩니다.</p>
 
       <div className="mt-8 text-center">
         <Link
