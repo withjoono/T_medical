@@ -42,6 +42,7 @@ import {
   Timetable,
 } from "@/app/univ/_booking";
 import { CrossFieldLinks, FieldClassLine } from "../../_crossfield";
+import { WaitCalendar } from "../../_wait-calendar";
 import { crossFieldLinks } from "@/lib/field-crosslinks";
 import { JsonLdAll } from "@/components/json-ld";
 import { article, breadcrumb, course } from "@/lib/jsonld";
@@ -509,6 +510,13 @@ export default async function UidaeInterviewUnivPage({
           subtitle={`${u.short}에 함께 지원한다면 — 치·한·약·수 면접은 방식과 날짜가 의예과와 다릅니다.`}
         >
           <CrossFieldLinks links={cross} mine={interviewDays[0] ?? null} univShort={u.short} />
+        </PromoSection>
+      )}
+
+      {/* 예약 현황 달력 — MMI 특강 블록(mmiUniv)이 없는 대학. 내용은 클라이언트에서 오늘 기준으로 그린다 */}
+      {!noInterview && !mmiUniv && (
+        <PromoSection eyebrow="BOOKING" EyebrowIcon={CalendarDays} title="면접 수업 예약 현황">
+          <WaitCalendar univShort={u.short} interviewDays={interviewDays} />
         </PromoSection>
       )}
 

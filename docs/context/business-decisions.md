@@ -73,3 +73,9 @@ SSOT: **`lib/teachers.ts`** (프로필 `TEACHER_PROFILES`, 계열 배정 `FIELD_
 - 구현 원칙: T수시 면접과 **같은 부분은 하나만 구현해 두 곳에 붙이고**, 다른 부분만 따로 만든다.
 - 선생님 수업이 함께 붙으므로 AI는 **도움 되는 부분만** 구현한다. AI는 '자연스러움'을 점수화하지 않는다.
 - 빌드 산출물은 `Interview` 저장소의 `tools/sync-coach-to-tmedi.mjs` 가 `public/ai-interview/` 에 넣는다(gitignore, 약 70MB). iframe 주소는 `lib/ai-interview.ts`.
+
+## 예약 현황 달력 (2026-11-06)
+
+- 사용자 지시: 각 대학 면접 페이지 하단에 달력 형식 예약 현황 — "거의 다 차가고 있고, 대기로 걸어 놓으면 빠진 시간에 들어간다". 실제 예약 장부와 연동하지 않는 안내용 달력이다(사용자 확인).
+- MMI 특강 블록이 없는 의대 페이지 + 치·한·약·수 페이지: `app/interview/_wait-calendar.tsx`(클라이언트 렌더, 오늘~마지막 면접일, 날짜 해시로 마감·대기 n·대기 마감·1자리). 면접 미실시 대학은 안 띄운다.
+- MMI 특강 블록이 있는 15개 의대 페이지: 기존 캘린더·예약 현황 유지, 충원율만 70~80% → 88~96%(`lib/mmi-schedule.ts slotsForDate`).

@@ -354,8 +354,9 @@ export function slotsForDate(date: string): Slot[] {
     })),
   );
 
-  // 충원율 70~80% 구간에서 날짜별로 결정적으로 정해진다.
-  const rate = 0.7 + Math.round(hash01(`fill|${date}`) * 10) / 100;
+  // 충원율 88~96% 구간에서 날짜별로 결정적으로 정해진다.
+  // (2026-11-06 사용자 지시 "거의 다 차가고 있다" — 이전 70~80%)
+  const rate = 0.88 + Math.round(hash01(`fill|${date}`) * 8) / 100;
   const filledCount = Math.round(base.length * rate);
   const filled = new Set(
     [...base].sort((a, b) => a.rank - b.rank).slice(0, filledCount).map((s) => s.key),

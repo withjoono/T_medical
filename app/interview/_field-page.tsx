@@ -22,6 +22,7 @@ import {
   SourceNote,
 } from "../_site/components";
 import { CrossFieldLinks, FieldClassLine, FieldPeerFacts } from "./_crossfield";
+import { WaitCalendar } from "./_wait-calendar";
 import { profile, teachersForField, type FieldTeacherKey } from "@/lib/teachers";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
 import { gachonGichulFor } from "@/lib/gachon-gichul";
@@ -333,6 +334,16 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
           title={`${meta.label} — 다른 ${field.short}`}
         >
           <FieldSiblings field={field} univs={siblings} label={meta.label} />
+        </PromoSection>
+      )}
+
+      {/* 예약 현황 달력 — 내용은 클라이언트에서 오늘 기준으로 그린다(_wait-calendar.tsx) */}
+      {!none && (
+        <PromoSection eyebrow="BOOKING" EyebrowIcon={CalendarDays} title="면접 수업 예약 현황" tone="muted">
+          <WaitCalendar
+            univShort={u.short}
+            interviewDays={[...new Set(iv.map((t) => t.date).filter((d): d is string => Boolean(d)))]}
+          />
         </PromoSection>
       )}
 
