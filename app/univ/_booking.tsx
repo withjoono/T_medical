@@ -488,7 +488,7 @@ export function BookingBoard({ univ }: { univ: Univ }) {
       </div>
 
       <p className="mt-6 text-center text-xs font-light leading-[1.8] text-ink-400">
-        {formatKo(days[0])} 기준으로 집계한 값입니다. 날짜·타임별 잔여는 아래 수업 일정표에서 확인하세요.
+        날짜·타임별 잔여는 아래 수업 일정표에서 확인하세요. 마감된 시간도 대기를 걸어 두시면, 취소나 1차 불합격으로 빠진 시간에 대기 순서대로 들어갑니다.
       </p>
     </div>
   );
