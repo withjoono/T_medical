@@ -17,6 +17,7 @@ import {
   Target,
   Users,
   Building2,
+  Stethoscope,
 } from "lucide-react";
 import {
   PromoHero,
@@ -34,8 +35,8 @@ import {
   InterviewDates,
 } from "@/app/univ/_univ";
 import { UNIV_PAGES, getUnivPage, quotaByType } from "@/lib/univ";
-import { TeacherCards } from "@/app/univ/_booking";
-import { CrossFieldLinks, FieldClassLine } from "../../_crossfield";
+import { CrossFieldLinks } from "../../_crossfield";
+import { ClassStory } from "../../_class-story";
 import { WaitCalendar } from "../../_wait-calendar";
 import { crossFieldLinks } from "@/lib/field-crosslinks";
 import { JsonLdAll } from "@/components/json-ld";
@@ -43,13 +44,12 @@ import { article, breadcrumb, course } from "@/lib/jsonld";
 import {
   formatKo,
   getUniv as getMmiUniv,
-  UNIV_TEACHER_GROUPS,
   classPlanFor,
   minutesLabel,
 } from "@/lib/mmi-schedule";
-import { teachersForField } from "@/lib/teachers";
+import { profile, teachersForField } from "@/lib/teachers";
 import { univTeacherKeys } from "@/lib/interview-types";
-import { GACHON_CONCEPT, gachonGichulFor } from "@/lib/gachon-gichul";
+import { gachonGichulFor } from "@/lib/gachon-gichul";
 import { GachonGichul } from "../../_gichul";
 import { univGichulFor } from "@/lib/univ-gichul";
 import { UnivGichulBlock } from "../../_univ-gichul";
@@ -184,6 +184,9 @@ export default async function UidaeInterviewUnivPage({
   ]
     .filter(Boolean)
     .join(" · ");
+  /** 수업 섹션(ClassStory)에 넘길 담당 선생님 — 대학별 지정(plan.teacherIds)이 있으면 그것 */
+  const storyTeacherIds = plan.teacherIds ?? classTeachers.map((t) => t.id);
+  const hasDoctor = storyTeacherIds.some((id) => profile(id)?.doctor);
 
   const stats = [
     u.admission
@@ -221,7 +224,7 @@ export default async function UidaeInterviewUnivPage({
               noInterview ? "면접 미실시" : iv?.styleLabel ?? "면접 실시"
             }.`,
           }),
-          // 가격은 본문 띠(FieldClassLine)에 실제로 보이므로 마크업한다
+          // 가격은 본문 수업 섹션(ClassStory, #class)에 실제로 보이므로 마크업한다
           // (안 보이는 것을 넣지 않는 규칙 — lib/jsonld.ts 머리말).
           ...(noInterview
             ? []
@@ -253,8 +256,8 @@ export default async function UidaeInterviewUnivPage({
           iv?.lede ??
           `${u.name}의 2027학년도 수시 면접을 정리했습니다. 면접 방식과 일정, 이 대학을 겨냥한 대비 포인트를 확인하세요.`
         }
-        primaryHref="#contact"
-        primaryLabel={`${u.short} 면접 수업 문의`}
+        primaryHref={noInterview ? "#contact" : "#class"}
+        primaryLabel={noInterview ? `${u.short} 면접 수업 문의` : `${u.short} 면접 수업 안내`}
         secondaryHref={`/univ/${u.slug}`}
         secondaryLabel="전형 안내 보기"
         Icon={MessagesSquare}
@@ -377,37 +380,32 @@ export default async function UidaeInterviewUnivPage({
                   "면접 준비에 쓸 시간을 최저 과목과 생기부 마무리에 재배치한다.",
                 ]}
               />
-            ) : (
-              <div className="mx-auto max-w-3xl border border-hair-strong bg-paper-50 p-8 text-center">
-                <p className="eyebrow text-brass-600">면접 수업</p>
-                <h3 className="display mt-4 text-[1.375rem] leading-snug text-ink-900">
-                  {u.short} 면접은 1:1 맞춤 편성으로 진행합니다
-                </h3>
-                <p className="mt-3 text-[14px] font-light leading-[1.85] text-ink-500">
-                  이 대학은 정규 특강반이 아니라, 1단계 발표일과 면접일에 맞춰 개별 일정으로 편성합니다.
-                  위 훈련 포인트를 기준으로 커리큘럼을 짜고 모의면접을 반복합니다. 편성 가능 일정은 상담에서
-                  확인해 주세요.
-                </p>
-                <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-                  <Link
-                    href="#contact"
-                    className="inline-flex items-center gap-2 border border-ink bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-800"
-                  >
-                    <MessagesSquare className="h-4 w-4" strokeWidth={1.75} />
-                    {u.short} 면접 수업 문의
-                  </Link>
-                  <Link
-                    href="/interview"
-                    className="inline-flex items-center gap-2 border border-hair-strong px-6 py-3 text-sm font-medium text-ink-700 transition-colors hover:border-ink"
-                  >
-                    면접 수업 전체 보기
-                  </Link>
-                </div>
-              </div>
-            )}
+            ) : null}
           </div>
         ) : null}
       </PromoSection>
+
+      {/* ===== T메디 수업 — 왜 다른가 · 강사 · 절차 · 수업료 · 상담 (2026-11-07) =====
+          제목·부제만 대학마다 다르게 서버에서 그리고, 공통 본문은 ClassStory 가 마운트 뒤에 그린다
+          (정적 HTML 에 같은 본문이 39개 깔리지 않게 — app/interview/_class-story.tsx 머리말). */}
+      {!noInterview && (
+        <div id="class" className="scroll-mt-32">
+          <PromoSection
+            eyebrow="T메디 수업"
+            EyebrowIcon={Stethoscope}
+            title={`${u.short} 면접, T메디는 이렇게 준비합니다`}
+            subtitle={`${classContext ? `${classContext}. ` : ""}${hasDoctor ? "현직 의사 선생님" : "담당 선생님"} · 줌 1:1 · 1회 ${plan.priceLabel}`}
+            tone="muted"
+          >
+            <ClassStory
+              univShort={u.short}
+              format={iv?.styleLabel ?? null}
+              plan={plan}
+              teacherIds={storyTeacherIds}
+            />
+          </PromoSection>
+        </div>
+      )}
 
       {/* 수업 회차 구성 — 고려대·가천대처럼 교과 기반 면접이라 회차가 정해진 대학만(lib/class-curriculum.ts) */}
       {!noInterview && <ClassCurriculum path={`/interview/uidae/${u.slug}`} />}
@@ -416,37 +414,6 @@ export default async function UidaeInterviewUnivPage({
           같은 대학의 여러 계열 페이지가 겹치지 않게 나눠 싣는다 ===== */}
       {gichul && <GachonGichul page={gichul} />}
       {univGichul && <UnivGichulBlock u={univGichul.u} field={univGichul.field} />}
-
-      {/* ===== 담당 강사 — 의대 출신 두 분 + (제시문 면접이면) 제시문 전담 =====
-          약력(detailed)은 켜지 않는다. 39개 대학 페이지에 같은 약력이 깔리면
-          2026-10-24 에 걷어낸 본문 중복이 그대로 되살아난다 — /interview 로 보낸다. */}
-      {!noInterview && teacherKeys.length > 0 && (
-        <PromoSection
-          eyebrow="INSTRUCTOR"
-          EyebrowIcon={Users}
-          title="담당 강사"
-          subtitle={
-            gichul === "uidae"
-              ? GACHON_CONCEPT.teacherLine(u.short)
-              : teacherKeys.includes("jesimun")
-              ? `${u.short} 면접은 제시문 면접이라, 의대 출신 두 분과 제시문 전담 박은우 선생님이 나눠 맡습니다. 약력과 수업 방식은 아래 수업 안내에서 펼쳐 보실 수 있습니다.`
-              : `${u.short} 면접은 의대 출신 류지연·이세인 선생님이 맡습니다. 약력과 수업 방식은 아래 수업 안내에서 펼쳐 보실 수 있습니다.`
-          }
-        >
-          <TeacherCards teachers={teacherKeys.flatMap((k) => UNIV_TEACHER_GROUPS[k])} />
-        </PromoSection>
-      )}
-
-      {/* 수업 띠는 MMI 특강 개설 여부와 무관하게 모든 대학 페이지에 깔린다(예약 보드만
-          mmiUniv 에 걸려 있다). ⚠️ 여기에 ClassCtaBand 같은 큰 공통 블록을 되돌리지 말 것 —
-          같은 문단이 39개 의대 페이지에 박혀 2026-10-24 에 걷어낸 중복이 되살아난다.
-          절차·강사 학력·가격 상세는 팝업과 /interview 가 맡는다. */}
-      <FieldClassLine
-        plan={plan}
-        subject={noInterview ? "의대 면접" : `${u.short} 의예과 면접`}
-        teachers={classTeachers}
-        context={noInterview ? undefined : classContext}
-      />
 
       {cross.length > 0 && (
         <PromoSection

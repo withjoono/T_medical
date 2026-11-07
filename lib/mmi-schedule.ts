@@ -144,6 +144,7 @@ export type TeacherCard = {
   halfPhoto?: string;
   facing?: "left" | "right";
   career?: readonly string[];
+  doctor?: boolean;
 };
 
 /** =========================================================================
@@ -250,6 +251,19 @@ export const TUITION = {
     fairness:
       "할인받은 만큼을 다시 물리지 않습니다 — 정가 35만원이 아니라 할인가 33만원으로 뺍니다.",
   },
+} as const;
+
+/** 학원 수업료 비교 — 공개 보도로 확인한 값만 싣는다(2026-10-28 시세 조사,
+ *  프로젝트 문서 claude/interview-price-benchmark-2026-10-28.md).
+ *  학원 이름은 보도도 익명이라 지역명만 쓴다. 시간(6·12시간)을 반드시 함께 적는다 —
+ *  총액만 비교하면 나중에 분쟁이 생긴다.
+ *  ⚠️ 우리 쪽 시간당 환산 단가는 화면에 내지 않는다(사용자 지시, 2026-10-29). */
+export const PRICE_BENCHMARK = {
+  source: "문화일보 2026년 9월 23일 보도",
+  rows: [
+    { label: "개포동 학원 1:1 MMI", hours: "12시간", price: 2400000, priceLabel: "240만원" },
+    { label: "대치동 학원 MMI 특강", hours: "6시간", price: 1800000, priceLabel: "180만원" },
+  ],
 } as const;
 
 /** 3회 선결제 후 n회 수강했을 때 돌려받는 금액. */

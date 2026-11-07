@@ -1,4 +1,5 @@
 import { Footer } from "@/components/footer";
+import { CONTACT_PHONE, CONTACT_TEL } from "@/lib/contact";
 import Link from "next/link";
 import { MediHeader } from "./medi-header";
 import { Phone, Mail, LucideIcon } from "lucide-react";
@@ -171,7 +172,7 @@ export function SiteChrome({
               <h2>당신의 가능성에서<br />상담을 시작합니다.</h2>
               <p>목표 계열과 지금의 고민을 들려주세요.<br />어디서부터 준비할지 함께 정리하겠습니다.</p>
             </div>
-            <a href="tel:010-2518-7139" aria-label="010-2518-7139 전화 상담"><Phone size={22} strokeWidth={1.25} />010-2518-7139</a>
+            <a href={CONTACT_TEL} aria-label={`${CONTACT_PHONE} 전화 상담`}><Phone size={22} strokeWidth={1.25} />{CONTACT_PHONE}</a>
           </div>
           <nav aria-label="의약학 안내" className="grid gap-8 sm:grid-cols-3">
             {FOOTER_COLUMNS.map((column) => <div key={column.heading}>
@@ -181,7 +182,7 @@ export function SiteChrome({
           </nav>
           <div className="mt-8 flex flex-wrap items-center gap-6 border-t pt-6 text-sm">
             <h2 className="font-semibold">상담 문의</h2>
-            <a href="tel:010-2518-7139" className="inline-flex items-center gap-2"><Phone className="h-4 w-4" />010-2518-7139</a>
+            <a href={CONTACT_TEL} className="inline-flex items-center gap-2"><Phone className="h-4 w-4" />{CONTACT_PHONE}</a>
             <a href="mailto:withjuno@naver.com" className="inline-flex items-center gap-2"><Mail className="h-4 w-4" />withjuno@naver.com</a>
           </div>
         </div>

@@ -628,7 +628,7 @@ export const CLASS_FEATURES: { icon: LucideIcon; title: string; body: string }[]
     icon: GraduationCap,
     title: "그 분야 전문 선생님이 수업합니다",
     body:
-      "제시문 면접은 박은우 선생님, 그 밖의 면접(인성·서류 기반·MMI)은 이화여대 의대 출신 이세인 선생님이 맡습니다. 의대·치대·한의대·약대·수의대 모두 같은 기준입니다.",
+      "제시문 면접은 박은우 선생님, 그 밖의 면접(인성·서류 기반·MMI)은 현직 의사 선생님이 맡습니다. 의대·치대·한의대·약대·수의대 모두 같은 기준입니다.",
   },
   {
     icon: MonitorPlay,

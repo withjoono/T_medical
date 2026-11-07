@@ -6,12 +6,13 @@
 import {
   AI_IN_CLASS,
   AI_TIERS,
+  PRICE_BENCHMARK,
   REFUND_EXAMPLES,
   SESSION_MINUTES,
   TUITION,
 } from "./mmi-schedule";
 
-export { AI_TIERS, AI_IN_CLASS, REFUND_EXAMPLES, TUITION };
+export { AI_TIERS, AI_IN_CLASS, PRICE_BENCHMARK, REFUND_EXAMPLES, TUITION };
 export type { ClassPlan } from "./mmi-schedule";
 
 /** 1회 결제가 */

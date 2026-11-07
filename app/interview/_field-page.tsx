@@ -21,7 +21,8 @@ import {
   PromoSection,
   SourceNote,
 } from "../_site/components";
-import { CrossFieldLinks, FieldClassLine, FieldPeerFacts } from "./_crossfield";
+import { CrossFieldLinks, FieldPeerFacts } from "./_crossfield";
+import { ClassStory } from "./_class-story";
 import { WaitCalendar } from "./_wait-calendar";
 import { profile, teachersForField, type FieldTeacherKey } from "@/lib/teachers";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
@@ -161,6 +162,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   ]
     .filter(Boolean)
     .join(" · ");
+  const hasDoctor = teachers.some((t) => t.doctor);
 
   return (
     <>
@@ -172,7 +174,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
             { name: `${u.short} ${field.unitLabel}`, path: `${field.base}/${u.slug}` },
           ]),
           article({ path: `${field.base}/${u.slug}`, headline: title, description }),
-          // 가격은 본문 띠에 실제로 보이므로 마크업한다(안 보이는 것을 넣지 않는 규칙).
+          // 가격은 본문 수업 섹션(ClassStory, #class)에 실제로 보이므로 마크업한다(안 보이는 것을 넣지 않는 규칙).
           // 본문 글자를 늘리지 않고 검색엔진에만 가격을 전달하는 자리다.
           ...(none
             ? []
@@ -205,8 +207,8 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
             ? `${u.name} 는 2027학년도 요강 기준으로 면접을 실시하지 않습니다. 면접 대신 무엇을 준비할지 정리했고, 전형별 모집인원·수능 최저는 전형 안내 페이지에 있습니다.`
             : `${u.name} 의 2027학년도 수시 모집요강에서 면접에 관한 문장만 그대로 옮겼습니다. 면접 전형의 반영비율과 1단계 발표일·면접일이 함께 있습니다.`
         }
-        primaryHref="#contact"
-        primaryLabel={none ? `${field.short} 면접 수업 문의` : `${u.short} 면접 수업 문의`}
+        primaryHref={none ? "#contact" : "#class"}
+        primaryLabel={none ? `${field.short} 면접 수업 문의` : `${u.short} 면접 수업 안내`}
         secondaryHref={admissionHref ?? field.base}
         secondaryLabel={admissionHref ? "전형 안내 보기" : `${field.short} 면접 전체 보기`}
         Icon={Stethoscope}
@@ -292,6 +294,23 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
         </PromoSection>
       )}
 
+      {/* ===== T메디 수업 — 왜 다른가 · 강사 · 절차 · 수업료 · 상담 (2026-11-07) =====
+          제목·부제만 대학마다 서버에서 그리고, 공통 본문은 ClassStory 가 마운트 뒤에 그린다
+          (정적 HTML 에 같은 본문이 50개 깔리지 않게 — app/interview/_class-story.tsx 머리말). */}
+      {!none && (
+        <div id="class" className="scroll-mt-32">
+          <PromoSection
+            eyebrow="T메디 수업"
+            EyebrowIcon={Stethoscope}
+            title={`${unit} 면접, T메디는 이렇게 준비합니다`}
+            subtitle={`${classContext ? `${classContext}. ` : ""}${hasDoctor ? "현직 의사 선생님" : "담당 선생님"} · 줌 1:1 · 1회 ${plan.priceLabel}`}
+            tone="muted"
+          >
+            <ClassStory univShort={u.short} format={u.styleLabel} plan={plan} teacherIds={teachers.map((t) => t.id)} />
+          </PromoSection>
+        </div>
+      )}
+
       {/* 수업 회차 구성 — 교과 기반 면접이라 회차가 정해진 대학만(lib/class-curriculum.ts) */}
       {!none && <ClassCurriculum path={`${field.base}/${u.slug}`} />}
 
@@ -319,13 +338,6 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
           <CrossFieldLinks links={cross} mine={first} univShort={u.short} />
         </PromoSection>
       )}
-
-      <FieldClassLine
-        plan={plan}
-        subject={none ? field.label : `${unit} 면접`}
-        teachers={teachers}
-        context={none ? undefined : classContext}
-      />
 
       {siblings.length > 0 && (
         <PromoSection

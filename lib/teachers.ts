@@ -26,6 +26,10 @@ export type TeacherProfile = {
    *  ⚠️ 본문 중복을 막으려고 /interview 와 수업 팝업에서만 펼친다
    *     (대학 페이지 39곳에 같은 목록을 깔면 2026-10-24 중복 제거가 무너진다). */
   career?: readonly string[];
+  /** 현직 의사인가 — 화면에 '현직 의사' 표시를 붙인다.
+   *  2026-11-07 사용자 진술: "우리는 전문 강사진이 현직 의사야"(의대 면접 강사진 = 류지연·이세인).
+   *  본인이 확인해 준 분에게만 켠다. 코드가 추정해서 켜지 말 것(허위 표시). */
+  doctor?: boolean;
 };
 
 export const TEACHER_PROFILES = {
@@ -37,6 +41,7 @@ export const TEACHER_PROFILES = {
     halfPhoto: "/images/teachers/lee-sein-half.jpg",
     // 반신 사진에서 몸이 화면 오른쪽으로 틀어져 있다 → 왼쪽 칸에 서서 가운데를 본다
     facing: "right",
+    doctor: true,
     career: ["T메디 면접 컨설팅 수업", "의대 준비반 수학·화학·생명과학 수업"],
   },
   ryu: {
@@ -47,6 +52,7 @@ export const TEACHER_PROFILES = {
     halfPhoto: "/images/teachers/ryu-jiyeon-half.jpg",
     // 반신 사진에서 몸이 화면 왼쪽으로 틀어져 있다 → 오른쪽 칸에 서서 가운데를 본다
     facing: "left",
+    doctor: true,
     career: [
       "2020년 대치동 아이엔지학원 때부터 면접·컨설팅 수업으로 거북쌤과 동행",
       "의대 · 의전원 면접 수업, 합격생 다수 배출",
