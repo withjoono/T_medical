@@ -300,7 +300,7 @@ export default function InterviewHubPage() {
         eyebrow="INSTRUCTORS"
         EyebrowIcon={Users}
         title="담당 강사"
-        subtitle="의대 면접은 현직 의사 류지연·이세인 선생님이 맡고, 제시문 면접은 과목 특성상 박은우 선생님이 따로 맡습니다. 대학별 담당은 각 대학 페이지에 있습니다."
+        subtitle="의대 면접은 의료전문인 류지연·이세인 선생님이 맡고, 제시문 면접은 과목 특성상 박은우 선생님이 따로 맡습니다. 대학별 담당은 각 대학 페이지에 있습니다."
         tone="muted"
       >
         {/* 약력(detailed)은 이 페이지와 수업 팝업에서만 펼친다 — 대학 페이지에 깔면 본문 중복이 된다 */}

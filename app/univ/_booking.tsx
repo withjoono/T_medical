@@ -584,7 +584,7 @@ export function TeacherCards({
               </span>
             )}
             <div className={`min-w-0 flex-1 ${t.facing === "left" ? "text-right" : ""}`}>
-              <span className="eyebrow text-brass-600">{t.doctor ? "현직 의사 · 1:1" : "1:1"}</span>
+              <span className="eyebrow text-brass-600">{t.medicalPro ? "의료전문인 · 1:1" : "1:1"}</span>
               <h3 className="display mt-4 text-[1.25rem] leading-snug text-ink-900">{t.name}</h3>
               <p className="mt-1.5 text-[13px] font-semibold tracking-tight text-jade-700">{t.role}</p>
               <p className="mt-3 text-[13px] font-light leading-[1.8] text-ink-500">{t.credential}</p>

@@ -65,7 +65,7 @@ const KOREA: Curriculum = {
     },
     {
       title: "3회차 · 인·적성 Ⅰ·Ⅱ",
-      teacher: "현직 의사 선생님",
+      teacher: "의료전문인 선생님",
       checks: "수업 전에 본 AI 모의면접(상황제시문 8분 × 2) 기록",
       does: [
         "AI 모의면접 기록을 놓고 결정 → 근거 → 공감의 답변 구조를 교정한다",

@@ -22,7 +22,8 @@ import { CONTACT_PHONE, CONTACT_TEL } from "@/lib/contact";
  *   · 의대 면접은 지식이 아니라 상황 대처 훈련이다.
  *   · 그 훈련을 선생님이 하나하나 하면 비용이 천정부지 → AI 면접이 상황 훈련을 맡고,
  *     선생님이 그 기록·피드백을 모두 보고 들어와 수업에서 고친다. 수업료는 줄고 훈련량은 는다.
- *   · 강사진은 현직 의사(lib/teachers.ts doctor). 모든 수업은 온라인.
+ *   · 강사진은 '의료전문인'(lib/teachers.ts medicalPro). ⚠️ '현직 의사'·'의사'로 쓰지 말 것 —
+ *     teachers.ts 머리말 참고. 모든 수업은 온라인.
  *   · 학원 대비 수업료를 강조(lib/mmi-schedule.ts PRICE_BENCHMARK, 보도로 확인한 값만).
  *
  *  ⚠️ 마운트 뒤에만 그린다(_class-modal.tsx · _wait-calendar.tsx 와 같은 원칙).
@@ -56,14 +57,14 @@ function ClassStoryBody({ univShort, format, plan, teacherIds }: ClassStoryProps
     .filter((t): t is TeacherProfile => Boolean(t))
     // 오른쪽을 보는 분이 왼쪽 칸에 와야 둘이 마주본다(TeacherCards 와 같은 규칙)
     .sort((a, b) => Number(b.facing === "right") - Number(a.facing === "right"));
-  const doctors = teachers.filter((t) => t.doctor);
-  const teacherWord = doctors.length > 0 ? "현직 의사 선생님" : "담당 선생님";
+  const pros = teachers.filter((t) => t.medicalPro);
+  const teacherWord = pros.length > 0 ? "의료전문인 선생님" : "담당 선생님";
 
   return (
     <div className="mx-auto max-w-5xl space-y-16 sm:space-y-20">
       {plan.withAi ? <WhyTraining teacherWord={teacherWord} /> : <WhyConcept univShort={univShort} />}
 
-      {teachers.length > 0 && <Teachers teachers={teachers} doctors={doctors.length} />}
+      {teachers.length > 0 && <Teachers teachers={teachers} pros={pros.length} />}
 
       <Process univShort={univShort} format={format} plan={plan} teacherWord={teacherWord} />
 
@@ -164,15 +165,15 @@ function WhyConcept({ univShort }: { univShort: string }) {
  * 2. 강사
  * ---------------------------------------------------------------------- */
 
-function Teachers({ teachers, doctors }: { teachers: TeacherProfile[]; doctors: number }) {
+function Teachers({ teachers, pros }: { teachers: TeacherProfile[]; pros: number }) {
   return (
     <div>
       <SubHead
         eyebrow="INSTRUCTORS"
-        title={doctors > 0 ? "현직 의사가 직접 가르칩니다" : "담당 선생님"}
+        title={pros > 0 ? "의료전문인이 직접 가르칩니다" : "담당 선생님"}
         body={
-          doctors > 0
-            ? "의대 면접이 끝내 확인하는 것은 '이 학생이 의사로서 어떻게 판단할 사람인가'입니다. 환자 앞의 판단, 동료와의 갈등, 의료윤리 — 의료 현장을 아는 현직 의사 선생님이 그 기준으로 답을 고칩니다."
+          pros > 0
+            ? "의대 면접이 끝내 확인하는 것은 '이 학생이 의사로서 어떻게 판단할 사람인가'입니다. 환자 앞의 판단, 동료와의 갈등, 의료윤리 — 의학을 직접 공부한 의료전문인 선생님이 그 기준으로 답을 고칩니다."
             : undefined
         }
       />
@@ -198,10 +199,10 @@ function Teachers({ teachers, doctors }: { teachers: TeacherProfile[]; doctors: 
                   </span>
                 )}
                 <div className={`min-w-0 flex-1 ${t.facing === "left" ? "text-right" : ""}`}>
-                  {t.doctor ? (
+                  {t.medicalPro ? (
                     <span className="inline-flex items-center gap-1.5 bg-jade-700 px-2.5 py-1 text-[11px] font-semibold text-white">
                       <Stethoscope className="h-3.5 w-3.5" strokeWidth={2} />
-                      현직 의사
+                      의료전문인
                     </span>
                   ) : (
                     <span className="inline-flex border border-hair-strong px-2.5 py-1 text-[11px] font-semibold text-ink-600">

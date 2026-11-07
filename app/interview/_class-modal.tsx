@@ -210,8 +210,8 @@ export function ClassDetailButton({
                         />
                       ) : null}
                       <p className="display text-[15px] text-ink-900">{t.name}</p>
-                      {t.doctor && (
-                        <p className="mt-1.5 text-[11px] font-semibold text-jade-700">현직 의사</p>
+                      {t.medicalPro && (
+                        <p className="mt-1.5 text-[11px] font-semibold text-jade-700">의료전문인</p>
                       )}
                       <p className="mt-2 text-[12px] font-light leading-relaxed text-ink-500">
                         {t.credential}

@@ -162,7 +162,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
   ]
     .filter(Boolean)
     .join(" · ");
-  const hasDoctor = teachers.some((t) => t.doctor);
+  const hasMedicalPro = teachers.some((t) => t.medicalPro);
 
   return (
     <>
@@ -303,7 +303,7 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
             eyebrow="T메디 수업"
             EyebrowIcon={Stethoscope}
             title={`${unit} 면접, T메디는 이렇게 준비합니다`}
-            subtitle={`${classContext ? `${classContext}. ` : ""}${hasDoctor ? "현직 의사 선생님" : "담당 선생님"} · 줌 1:1 · 1회 ${plan.priceLabel}`}
+            subtitle={`${classContext ? `${classContext}. ` : ""}${hasMedicalPro ? "의료전문인 선생님" : "담당 선생님"} · 줌 1:1 · 1회 ${plan.priceLabel}`}
             tone="muted"
           >
             <ClassStory univShort={u.short} format={u.styleLabel} plan={plan} teacherIds={teachers.map((t) => t.id)} />

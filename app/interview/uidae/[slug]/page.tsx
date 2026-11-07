@@ -186,7 +186,7 @@ export default async function UidaeInterviewUnivPage({
     .join(" · ");
   /** 수업 섹션(ClassStory)에 넘길 담당 선생님 — 대학별 지정(plan.teacherIds)이 있으면 그것 */
   const storyTeacherIds = plan.teacherIds ?? classTeachers.map((t) => t.id);
-  const hasDoctor = storyTeacherIds.some((id) => profile(id)?.doctor);
+  const hasMedicalPro = storyTeacherIds.some((id) => profile(id)?.medicalPro);
 
   const stats = [
     u.admission
@@ -394,7 +394,7 @@ export default async function UidaeInterviewUnivPage({
             eyebrow="T메디 수업"
             EyebrowIcon={Stethoscope}
             title={`${u.short} 면접, T메디는 이렇게 준비합니다`}
-            subtitle={`${classContext ? `${classContext}. ` : ""}${hasDoctor ? "현직 의사 선생님" : "담당 선생님"} · 줌 1:1 · 1회 ${plan.priceLabel}`}
+            subtitle={`${classContext ? `${classContext}. ` : ""}${hasMedicalPro ? "의료전문인 선생님" : "담당 선생님"} · 줌 1:1 · 1회 ${plan.priceLabel}`}
             tone="muted"
           >
             <ClassStory

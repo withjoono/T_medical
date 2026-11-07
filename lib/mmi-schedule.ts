@@ -144,7 +144,7 @@ export type TeacherCard = {
   halfPhoto?: string;
   facing?: "left" | "right";
   career?: readonly string[];
-  doctor?: boolean;
+  medicalPro?: boolean;
 };
 
 /** =========================================================================
