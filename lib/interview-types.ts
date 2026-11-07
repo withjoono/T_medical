@@ -490,6 +490,12 @@ const ASSIGN: Record<string, Assign> = {
   wonkwang: { primary: "injeokseong", tag: "서류확인 개별면접 · 의예과 3인 1조" },
 };
 
+/** 이 의대 면접의 주 형식과 한 줄 요약(ASSIGN). 수업 섹션이 '왜 다른가'를 대학별로 바꿀 때 쓴다. */
+export function univAssign(slug: string): { primary: InterviewTypeKey; tag?: string } | undefined {
+  const a = ASSIGN[slug];
+  return a ? { primary: a.primary, tag: a.tag } : undefined;
+}
+
 /** 의대 대학 페이지의 담당 강사 (2026-10-22 사용자 확정).
  *  주 형식이 제시문인 대학 → 박은우, 그 밖(MMI·인적성) → 이세인.
  *  고려대는 제시문 면접(수학·과학)과 인·적성 MMI 를 함께 보므로 두 사람이 나눠 맡는다.

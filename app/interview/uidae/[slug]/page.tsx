@@ -36,7 +36,7 @@ import {
 } from "@/app/univ/_univ";
 import { UNIV_PAGES, getUnivPage, quotaByType } from "@/lib/univ";
 import { CrossFieldLinks } from "../../_crossfield";
-import { ClassStory } from "../../_class-story";
+import { ClassStory, type ClassKind } from "../../_class-story";
 import { WaitCalendar } from "../../_wait-calendar";
 import { crossFieldLinks } from "@/lib/field-crosslinks";
 import { JsonLdAll } from "@/components/json-ld";
@@ -48,7 +48,7 @@ import {
   minutesLabel,
 } from "@/lib/mmi-schedule";
 import { profile, teachersForField } from "@/lib/teachers";
-import { univTeacherKeys } from "@/lib/interview-types";
+import { univAssign, univTeacherKeys } from "@/lib/interview-types";
 import { gachonGichulFor } from "@/lib/gachon-gichul";
 import { GachonGichul } from "../../_gichul";
 import { univGichulFor } from "@/lib/univ-gichul";
@@ -187,6 +187,15 @@ export default async function UidaeInterviewUnivPage({
   /** 수업 섹션(ClassStory)에 넘길 담당 선생님 — 대학별 지정(plan.teacherIds)이 있으면 그것 */
   const storyTeacherIds = plan.teacherIds ?? classTeachers.map((t) => t.id);
   const hasMedicalPro = storyTeacherIds.some((id) => profile(id)?.medicalPro);
+  /** 수업 섹션의 '왜 다른가'를 이 대학 면접 형식에 맞춘다 — 생기부 / 상황(MMI) / 제시문 / 교과 개념 */
+  const assign = univAssign(u.slug);
+  const classKind: ClassKind = !plan.withAi
+    ? "concept"
+    : assign?.primary === "mmi"
+      ? "mmi"
+      : assign?.primary === "jesimun"
+        ? "jesimun"
+        : "document";
 
   const stats = [
     u.admission
@@ -399,6 +408,9 @@ export default async function UidaeInterviewUnivPage({
           >
             <ClassStory
               univShort={u.short}
+              kind={classKind}
+              fact={assign?.tag ?? iv?.styleLabel ?? null}
+              profession="의사"
               format={iv?.styleLabel ?? null}
               plan={plan}
               teacherIds={storyTeacherIds}

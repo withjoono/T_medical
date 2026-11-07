@@ -22,7 +22,7 @@ import {
   SourceNote,
 } from "../_site/components";
 import { CrossFieldLinks, FieldPeerFacts } from "./_crossfield";
-import { ClassStory } from "./_class-story";
+import { ClassStory, type ClassKind } from "./_class-story";
 import { WaitCalendar } from "./_wait-calendar";
 import { profile, teachersForField, type FieldTeacherKey } from "@/lib/teachers";
 import { crossFieldLinks, fieldPeerContext } from "@/lib/field-crosslinks";
@@ -163,6 +163,17 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
     .filter(Boolean)
     .join(" · ");
   const hasMedicalPro = teachers.some((t) => t.medicalPro);
+  /** 수업 섹션의 '왜 다른가'를 이 대학 면접 형식에 맞춘다 — 제시문 / 생기부·서류 / 교과 개념 */
+  const classKind: ClassKind = !plan.withAi ? "concept" : u.style === "jesimun" ? "jesimun" : "document";
+  const known = (x?: { label: string } | null) => (x && x.label !== "요강 미기재" ? x.label : null);
+  /** 한 줄 사실 — 질문 출처(요강에 있을 때) + 면접 형식 */
+  const classFact = [known(u.source), u.styleLabel.split(" · ")[0]].filter(Boolean).join(" · ");
+  const PROFESSION: Record<string, string> = {
+    chidae: "치과의사",
+    hanuidae: "한의사",
+    yakdae: "약사",
+    suuidae: "수의사",
+  };
 
   return (
     <>
@@ -306,7 +317,16 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
             subtitle={`${classContext ? `${classContext}. ` : ""}${hasMedicalPro ? "의료전문인 선생님" : "담당 선생님"} · 줌 1:1 · 1회 ${plan.priceLabel}`}
             tone="muted"
           >
-            <ClassStory univShort={u.short} format={u.styleLabel} plan={plan} teacherIds={teachers.map((t) => t.id)} />
+            <ClassStory
+              univShort={`${u.short} ${field.short}`}
+              kind={classKind}
+              fact={classFact || null}
+              scoring={known(u.scoring)}
+              profession={PROFESSION[field.key] ?? "의료인"}
+              format={u.styleLabel.split(" · ")[0]}
+              plan={plan}
+              teacherIds={teachers.map((t) => t.id)}
+            />
           </PromoSection>
         </div>
       )}

@@ -34,10 +34,25 @@ import { CONTACT_PHONE, CONTACT_TEL } from "@/lib/contact";
  *  ⚠️ 숫자는 SSOT(TUITION · PRICE_BENCHMARK · REFUND_EXAMPLES)에서만. 시간당 단가는 쓰지 않는다.
  *  ========================================================================= */
 
+/** 이 대학 면접이 무엇으로 갈리는가 — 대학별로 '왜 다른가'와 절차·채점 틀이 달라진다.
+ *   document — 생기부·서류를 놓고 묻는 면접(인·적성 · 서류확인). 의대 37곳 중 22곳이 여기
+ *   mmi      — 면접실을 옮겨 다니며 상황·윤리 문항에 답하는 면접
+ *   jesimun  — 처음 보는 제시문을 정해진 시간 안에 읽고 말하는 면접
+ *   concept  — 세특 속 교과 개념을 다시 묻는 면접(가천대 · AI 없음)
+ *  페이지(서버)가 lib/interview-types.ts ASSIGN · FieldUniv.style 로 정해 넘긴다. */
+export type ClassKind = "document" | "mmi" | "jesimun" | "concept";
+
 export type ClassStoryProps = {
   /** "경희대" */
   univShort: string;
-  /** 이 대학 면접 형식 — "서류확인 면접", "MMI" 등. 절차 2단계 문장에 들어간다 */
+  kind: ClassKind;
+  /** 이 대학 면접 한 줄 사실 — "공통질문 + 서류확인 · 2대1 10분" (요강에서 확인된 값) */
+  fact?: string | null;
+  /** 이 대학 평가요소 — "인성 50 · 전공적합성 50". 요강에 없으면 비운다 */
+  scoring?: string | null;
+  /** 지원 동기 질문의 직업 — "의사" · "치과의사" · "한의사" · "약사" · "수의사" */
+  profession: string;
+  /** 이 대학 면접 형식 — 절차 2단계 문장에 들어간다 */
   format?: string | null;
   plan: ClassPlan;
   /** 담당 선생님 id(lib/teachers.ts) */
@@ -51,7 +66,9 @@ export function ClassStory(props: ClassStoryProps) {
   return <ClassStoryBody {...props} />;
 }
 
-function ClassStoryBody({ univShort, format, plan, teacherIds }: ClassStoryProps) {
+function ClassStoryBody(props: ClassStoryProps) {
+  const { univShort, plan, teacherIds } = props;
+  const kind: ClassKind = plan.withAi ? props.kind : "concept";
   const teachers = teacherIds
     .map((id) => profile(id))
     .filter((t): t is TeacherProfile => Boolean(t))
@@ -62,11 +79,13 @@ function ClassStoryBody({ univShort, format, plan, teacherIds }: ClassStoryProps
 
   return (
     <div className="mx-auto max-w-5xl space-y-16 sm:space-y-20">
-      {plan.withAi ? <WhyTraining teacherWord={teacherWord} /> : <WhyConcept univShort={univShort} />}
+      <Why {...props} kind={kind} teacherWord={teacherWord} />
 
       {teachers.length > 0 && <Teachers teachers={teachers} pros={pros.length} />}
 
-      <Process univShort={univShort} format={format} plan={plan} teacherWord={teacherWord} />
+      <Process {...props} kind={kind} teacherWord={teacherWord} />
+
+      <Essentials {...props} kind={kind} />
 
       <Pricing plan={plan} />
 
@@ -76,25 +95,95 @@ function ClassStoryBody({ univShort, format, plan, teacherIds }: ClassStoryProps
 }
 
 /* -------------------------------------------------------------------------
- * 1. 왜 다른가
+ * 1. 왜 다른가 — 면접 종류마다 다르게
  * ---------------------------------------------------------------------- */
 
-function WhyTraining({ teacherWord }: { teacherWord: string }) {
+type WhyCopy = {
+  /** 제목 — {u} 자리에 대학명 */
+  title: (u: string) => [string, string, string];
+  /** 이 면접이 무엇을 보는가 */
+  what: string;
+  /** 선생님과만 연습하면 */
+  only: string[];
+  /** T메디는 — {t} 자리에 '의료전문인 선생님' */
+  ours: (t: string) => string[];
+};
+
+const WHY: Record<Exclude<ClassKind, "concept">, WhyCopy> = {
+  document: {
+    title: (u) => [`${u} 면접은 `, "내 생기부를 파고드는 훈련", "입니다"],
+    what:
+      "질문은 내 생기부에서 나옵니다. 첫 답 뒤에 '왜 그 활동을 했나', '그래서 무엇이 달라졌나'가 이어지고, 예상질문 몇 개를 외운 답은 두 번째 꼬리질문에서 무너집니다. 생기부의 활동 하나하나를 꼬리질문까지 말로 꺼내 봐야 합니다.",
+    only: [
+      "생기부 활동 수십 개 중 몇 개만 골라 외우고 끝납니다",
+      "꼬리질문은 수업 시간에 한두 번 받아 보는 게 전부입니다",
+      "연습 횟수 = 수업 횟수 — 더 하려면 수업을 더 사야 합니다",
+    ],
+    ours: (t) => [
+      "선생님이 내 생기부로 예상질문 세트를 만들어 AI 면접 과제로 보냅니다",
+      "AI 면접은 꼬리질문까지 이어지고, 횟수 제한 없이 반복합니다",
+      `${t}이 그 기록을 보고 어떤 소재를 꺼낼지, 답의 근거가 생기부와 맞는지 고칩니다`,
+    ],
+  },
+  mmi: {
+    title: (u) => [`${u} 면접은 `, "상황 대처 훈련", "입니다"],
+    what:
+      "아는 것을 묻지 않습니다. 화가 난 보호자, 실수한 동료, 정답이 없는 윤리 문제처럼 처음 보는 상황에서 어떻게 판단하고 말하는지를 봅니다. 외워서 되는 일이 아니라, 비슷한 상황을 여러 번 겪어 봐야 몸에 붙습니다.",
+    only: [
+      "모의면접 한 번에 수업 시간 절반이 사라집니다",
+      "연습 횟수 = 수업 횟수 — 더 하려면 수업을 더 사야 합니다",
+      "다음 수업까지는 혼자, 피드백 없이 연습합니다",
+    ],
+    ours: (t) => [
+      "상황 면접은 AI 면접으로 — 꼬리질문까지, 횟수 제한 없이 반복합니다",
+      `${t}이 AI 면접 기록과 피드백을 모두 보고 수업에 들어옵니다`,
+      "수업 100분은 모의면접이 아니라 무너진 곳을 고치는 데만 씁니다",
+    ],
+  },
+  jesimun: {
+    title: (u) => [`${u} 면접은 `, "제시문을 읽고 말하는 훈련", "입니다"],
+    what:
+      "처음 보는 제시문을 정해진 시간 안에 읽고, 쟁점을 세워 근거와 함께 말해야 합니다. 아는 것과 시간 안에 말로 꺼내는 것은 다른 일이라, 새 제시문으로 실전 시간 그대로 여러 번 돌려 봐야 합니다.",
+    only: [
+      "제시문 한 세트를 풀고 설명하면 수업 시간 절반이 지나갑니다",
+      "새 제시문을 실전 시간으로 돌려 보는 횟수 = 수업 횟수입니다",
+      "다음 수업까지는 혼자, 피드백 없이 연습합니다",
+    ],
+    ours: (t) => [
+      "선생님이 고른 새 제시문으로 실전 시간 그대로 AI 면접을 반복합니다",
+      `${t}이 그 기록을 보고 읽기 → 쟁점 → 설명 순서가 어디서 무너졌는지 정해 둡니다`,
+      "수업 100분은 무너진 곳을 고치는 데만 씁니다",
+    ],
+  },
+};
+
+function Why({
+  univShort,
+  kind,
+  fact,
+  teacherWord,
+}: ClassStoryProps & { kind: ClassKind; teacherWord: string }) {
+  if (kind === "concept") return <WhyConcept univShort={univShort} />;
+  const c = WHY[kind];
+  const [a, b, d] = c.title(univShort);
   return (
     <div className="bg-ink px-6 py-10 text-paper sm:px-12 sm:py-14">
       <p className="eyebrow text-brass-300">WHY T메디</p>
       <h3 className="display mt-5 text-[1.625rem] leading-[1.35] sm:text-[2rem]">
-        의대 면접은 지식이 아니라 <span className="text-brass-300">훈련</span>입니다
+        {a}
+        <span className="text-brass-300">{b}</span>
+        {d}
       </h3>
-      <div className="mt-6 max-w-3xl space-y-4 text-[15px] font-light leading-[1.9] text-paper/80">
-        <p>
-          MMI와 의대 면접은 아는 것을 묻지 않습니다. 화가 난 보호자, 실수한 동료, 정답이 없는 윤리
-          문제처럼 처음 보는 상황에서 어떻게 판단하고 말하는지를 봅니다. 외워서 되는 일이 아니라, 비슷한
-          상황을 여러 번 겪어 봐야 몸에 붙습니다.
+      {fact && (
+        <p className="mt-5 inline-flex border border-paper/20 px-3 py-1.5 text-[13px] text-paper/85">
+          {univShort} 면접 · {fact}
         </p>
+      )}
+      <div className="mt-6 max-w-3xl space-y-4 text-[15px] font-light leading-[1.9] text-paper/80">
+        <p>{c.what}</p>
         <p>
-          문제는 비용입니다. 그 상황을 선생님과 하나하나 1:1로 연습하면 수업 시간이 끝없이 늘어나고,
-          수업료도 함께 올라갑니다.
+          문제는 비용입니다. 그 반복을 선생님과 하나하나 1:1로 하면 수업 시간이 끝없이 늘어나고, 수업료도
+          함께 올라갑니다.
         </p>
       </div>
 
@@ -102,11 +191,7 @@ function WhyTraining({ teacherWord }: { teacherWord: string }) {
         <div className="border border-paper/15 p-6 sm:p-7">
           <p className="text-[13px] font-semibold text-paper/60">선생님과만 연습하면</p>
           <ul className="mt-4 space-y-3">
-            {[
-              "모의면접 한 번에 수업 시간 절반이 사라집니다",
-              "연습 횟수 = 수업 횟수 — 더 하려면 수업을 더 사야 합니다",
-              "다음 수업까지는 혼자, 피드백 없이 연습합니다",
-            ].map((x) => (
+            {c.only.map((x) => (
               <li key={x} className="flex gap-3 text-[14px] font-light leading-[1.75] text-paper/65">
                 <X className="mt-1 h-4 w-4 shrink-0 text-paper/40" strokeWidth={2} />
                 <span>{x}</span>
@@ -117,11 +202,7 @@ function WhyTraining({ teacherWord }: { teacherWord: string }) {
         <div className="border border-brass-300 bg-brass-300/10 p-6 sm:p-7">
           <p className="text-[13px] font-semibold text-brass-300">T메디는</p>
           <ul className="mt-4 space-y-3">
-            {[
-              "상황 면접은 AI 면접으로 — 꼬리질문까지, 횟수 제한 없이 반복합니다",
-              `${teacherWord}이 AI 면접 기록과 피드백을 모두 보고 수업에 들어옵니다`,
-              "수업 100분은 모의면접이 아니라 무너진 곳을 고치는 데만 씁니다",
-            ].map((x) => (
+            {c.ours(teacherWord).map((x) => (
               <li key={x} className="flex gap-3 text-[14px] leading-[1.75] text-paper">
                 <Check className="mt-1 h-4 w-4 shrink-0 text-brass-300" strokeWidth={2.25} />
                 <span>{x}</span>
@@ -239,26 +320,30 @@ function Process({
   univShort,
   format,
   plan,
+  kind,
   teacherWord,
-}: {
-  univShort: string;
-  format?: string | null;
-  plan: ClassPlan;
-  teacherWord: string;
-}) {
+}: ClassStoryProps & { kind: ClassKind; teacherWord: string }) {
   const mins = minutesText(plan.minutes);
-  const steps = plan.withAi
+  // "제시문 기반 면접 (MMI 아님)" 처럼 괄호 설명이 붙은 형식명은 문장 안에서 괄호를 뗀다
+  const fmtName = format ? format.replace(/\s*\([^)]*\)/g, "").trim() : "";
+  const fmt = `${univShort} ${fmtName ? `${fmtName} ` : ""}형식`;
+  const aiStep =
+    kind === "document"
+      ? { icon: Bot, title: "AI 모의면접", body: `선생님이 내 생기부로 만든 예상질문에 ${fmt} 그대로 AI 면접에서 답합니다. 꼬리질문까지 이어지고, 횟수 제한이 없습니다.` }
+      : kind === "jesimun"
+        ? { icon: Bot, title: "AI 모의면접", body: `선생님이 고른 새 제시문을 ${fmt} 그대로, 실전 시간 안에 읽고 답합니다. 횟수 제한이 없습니다.` }
+        : { icon: Bot, title: "AI 모의면접", body: `${fmt} 그대로 AI 면접을 먼저 봅니다. 꼬리질문까지 이어지고, 횟수 제한이 없습니다.` };
+  const steps = kind !== "concept"
     ? [
         {
           icon: Phone,
           title: "상담",
-          body: "지원 대학과 1단계 발표일, 생기부 상황을 듣고 수업 일정을 잡습니다. 발표 전이라도 대기를 걸어 둘 수 있습니다.",
+          body:
+            kind === "document"
+              ? "지원 대학과 1단계 발표일을 듣고 수업 일정을 잡습니다. 생기부를 함께 보며 어떤 활동에서 질문이 나올지 짚습니다."
+              : "지원 대학과 1단계 발표일, 생기부 상황을 듣고 수업 일정을 잡습니다. 발표 전이라도 대기를 걸어 둘 수 있습니다.",
         },
-        {
-          icon: Bot,
-          title: "AI 모의면접",
-          body: `${univShort} ${format ? `${format} ` : ""}형식으로 AI 면접을 먼저 봅니다. 꼬리질문까지 이어지고, 횟수 제한이 없습니다.`,
-        },
+        aiStep,
         {
           icon: Stethoscope,
           title: "선생님 검토",
@@ -267,7 +352,10 @@ function Process({
         {
           icon: Monitor,
           title: `1:1 수업 ${mins}`,
-          body: "줌으로 만나 무너진 곳만 고칩니다. 수업 끝에 다음 AI 훈련을 처방합니다.",
+          body:
+            kind === "document"
+              ? "줌으로 만나 어떤 소재를 꺼낼지, 답의 근거가 생기부와 맞는지 고칩니다. 수업 끝에 다음 AI 훈련을 처방합니다."
+              : "줌으로 만나 무너진 곳만 고칩니다. 수업 끝에 다음 AI 훈련을 처방합니다.",
         },
         {
           icon: Check,
@@ -318,6 +406,101 @@ function Process({
           </li>
         ))}
       </ol>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------
+ * 3-1. 모든 수업에서 함께 다지는 세 가지 (2026-11-07 사용자 지시)
+ *   ① 판단 기준 — 의료윤리·의료 현안. 기준 없이 반복하면 같은 답만 굳는다
+ *   ② 채점 틀 — 대학이 보는 틀로 고친다. 회차마다 같은 틀이라 나아진 게 보인다
+ *   ③ 지원 동기 — "왜 ○○, 왜 이 대학". 모든 대학이 묻고, 생기부와 어긋나면 감점
+ *  ⚠️ AI 채점 기능을 약속하는 문장을 쓰지 말 것 — 틀로 고치는 주체는 선생님이다.
+ * ---------------------------------------------------------------------- */
+
+const FRAME: Record<ClassKind, string[]> = {
+  document: ["질문의 의도 파악", "결론 먼저", "생기부 속 근거", "배운 점과 변화", "지원 학과와의 연결"],
+  mmi: ["상황 파악", "관련된 사람들", "선택지", "결정과 근거", "후속 조치 · 공감"],
+  jesimun: ["제시문 요지", "쟁점 세우기", "내 입장", "근거와 예시", "반론과 보완"],
+  concept: ["개념의 정의", "원리", "내 탐구와의 연결", "꼬리질문 대응"],
+};
+
+const ETHICS = [
+  "생명윤리 4원칙 — 자율성 존중 · 악행 금지 · 선행 · 정의",
+  "환자의 자기결정과 연명의료",
+  "비밀유지와 설명 의무",
+  "한정된 의료 자원의 배분",
+  "의료 AI와 책임",
+  "지역의료 · 필수의료",
+];
+
+function Essentials({
+  univShort,
+  kind,
+  scoring,
+  profession,
+}: ClassStoryProps & { kind: ClassKind }) {
+  const frame = FRAME[kind];
+  return (
+    <div>
+      <SubHead
+        eyebrow="ESSENTIALS"
+        title="모든 수업에서 함께 다지는 세 가지"
+        body="반복은 AI가 맡지만, 무엇을 기준으로 반복할지는 수업에서 먼저 세웁니다."
+      />
+      <div className="mt-8 grid gap-5 lg:grid-cols-3">
+        <div className="flex flex-col border border-hair-strong bg-white p-6 sm:p-7">
+          <p className="tnum text-[12px] font-semibold text-brass-600">01</p>
+          <p className="mt-3 text-[17px] font-semibold leading-snug text-ink-900">판단 기준 — 의료윤리와 의료 현안</p>
+          <p className="mt-3 text-[13.5px] font-light leading-[1.8] text-ink-600">
+            같은 상황을 몇 번 반복해도 판단 기준이 없으면 같은 답만 굳습니다. 면접에서 바로 꺼내 쓰는
+            기준을 먼저 세우고, 의료 현장에서는 어떻게 판단하는지까지 짚습니다.
+          </p>
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {ETHICS.map((x) => (
+              <li key={x} className="border border-hair bg-paper-50 px-2.5 py-1.5 text-[12px] leading-snug text-ink-700">
+                {x}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex flex-col border border-hair-strong bg-white p-6 sm:p-7">
+          <p className="tnum text-[12px] font-semibold text-brass-600">02</p>
+          <p className="mt-3 text-[17px] font-semibold leading-snug text-ink-900">채점 틀 — 대학이 보는 순서로</p>
+          <p className="mt-3 text-[13.5px] font-light leading-[1.8] text-ink-600">
+            정답보다 답에 이르는 과정을 봅니다. 선생님은 매 회차 같은 틀로 답을 고치기 때문에, 무엇이
+            나아졌는지 학생도 학부모도 확인할 수 있습니다.
+          </p>
+          <ol className="mt-5 space-y-2">
+            {frame.map((x, i) => (
+              <li key={x} className="flex items-center gap-3 text-[13px] text-ink-800">
+                <span className="tnum flex h-6 w-6 shrink-0 items-center justify-center bg-jade-50 text-[11px] font-semibold text-jade-700">
+                  {i + 1}
+                </span>
+                {x}
+              </li>
+            ))}
+          </ol>
+          {scoring && (
+            <p className="mt-5 border-t border-hair pt-4 text-[12.5px] leading-[1.7] text-ink-600">
+              <span className="font-semibold text-ink-800">{univShort} 평가요소</span> · {scoring}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-col border border-hair-strong bg-white p-6 sm:p-7">
+          <p className="tnum text-[12px] font-semibold text-brass-600">03</p>
+          <p className="mt-3 text-[17px] font-semibold leading-snug text-ink-900">
+            지원 동기 — 왜 {profession}, 왜 {univShort}
+          </p>
+          <p className="mt-3 text-[13.5px] font-light leading-[1.8] text-ink-600">
+            어느 대학이든 반드시 묻는 질문입니다. 답이 생기부의 활동과 어긋나면 진정성에서 점수를 잃습니다.
+            그래서 1회차에 생기부와 맞물리는 지원 동기의 뼈대를 먼저 세우고, 다른 답이 모두 여기로
+            돌아오게 맞춥니다.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
