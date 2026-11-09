@@ -191,7 +191,9 @@ export default async function UidaeInterviewUnivPage({
   const assign = univAssign(u.slug);
   const classKind: ClassKind = !plan.withAi
     ? "concept"
-    : assign?.primary === "mmi"
+    : assign?.story
+      ? assign.story
+      : assign?.primary === "mmi"
       ? "mmi"
       : assign?.primary === "jesimun"
         ? "jesimun"

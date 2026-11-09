@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, FileSearch, ListChecks, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, BookOpenCheck, DoorOpen, FileSearch, ListChecks, Microscope, TrendingUp, Users } from "lucide-react";
 import { PromoSection } from "../_site/components";
 import {
   GICHUL_FIELD_LABEL,
@@ -9,6 +9,7 @@ import {
   gichulExamplesOn,
   gichulQuestionsOn,
   type GichulField,
+  type GichulFieldScope,
   type UnivGichul,
   type UnivGichulQuestion,
 } from "@/lib/univ-gichul";
@@ -101,6 +102,11 @@ function iga(word: string) {
 
 /** 페이지 머리 문장 — 문항 수·공개 범위를 데이터에서 계산한다 */
 function intro(u: UnivGichul, field: GichulField, qs: UnivGichulQuestion[]) {
+  if (u.byField?.[field] && qs.length) {
+    // 계열별로 나눈 대학 — 다른 계열 문항 수를 끌어오지 않는다
+    const ys = [...new Set(qs.map((q) => q.year))].sort().join("·");
+    return `${iga(u.short)} 공개한 ${ys}학년도 ${GICHUL_FIELD_LABEL[field].unit} 면접 문항 ${qs.length}개를 카드로 하나씩 분석했습니다.`;
+  }
   const years = [...new Set(u.questions.map((q) => q.year))].sort();
   const yearText = years.length ? `${years.join("·")}학년도 ` : "";
   const total = u.questions.length;
@@ -133,6 +139,15 @@ function OtherPages({ u, field }: { u: UnivGichul; field: GichulField }) {
   if (!others.length) return null;
   const extra = (f: GichulField) => {
     const parts: string[] = [];
+    const sc = u.byField?.[f];
+    if (sc) {
+      if (sc.oneLine) parts.push("한마디");
+      if (sc.structure?.length) parts.push("면접 구조");
+      if (sc.method?.length) parts.push("출제 방식");
+      if (sc.trend?.length) parts.push("연도 비교");
+      if (sc.prep?.length) parts.push("준비 순서");
+      return parts;
+    }
     if (f === lay.primary) parts.push("한마디 · 연도 비교 · 자료의 한계");
     if (f === lay.inseong && u.inseong?.length) parts.push(`인성 질문 ${u.inseong.length}개`);
     if (f === lay.prep && u.prep?.length) parts.push("준비 순서");
@@ -176,8 +191,8 @@ function driveView(url: string) {
   return m ? `https://drive.google.com/file/d/${m[1]}/view` : url;
 }
 
-function Sources({ u }: { u: UnivGichul }) {
-  const list = (u.sources ?? []).filter((s) => s.url);
+function Sources({ u, field }: { u: UnivGichul; field: GichulField }) {
+  const list = (u.sources ?? []).filter((s) => s.url && (!s.fields || s.fields.includes(field)));
   if (!list.length) return null;
   return (
     <p className="mx-auto mt-6 max-w-4xl text-[12px] font-light leading-relaxed text-ink-400">
@@ -195,14 +210,33 @@ function Sources({ u }: { u: UnivGichul }) {
   );
 }
 
+/** 이 페이지가 싣는 공통 블록 — 계열별 분석(byField)이 있으면 그것, 없으면 배치 규칙(gichulLayout) */
+function blocksFor(u: UnivGichul, field: GichulField): GichulFieldScope & { scoped: boolean } {
+  const sc = u.byField?.[field];
+  if (sc) return { ...sc, scoped: true };
+  if (u.byField) return { scoped: true }; // 계열별로 나눈 대학은 공통 블록을 다른 계열에 싣지 않는다
+  const lay = gichulLayout(u);
+  const isPrimary = field === lay.primary;
+  return {
+    scoped: false,
+    oneLine: isPrimary ? u.oneLine : undefined,
+    evidence: isPrimary ? u.evidence : undefined,
+    format2027: isPrimary ? u.format2027 : undefined,
+    trend: isPrimary ? u.trend : undefined,
+    limits: isPrimary ? u.limits : undefined,
+    prep: field === lay.prep ? u.prep : undefined,
+  };
+}
+
 export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulField }) {
   const lay = gichulLayout(u);
   const qs = gichulQuestionsOn(u, field);
-  const isPrimary = field === lay.primary;
+  const b = blocksFor(u, field);
+  const isPrimary = Boolean(b.oneLine || b.format2027 || b.limits?.length || b.structure?.length || b.method?.length);
   const unit = GICHUL_FIELD_LABEL[field].unit;
-  const showInseong = field === lay.inseong && (u.inseong?.length ?? 0) > 0;
-  const showPrep = field === lay.prep && (u.prep?.length ?? 0) > 0;
-  const showTrend = isPrimary && (u.trend?.length ?? 0) > 0;
+  const showInseong = !b.scoped && field === lay.inseong && (u.inseong?.length ?? 0) > 0;
+  const showPrep = (b.prep?.length ?? 0) > 0;
+  const showTrend = (b.trend?.length ?? 0) > 0;
   const ex = gichulExamplesOn(u, field);
   const showMain = isPrimary || qs.length > 0 || ex.length > 0;
   const nothingHere = !showMain && !showInseong && !showPrep;
@@ -211,7 +245,7 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
   const tail = (
     <>
       <OtherPages u={u} field={field} />
-      <Sources u={u} />
+      <Sources u={u} field={field} />
     </>
   );
 
@@ -237,19 +271,68 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
         title={`${u.short} ${unit} 면접 기출 분석`}
         subtitle={intro(u, field, qs)}
       >
-        {isPrimary && u.oneLine && (
+        {b.oneLine && (
           <div className="mx-auto mb-8 max-w-4xl border border-hair-strong bg-white px-6 py-6">
             <p className="eyebrow text-brass-600">한마디로</p>
             <p className="display mt-3 text-[1.25rem] leading-snug text-ink-900">
-              {u.oneLine.replace(/^한마디로[,:\s]*/, "")}
+              {b.oneLine.replace(/^한마디로[,:\s]*/, "")}
             </p>
-            {u.evidence && <p className="mt-3 text-[13px] font-light leading-[1.8] text-ink-600">{u.evidence}</p>}
+            {b.evidence && <p className="mt-3 text-[13px] font-light leading-[1.8] text-ink-600">{b.evidence}</p>}
           </div>
         )}
-        {isPrimary && u.format2027 && (
+        {b.format2027 && (
           <div className="mx-auto mb-8 max-w-4xl border-l-2 border-brass-400 bg-brass-50 px-5 py-4 text-[13px] font-light leading-[1.8] text-ink-700">
             <span className="font-medium text-ink-900">2027 면접 — </span>
-            {u.format2027}
+            {b.format2027}
+          </div>
+        )}
+        {(b.structure?.length ?? 0) > 0 && (
+          <div className="mx-auto mb-10 max-w-4xl">
+            <p className="eyebrow flex items-center gap-2 text-brass-600">
+              <DoorOpen className="h-3.5 w-3.5" strokeWidth={1.75} />
+              면접 구조 — 요강에 적힌 것과 후기로 알려진 것
+            </p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[36rem] border-collapse text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-hair-strong text-ink-500">
+                    <th className="py-3 pr-4 font-medium">항목</th>
+                    <th className="py-3 pr-4 font-medium">요강·공식 자료</th>
+                    <th className="py-3 font-medium">후기·언론 보도 (공식 확인 아님)</th>
+                  </tr>
+                </thead>
+                <tbody className="font-light text-ink-700">
+                  {b.structure!.map((r, i) => (
+                    <tr key={i} className="border-b border-hair align-top">
+                      <td className="w-28 py-3 pr-4 font-medium text-ink-900">{r.item}</td>
+                      <td className="py-3 pr-4">{r.official}</td>
+                      <td className="py-3 text-ink-600">{r.report ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+        {(b.method?.length ?? 0) > 0 && (
+          <div className="mx-auto mb-10 max-w-4xl">
+            <p className="eyebrow flex items-center gap-2 text-brass-600">
+              <Microscope className="h-3.5 w-3.5" strokeWidth={1.75} />
+              출제 방식 분석
+            </p>
+            <ol className="mt-4 space-y-4">
+              {b.method!.map((m, i) => (
+                <li key={i} className="flex gap-4 border-b border-hair pb-4 last:border-0">
+                  <span className="tnum mt-0.5 w-6 shrink-0 text-[12px] font-semibold text-brass-600">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-[14px] font-light leading-[1.8] text-ink-700">
+                    <span className="block font-medium text-ink-900">{m.point}</span>
+                    {m.detail}
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
         )}
         {qs.length > 0 && (
@@ -272,11 +355,11 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
             </div>
           </div>
         )}
-        {isPrimary && (u.limits?.length ?? 0) > 0 && (
+        {(b.limits?.length ?? 0) > 0 && (
           <div className="mx-auto mt-8 max-w-4xl">
             <p className="eyebrow text-brass-600">자료의 한계</p>
             <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[13px] font-light leading-[1.8] text-ink-600">
-              {u.limits!.map((l, i) => (
+              {b.limits!.map((l, i) => (
                 <li key={i}>{l}</li>
               ))}
             </ul>
@@ -290,8 +373,8 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
         <PromoSection
           eyebrow="TREND"
           EyebrowIcon={TrendingUp}
-          title={`2025 → 2026 ${u.short} 출제 비교`}
-          subtitle="두 해 보고서에 공개된 문항을 같은 기준으로 나란히 놓았습니다."
+          title={b.scoped ? `2025 → 2026 ${u.short} ${unit} 출제 비교` : `2025 → 2026 ${u.short} 출제 비교`}
+          subtitle={b.trendNote ?? "두 해 보고서에 공개된 문항을 같은 기준으로 나란히 놓았습니다."}
           tone="muted"
         >
           <div className="mx-auto max-w-4xl overflow-x-auto">
@@ -304,7 +387,7 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
                 </tr>
               </thead>
               <tbody className="font-light text-ink-700">
-                {u.trend!.map((r, i) => (
+                {b.trend!.map((r, i) => (
                   <tr key={i} className="border-b border-hair align-top">
                     <td className="py-3 pr-4 font-medium text-ink-900">{r.item}</td>
                     <td className="py-3 pr-4">{r.y2025}</td>
@@ -322,12 +405,12 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
         <PromoSection
           eyebrow="PREPARE"
           EyebrowIcon={ListChecks}
-          title={`${u.short} 면접, 내 생기부로 준비하는 순서`}
+          title={b.scoped ? `${u.short} ${unit} 면접 준비 순서` : `${u.short} 면접, 내 생기부로 준비하는 순서`}
           subtitle="공개 문항의 형식에서 거꾸로 짚은 준비 순서입니다."
           tone="muted"
         >
           <ol className="mx-auto max-w-4xl space-y-4">
-            {u.prep!.map((p, i) => (
+            {b.prep!.map((p, i) => (
               <li key={i} className="flex gap-4">
                 <span className="tnum mt-0.5 text-[12px] font-semibold text-brass-600">
                   {String(i + 1).padStart(2, "0")}

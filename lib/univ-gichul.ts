@@ -52,6 +52,23 @@ export type UnivGichulQuestion = {
 
 export type UnivGichulInseong = { year: number; unit?: string; record: string; ask: string; point: string };
 
+/** 한 계열 페이지에만 싣는 분석 — 같은 대학이라도 계열마다 면접이 전혀 다를 때 쓴다(서울대).
+ *  있으면 그 페이지는 대학 공통 블록(oneLine·evidence·format2027·trend·prep·limits) 대신 이것을 싣는다.
+ *  2026-11-09 사용자 지시: "서울대 의대 면접 페이지, 수의대 등과 섞이지 말고". */
+export type GichulFieldScope = {
+  oneLine?: string;
+  evidence?: string;
+  format2027?: string;
+  /** 면접 구조 — 공식 자료(요강)와 후기·기고를 나눠 적는다 */
+  structure?: { item: string; official: string; report?: string }[];
+  /** 출제 방식 분석 */
+  method?: { point: string; detail: string }[];
+  trend?: { item: string; y2025: string; y2026: string }[];
+  trendNote?: string;
+  prep?: { step: string; detail: string }[];
+  limits?: string[];
+};
+
 export type UnivGichul = {
   key: string;
   name: string;
@@ -68,7 +85,10 @@ export type UnivGichul = {
   trend?: { item: string; y2025: string; y2026: string }[];
   prep?: { step: string; detail: string }[];
   limits?: string[];
-  sources?: { label: string; url?: string; note?: string }[];
+  /** fields 가 있으면 그 계열 페이지에서만 출처로 보인다 */
+  sources?: { label: string; url?: string; note?: string; fields?: GichulField[] }[];
+  /** 계열별로 따로 쓴 분석. 키가 있는 계열 페이지는 대학 공통 블록 대신 이것을 싣는다 */
+  byField?: Partial<Record<GichulField, GichulFieldScope>>;
 };
 
 export const UNIV_GICHUL: UnivGichul[] = GICHUL_DATA as UnivGichul[];

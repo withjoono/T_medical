@@ -443,11 +443,13 @@ type Assign = {
   primary: InterviewTypeKey;
   also?: InterviewTypeKey[];
   tag?: string;
+  /** 대학 페이지 수업 섹션의 '왜 다른가' 종류를 primary 와 다르게 잡을 때만(서울대: MMI 이지만 질문 없는 제시문 면접) */
+  story?: "document" | "mmi" | "jesimun";
 };
 
 const ASSIGN: Record<string, Assign> = {
   /* --- MMI : 면접실(스테이션)을 옮겨 다니는 대학 ------------------------ */
-  snu: { primary: "mmi", also: ["jesimun"], tag: "제시문 다중 스테이션 · 약 60분" },
+  snu: { primary: "mmi", also: ["jesimun"], tag: "질문 없는 제시문 면접실 여러 개 + 서류(생기부) 기반 면접 · 60분 내외", story: "jesimun" },
   korea: { primary: "mmi", also: ["jesimun"], tag: "교과 융합 제시문 면접 + 인·적성 MMI 2회" },
   ulsan: { primary: "mmi", also: ["jesimun"], tag: "다대일 다면평가 · 학생부 + 제시문" },
   hallym: { primary: "mmi", tag: "3개 면접실 — 인성 / 상황 / 모의상황" },
@@ -491,9 +493,11 @@ const ASSIGN: Record<string, Assign> = {
 };
 
 /** 이 의대 면접의 주 형식과 한 줄 요약(ASSIGN). 수업 섹션이 '왜 다른가'를 대학별로 바꿀 때 쓴다. */
-export function univAssign(slug: string): { primary: InterviewTypeKey; tag?: string } | undefined {
+export function univAssign(
+  slug: string,
+): { primary: InterviewTypeKey; tag?: string; story?: "document" | "mmi" | "jesimun" } | undefined {
   const a = ASSIGN[slug];
-  return a ? { primary: a.primary, tag: a.tag } : undefined;
+  return a ? { primary: a.primary, tag: a.tag, story: a.story } : undefined;
 }
 
 /** 의대 대학 페이지의 담당 강사 (2026-10-22 사용자 확정).
