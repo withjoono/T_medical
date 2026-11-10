@@ -550,6 +550,15 @@ function Pricing({ plan }: { plan: ClassPlan }) {
               회당 {pack.perSessionLabel} · {pack.savingPerSessionLabel} 할인
               {plan.withAi ? ` · ${AI_IN_CLASS.meta}` : ""}
             </p>
+            {plan.refund && (
+              <p className="mt-2 text-[13px] font-light leading-[1.7] text-ink-500">
+                중간에 그만두시면 들은 회차를 회당 {plan.refund.perSessionLabel}으로 빼고 나머지를 돌려드립니다 —{" "}
+                {Array.from({ length: pack.sessions - 1 }, (_, i) => i + 1)
+                  .map((n) => `${n}회 수강 후 ${wonLabel(pack.price - n * plan.refund!.perSession)}`)
+                  .join(", ")}
+                .
+              </p>
+            )}
             {plan.standardRefund !== false && (
               <p className="mt-2 text-[13px] font-light leading-[1.7] text-ink-500">
                 중간에 그만두시면 들은 회차만 회당 {TUITION.refund.perSessionLabel}으로 빼고 나머지를 전액

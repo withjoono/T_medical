@@ -1403,6 +1403,8 @@ export type ClassPlan = {
   extra?: string;
   /** false 면 3회 선결제 환불 규칙(TUITION.refund)을 띄우지 않는다 — 규칙이 다른 묶음에 잘못 붙지 않게 */
   standardRefund?: boolean;
+  /** 이 대학 묶음의 환불 규칙 — 들은 회차를 perSession 으로 빼고 나머지를 돌려준다 */
+  refund?: { perSession: number; perSessionLabel: string };
   /** false 면 AI 모의면접을 쓰지 않는다 — 'AI 로 모의면접 → 그 결과로 수업' 구조를 띄우지 않는다 */
   withAi: boolean;
   /** 이 대학을 맡는 선생님(lib/teachers.ts id). 있으면 수업 띠·팝업이 이 선생님만 보여 준다 */
@@ -1432,7 +1434,7 @@ const GACHON_PLAN: ClassPlan = {
 
 /** 서울대 의대 — 5회 구성(생기부 2 · 의학 인성·윤리 1 · 의학 적성 2, AI 모의면접은 회차 사이 숙제) + 선택 6회차.
  *  2026-11-10 사용자 확정: 1회 39만원 · 5회 선결제 180만원 · 1회 결제 후 나머지 4회 151만원(190 − 39).
- *  환불 규칙은 정해지지 않아 화면에 띄우지 않는다(standardRefund: false) — 정해지면 여기 적는다.
+ *  환불: 들은 회차를 회당 39만원(1회 정가)으로 빼고 나머지를 돌려준다(2026-11-10 사용자 확정).
  *  회차 내용은 lib/class-curriculum.ts SNU_MED. */
 const SNU_MED_PLAN: ClassPlan = {
   minutes: SESSION_MINUTES,
@@ -1448,6 +1450,7 @@ const SNU_MED_PLAN: ClassPlan = {
   afterFirst: { sessions: 4, price: 1510000, priceLabel: "151만원", totalLabel: "190만원" },
   extra: "6회차는 선택입니다 — 5회차 뒤 부족한 부분을 더 할지 선생님과 정하고, 1회 39만원으로 추가합니다.",
   standardRefund: false,
+  refund: { perSession: 390000, perSessionLabel: "39만원" },
   withAi: true,
 };
 
