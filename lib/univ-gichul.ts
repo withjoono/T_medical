@@ -63,6 +63,15 @@ export type GichulFieldScope = {
   structure?: { item: string; official: string; report?: string }[];
   /** 출제 방식 분석 */
   method?: { point: string; detail: string }[];
+  /** 전형별 비교 같은 자유 표 */
+  table?: { title: string; head: string[]; rows: string[][]; note?: string };
+  /** 서류(생기부) 기반 면접 — 확인된 사실(출처별)과 T메디 예상 질문·준비 */
+  docInterview?: {
+    lead: string;
+    facts: { label: string; text: string; source: string }[];
+    expect: { area: string; ask: string; prep: string }[];
+    note?: string;
+  };
   trend?: { item: string; y2025: string; y2026: string }[];
   trendNote?: string;
   prep?: { step: string; detail: string }[];

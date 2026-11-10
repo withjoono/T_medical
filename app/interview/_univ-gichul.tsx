@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, DoorOpen, FileSearch, ListChecks, Microscope, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, BookOpenCheck, DoorOpen, FileSearch, FileText, ListChecks, Microscope, Table2, TrendingUp, Users } from "lucide-react";
 import { PromoSection } from "../_site/components";
 import {
   GICHUL_FIELD_LABEL,
@@ -286,6 +286,35 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
             {b.format2027}
           </div>
         )}
+        {b.table && (
+          <div className="mx-auto mb-10 max-w-4xl">
+            <p className="eyebrow flex items-center gap-2 text-brass-600">
+              <Table2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+              {b.table.title}
+            </p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[36rem] border-collapse text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-hair-strong text-ink-500">
+                    {b.table.head.map((h) => (
+                      <th key={h} className="py-3 pr-4 font-medium">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="font-light text-ink-700">
+                  {b.table.rows.map((r, i) => (
+                    <tr key={i} className="border-b border-hair align-top">
+                      {r.map((c, j) => (
+                        <td key={j} className={`py-3 pr-4 ${j === 0 ? "w-28 font-medium text-ink-900" : ""}`}>{c}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {b.table.note && <p className="mt-3 text-[12px] font-light leading-[1.7] text-ink-500">{b.table.note}</p>}
+          </div>
+        )}
         {(b.structure?.length ?? 0) > 0 && (
           <div className="mx-auto mb-10 max-w-4xl">
             <p className="eyebrow flex items-center gap-2 text-brass-600">
@@ -333,6 +362,56 @@ export function UnivGichulBlock({ u, field }: { u: UnivGichul; field: GichulFiel
                 </li>
               ))}
             </ol>
+          </div>
+        )}
+        {b.docInterview && (
+          <div className="mx-auto mb-12 max-w-4xl border-2 border-jade-600/40 bg-white px-6 py-7 sm:px-8">
+            <p className="eyebrow flex items-center gap-2 text-jade-700">
+              <FileText className="h-3.5 w-3.5" strokeWidth={1.75} />
+              서류(생기부) 기반 면접
+            </p>
+            <p className="display mt-3 text-[1.25rem] leading-snug text-ink-900">{b.docInterview.lead}</p>
+            <div className="mt-6">
+          <div className="mx-auto max-w-4xl">
+            <p className="eyebrow text-brass-600">확인된 사실 — 출처별</p>
+            <ul className="mt-4 divide-y divide-hair border-y border-hair">
+              {b.docInterview.facts.map((f, i) => (
+                <li key={i} className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-5">
+                  <span className="text-[13px] font-medium text-ink-900">{f.label}</span>
+                  <span className="text-[14px] font-light leading-[1.8] text-ink-700">
+                    {f.text}
+                    <span className="mt-1 block text-[12px] text-ink-400">{f.source}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <p className="eyebrow mt-12 text-brass-600">생기부 항목별 예상 질문과 준비 — T메디 분석</p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[40rem] border-collapse text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-hair-strong text-ink-500">
+                    <th className="py-3 pr-4 font-medium">생기부 항목</th>
+                    <th className="py-3 pr-4 font-medium">이렇게 물을 수 있다</th>
+                    <th className="py-3 font-medium">준비</th>
+                  </tr>
+                </thead>
+                <tbody className="font-light text-ink-700">
+                  {b.docInterview.expect.map((r, i) => (
+                    <tr key={i} className="border-b border-hair align-top">
+                      <td className="w-28 py-3 pr-4 font-medium text-ink-900">{r.area}</td>
+                      <td className="py-3 pr-4">{r.ask}</td>
+                      <td className="py-3">{r.prep}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {b.docInterview.note && (
+              <p className="mt-4 text-[12px] font-light leading-[1.7] text-ink-500">{b.docInterview.note}</p>
+            )}
+          </div>
+            </div>
           </div>
         )}
         {qs.length > 0 && (
