@@ -1430,7 +1430,7 @@ const GACHON_PLAN: ClassPlan = {
   teacherIds: ["ryu", "lsi"],
 };
 
-/** 서울대 의대 — 5회 구성(생기부 2 · 의학 인성·윤리 1 · 의학 적성 2, 리허설은 AI 모의면접) + 선택 6회차.
+/** 서울대 의대 — 5회 구성(생기부 2 · 의학 인성·윤리 1 · 의학 적성 2, AI 모의면접은 회차 사이 숙제) + 선택 6회차.
  *  2026-11-10 사용자 확정: 1회 39만원 · 5회 선결제 180만원 · 1회 결제 후 나머지 4회 151만원(190 − 39).
  *  환불 규칙은 정해지지 않아 화면에 띄우지 않는다(standardRefund: false) — 정해지면 여기 적는다.
  *  회차 내용은 lib/class-curriculum.ts SNU_MED. */
@@ -1446,7 +1446,7 @@ const SNU_MED_PLAN: ClassPlan = {
     savingPerSessionLabel: "3만원",
   },
   afterFirst: { sessions: 4, price: 1510000, priceLabel: "151만원", totalLabel: "190만원" },
-  extra: "6회차는 선택입니다 — AI 실전 리허설과 5회차 점검 뒤 부족한 부분을 더 할지 선생님과 정하고, 1회 39만원으로 추가합니다.",
+  extra: "6회차는 선택입니다 — 5회차 뒤 부족한 부분을 더 할지 선생님과 정하고, 1회 39만원으로 추가합니다.",
   standardRefund: false,
   withAi: true,
 };
