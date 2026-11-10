@@ -534,6 +534,13 @@ function Pricing({ plan }: { plan: ClassPlan }) {
             {plan.withAi ? ` · ${AI_IN_CLASS.meta}` : ""}
           </p>
           <p className="mt-2 text-[13px] font-medium text-jade-700">처음이시면 1회만 먼저 해 보세요</p>
+          {plan.afterFirst && (
+            <p className="mt-3 border-t border-hair pt-3 text-[13px] font-light leading-[1.7] text-ink-600">
+              1회를 해 보신 뒤 나머지 {plan.afterFirst.sessions}회를 결제하시면{" "}
+              <span className="tnum font-semibold text-ink-900">{plan.afterFirst.priceLabel}</span> (모두{" "}
+              {plan.afterFirst.totalLabel})입니다.
+            </p>
+          )}
         </div>
         {pack && (
           <div className="border-2 border-brass-400 bg-brass-50 p-7">
@@ -543,17 +550,25 @@ function Pricing({ plan }: { plan: ClassPlan }) {
               회당 {pack.perSessionLabel} · {pack.savingPerSessionLabel} 할인
               {plan.withAi ? ` · ${AI_IN_CLASS.meta}` : ""}
             </p>
-            <p className="mt-2 text-[13px] font-light leading-[1.7] text-ink-500">
-              중간에 그만두시면 들은 회차만 회당 {TUITION.refund.perSessionLabel}으로 빼고 나머지를 전액
-              돌려드립니다 —{" "}
-              {REFUND_EXAMPLES.filter((r) => r.used > 0)
-                .map((r) => `${r.label} ${wonLabel(r.amount)}`)
-                .join(", ")}
-              .
-            </p>
+            {plan.standardRefund !== false && (
+              <p className="mt-2 text-[13px] font-light leading-[1.7] text-ink-500">
+                중간에 그만두시면 들은 회차만 회당 {TUITION.refund.perSessionLabel}으로 빼고 나머지를 전액
+                돌려드립니다 —{" "}
+                {REFUND_EXAMPLES.filter((r) => r.used > 0)
+                  .map((r) => `${r.label} ${wonLabel(r.amount)}`)
+                  .join(", ")}
+                .
+              </p>
+            )}
           </div>
         )}
       </div>
+
+      {plan.extra && (
+        <p className="mt-5 border-l-2 border-brass-400 bg-brass-50 px-5 py-3 text-[13px] font-light leading-[1.7] text-ink-700">
+          {plan.extra}
+        </p>
+      )}
 
       {plan.withAi && pack && (
         <div className="mt-8 border border-hair bg-paper-50 p-6 sm:p-8">

@@ -252,6 +252,7 @@ export default async function UidaeInterviewUnivPage({
                   }`,
                   price: plan.price,
                   packPrice: plan.pack?.price,
+                  packSessions: plan.pack?.sessions,
                   minutes: plan.minutes,
                   withAi: plan.withAi,
                 }),
