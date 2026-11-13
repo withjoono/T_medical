@@ -103,17 +103,18 @@ jobs:
           path: T_Medi/.static-archive
           key: next-static-${{ github.run_id }}
 
-      # ⚠️ `--only hosting:medical-front` 단독 금지. 반드시 site 이름(medical-front)까지 지정한다.
-      # .firebaserc 에 targets 매핑이 없어 target 이 아니라 site 이름을 그대로 쓴다.
+      # 배포 대상은 .firebaserc 의 medical-front 타겟 하나로 고정한다.
       # target 없는 배포는 2026-05-16 에 Hub(www.tskool.kr)를 위성앱 빌드로
       # 덮어쓴 사고의 형태다. Firebase site ↔ 앱은 1:1 고정.
       # step 이름 안의 ": " 는 YAML 매핑으로 해석되므로 따옴표로 묶는다.
       - name: "Deploy to Firebase Hosting (site: medical-front)"
-        run: >
-          pnpm dlx firebase-tools@13 deploy
-          --only hosting:medical-front
-          --project ts-front-479305
-          --non-interactive
-          --token "$FIREBASE_TOKEN"
+        # 전용 서비스 계정 키는 실행 중 임시 파일로만 쓰고 성공/실패 시 모두 지운다.
+        run: |
+          set -euo pipefail
+          export GOOGLE_APPLICATION_CREDENTIALS="$(mktemp "$RUNNER_TEMP/tmedi-firebase-XXXXXX.json")"
+          trap 'rm -f "$GOOGLE_APPLICATION_CREDENTIALS"' EXIT
+          node -e 'const fs = require("node:fs"); const key = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON); if (key.type !== "service_account" || key.project_id !== "ts-front-479305" || key.client_email !== "tmedi-github-deploy@ts-front-479305.iam.gserviceaccount.com") throw new Error("Unexpected deployment identity"); fs.writeFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS, JSON.stringify(key), { mode: 0o600 });'
+          unset FIREBASE_SERVICE_ACCOUNT_JSON
+          pnpm dlx firebase-tools@13 deploy --only hosting:medical-front --project ts-front-479305 --non-interactive
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MEDICAL_FRONT }}
