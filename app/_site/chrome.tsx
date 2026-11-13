@@ -68,7 +68,9 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { href: "/uidae-consulting", label: "고1·고2 의대 컨설팅" },
       { href: "/uidae-class", label: "의대 진학반" },
+      { href: "/uidae-junbi", label: "2028 의대준비반" },
       { href: "/tamgu", label: "탐구보고서 컨설팅" },
+      { href: "/winter-planner", label: "겨울방학 플래너", group: "시즌" },
     ],
   },
   {
@@ -127,6 +129,8 @@ const FOOTER_COLUMNS: { heading: string; links: { href: string; label: string }[
         { href: "/ipkyul", label: "입시결과" },
         { href: "/uidae-consulting", label: "고1·고2 의대 컨설팅" },
   { href: "/uidae-class", label: "의대 진학반" },
+        { href: "/uidae-junbi", label: "2028 의대준비반" },
+        { href: "/winter-planner", label: "겨울방학 플래너" },
         { href: "/interview", label: "의약학 면접 수업 안내" },
         { href: "/interview/uidae", label: "의대 면접 대비" },
         { href: "/interview/mmi", label: "MMI 면접 대비" },
