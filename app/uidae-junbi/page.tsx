@@ -15,15 +15,14 @@ import {
   Target,
   Scale,
   Ticket,
-  FlaskConical,
-  MessagesSquare,
+  FileStack,
+  Medal,
   Trophy,
 } from "lucide-react";
 import {
   PromoHero,
   PromoSection,
   FeatureGrid,
-  CheckList,
   NoteBox,
   LinkCards,
   InkButton,
@@ -36,40 +35,49 @@ import { UIDAE_CONSULTING, UIDAE_CONSULTING_PATH } from "@/lib/consulting";
 /** =========================================================================
  *  2028 의대준비반 — 프로모 페이지 (2026-11-13 사용자 요청)
  *
- *  세 갈래로 구성한다. 자세한 내용은 각 페이지로 보낸다 — 여기서 다시 길게 쓰지 않는다.
+ *  두 축 + 덤 하나로 구성한다. 자세한 내용은 각 페이지로 보낸다 — 여기서 다시 길게 쓰지 않는다.
  *    ① 겨울방학 플래너 · 매일 학습량 경쟁  → /winter-planner
  *    ② 생기부 컨설팅 반                    → /uidae-consulting (가격·회차 SSOT: lib/consulting.ts)
- *    ③ 내년 과기원도 함께 지원(KAIST 등)   → T과기원 https://tgwagiwon.kr
+ *    + 더불어, 과기원 합격증 하나           → T과기원 https://tgwagiwon.kr
+ *
+ *  ⚠️ 과기원은 이 반의 목적이 아니다 (2026-11-14 사용자).
+ *    · 의대 가는 김에 하나 걸쳐 두는 것 — '훈장 하나를 달고 간다'는 컨셉으로만 언급한다.
+ *      히어로·제목·메타에서 과기원을 주력으로 내세우지 않는다.
+ *    · 다만 걸쳐 두는 데도 준비가 필요하다: 입증자료 5건. 내년(2028학년도)부터 이 5건이 평가 대상이 된다(사용자).
+ *      T과기원 /admissions/2028/kaist 에 'KAIST 학업탐구역량 입증자료 5건'으로 안내되어 있다.
+ *    · 이 준비는 전문 선생님들이 학생 시간을 뺏지 않는 범위에서 맡는다 — 학생이 실제로 한 탐구·활동을 바탕으로.
  *
  *  ⚠️ 이 파일에 없는 것 — 확정되면 넣는다. 추정으로 채우지 말 것.
  *    · 의대준비반 가격·정원·모집 기간·선발 기준·개강일
  *  ⚠️ 문구 원칙 (app/uidae-consulting/page.tsx 와 같다)
  *    · 생기부 컨설팅은 '무엇을 언제 할지 설계·점검'으로만 쓴다. 합격률·합격 보장 문구 금지.
- *    · 과기원 전형 세부(일정·서류·면접 방식)는 여기 적지 않고 T과기원으로 보낸다.
+ *    · 과기원 전형 세부(일정·면접 방식 등)는 여기 적지 않고 T과기원으로 보낸다.
+ *    · 하지 않은 활동을 만들어 넣는다는 뜻으로 읽힐 표현을 쓰지 않는다.
  *  ========================================================================= */
 
 const PATH = "/uidae-junbi";
 const WINTER_PATH = "/winter-planner";
 const GWAGIWON_URL = "https://tgwagiwon.kr";
+const GWAGIWON_KAIST_URL = "https://tgwagiwon.kr/admissions/2028/kaist";
 const { plannerCheck } = UIDAE_CONSULTING;
 
 const DESCRIPTION =
-  "2028학년도 의대를 준비하는 전교권 학생들의 반입니다. 겨울방학 플래너로 매일 학습량을 겨루고, 생기부 컨설팅 반에서 활동을 설계하며, 내년 수시에서는 KAIST 등 과학기술원도 함께 지원합니다. 지금 모집 중입니다.";
+  "2028학년도 의대를 준비하는 전교권 학생들의 반입니다. 겨울방학 플래너로 매일 학습량을 겨루고, 생기부 컨설팅 반에서 남은 학기의 활동을 설계합니다. 더불어 과학기술원 합격증 하나를 달고 갈 수 있도록 입증자료 준비는 전문 선생님들이 맡습니다. 지금 모집 중입니다.";
 
 export const metadata: Metadata = {
   alternates: { canonical: PATH },
-  title: "2028 의대준비반 — 겨울방학 플래너 · 생기부 컨설팅 · 과기원 병행 지원 | T Medi",
+  title: "2028 의대준비반 — 전교권 학생들의 겨울방학 플래너 · 생기부 컨설팅 반 | T Medi",
   description: DESCRIPTION,
   openGraph: {
     title: "2028 의대준비반 | T Medi",
     description:
-      "전교권 학생들이 매일 학습량으로 겨룹니다. 겨울방학 플래너 · 생기부 컨설팅 반 · 과기원 병행 지원.",
+      "전교권 학생들이 매일 학습량으로 겨룹니다. 겨울방학 플래너 · 생기부 컨설팅 반.",
     url: PATH,
     type: "website",
   },
 };
 
-/** 세 갈래 한눈에 — 각 섹션으로 내려가는 앵커 */
+/** 두 축 + 덤 하나 — 각 섹션으로 내려가는 앵커 */
 const TRACKS = [
   {
     href: "#winter",
@@ -85,9 +93,9 @@ const TRACKS = [
   },
   {
     href: "#gwagiwon",
-    icon: Atom,
-    title: "③ 과기원도 함께 지원",
-    body: "내년 수시에서 의대 원서와 별도로 KAIST 등 과학기술원에 지원합니다.",
+    icon: Medal,
+    title: "+ 더불어, 훈장 하나",
+    body: "목표는 의대입니다. 가는 김에 과학기술원 합격증 하나를 달고 갑니다. 준비는 선생님들이 맡습니다.",
   },
 ];
 
@@ -129,28 +137,22 @@ const SANGGIBU = [
   },
 ];
 
-/** ③ 과기원 병행 지원 */
-const GWAGIWON_WHY = [
-  "KAIST · GIST · DGIST · UNIST 같은 과학기술원은 수시 6회 지원 제한에 포함되지 않습니다. 의대에 쓸 여섯 장을 그대로 두고 따로 지원할 수 있습니다.",
-  "의대 학생부종합을 준비하며 쌓은 수학·과학 탐구 기록은 과기원 서류에서도 그대로 평가받습니다. 준비가 따로 늘어나는 부분은 자기소개서와 면접입니다.",
-  "의대만 바라보면 선택지가 여섯 장에 묶입니다. 과기원을 함께 준비하면 같은 기록으로 지원할 수 있는 곳이 넓어집니다.",
-];
-
-const GWAGIWON_PREP = [
+/** + 더불어 — 과기원은 목적이 아니라 덤이다 */
+const GWAGIWON_POINTS = [
   {
-    icon: FlaskConical,
-    title: "탐구 기록",
-    body: "의대 준비 과정에서 하는 탐구를 과기원이 보는 관점으로도 정리해 둡니다. 생기부 컨설팅 반에서 함께 설계합니다.",
+    icon: Ticket,
+    title: "의대 원서는 그대로 둡니다",
+    body: "KAIST 등 과학기술원은 수시 6회 지원 제한에 포함되지 않습니다. 의대에 쓸 여섯 장을 한 장도 줄이지 않고 따로 지원할 수 있습니다.",
   },
   {
-    icon: FileText,
-    title: "자기소개서",
-    body: "KAIST 등 과기원은 지원 서류에 자기소개서가 들어갑니다. 3학년이 되어 급하게 쓰지 않도록 소재를 미리 모읍니다.",
+    icon: FileStack,
+    title: "다만, 입증자료 5건이 필요합니다",
+    body: "걸쳐 두는 데도 준비는 필요합니다. 과학기술원에 지원하려면 학업·탐구 역량을 보여 주는 입증자료 5건을 준비해야 합니다.",
   },
   {
-    icon: MessagesSquare,
-    title: "면접",
-    body: "과기원 면접은 의대 면접과 묻는 것이 다릅니다. 대학별 면접 대비는 T과기원에서 진행합니다.",
+    icon: UserCheck,
+    title: "준비는 전문 선생님들이 맡습니다",
+    body: "의대준비반 학생에게 가장 아까운 것은 공부 시간입니다. 학생이 해 온 탐구와 활동을 바탕으로, 전문 선생님들이 학생의 시간을 뺏지 않는 범위에서 입증자료 5건을 갖춰 드립니다.",
   },
 ];
 
@@ -168,8 +170,8 @@ const FOR_WHOM = [
   },
   {
     icon: Target,
-    title: "의대와 이공계를 함께 열어 두려는 학생",
-    body: "의대가 1순위지만 KAIST 등 과학기술원도 선택지로 가져가려는 학생.",
+    title: "의대 공부에만 시간을 쓰고 싶은 학생",
+    body: "과학기술원 서류 같은 곁가지 준비는 선생님에게 맡기고, 자기 시간은 내신과 수능에 쓰려는 학생.",
   },
 ];
 
@@ -177,7 +179,8 @@ const FOR_WHOM = [
 const HONEST = [
   "공부와 활동은 학생이 합니다. 대신 써 드리거나 대신 해 드리지 않습니다.",
   "학교생활기록부는 학교 선생님이 관찰해 씁니다. 저희는 어떤 활동을 언제 할지 설계하고 계획대로 가고 있는지 점검합니다.",
-  "과기원 지원 여부는 학생과 학부모가 정합니다. 전형 일정과 제출 서류는 해마다 달라지므로 각 대학 모집요강을 함께 확인합니다.",
+  "과학기술원 입증자료는 학생이 실제로 한 탐구와 활동을 바탕으로 준비합니다. 하지 않은 활동을 만들어 넣지 않습니다.",
+  "과학기술원 지원 여부는 학생과 학부모가 정합니다. 제출 서류와 평가 방식은 각 대학 모집요강을 함께 확인합니다.",
   "합격을 보장하지 않습니다. 모집 기준과 일정, 비용은 상담에서 안내해 드립니다.",
 ];
 
@@ -198,7 +201,7 @@ const RELATED = [
     href: GWAGIWON_URL,
     icon: Atom,
     title: "T과기원",
-    body: "KAIST·GIST·DGIST·UNIST 등 과학기술원 입시 — 자소서·면접·탐구 안내.",
+    body: "과학기술원 전형과 입증자료 · 자기소개서 · 면접 안내는 T과기원에서.",
   },
 ];
 
@@ -237,7 +240,7 @@ export default function UidaeJunbiPage() {
         badge="2028 의대준비반 · 모집 중"
         title="전교권 학생들이 모여,"
         highlight="매일 학습량으로 겨룹니다"
-        body="2028학년도 의대를 준비하는 반입니다. 이번 겨울방학은 플래너로 매일의 학습량을 겨루고, 생기부 컨설팅 반에서 남은 학기의 활동을 설계합니다. 내년 수시에서는 의대 원서와 별도로 KAIST 등 과학기술원도 함께 지원합니다."
+        body="2028학년도 의대를 준비하는 반입니다. 이번 겨울방학은 플래너로 매일의 학습량을 겨루고, 생기부 컨설팅 반에서 남은 학기의 활동을 설계합니다. 내신·수능·학생부 어느 하나도 비워 둘 수 없는 의대 입시를, 같은 목표를 가진 전교권 학생들과 함께 준비합니다."
         primaryHref="#contact"
         primaryLabel="의대준비반 상담 신청"
         secondaryHref="#tracks"
@@ -247,17 +250,17 @@ export default function UidaeJunbiPage() {
           { icon: Users, label: "전교권 학생 대상" },
           { icon: Snowflake, label: "겨울방학 플래너" },
           { icon: FileText, label: "생기부 컨설팅 반" },
-          { icon: Atom, label: "과기원 병행 지원" },
+          { icon: Flame, label: "매일 학습량 경쟁" },
         ]}
       />
 
-      {/* 세 갈래 한눈에 */}
+      {/* 두 축 + 덤 하나 */}
       <div id="tracks" className="scroll-mt-32">
         <PromoSection
           eyebrow="THREE TRACKS"
           EyebrowIcon={Layers}
-          title="의대준비반은 세 갈래로 움직입니다"
-          subtitle="방학의 학습량, 학기의 생기부, 그리고 내년 원서. 따로 준비하면 서로의 일정을 모릅니다."
+          title="두 축으로 움직이고, 훈장 하나를 더합니다"
+          subtitle="방학의 학습량과 학기의 생기부가 의대준비반의 두 축입니다. 과학기술원은 가는 김에 하나 걸쳐 둡니다."
           tone="muted"
         >
           <LinkCards items={TRACKS} columns={3} />
@@ -301,29 +304,33 @@ export default function UidaeJunbiPage() {
         </PromoSection>
       </div>
 
-      {/* ③ 과기원 병행 지원 */}
+      {/* + 더불어 — 과기원은 목적이 아니라 덤. 주력 섹션보다 가볍게 둔다 */}
       <div id="gwagiwon" className="scroll-mt-32">
         <PromoSection
-          eyebrow="TRACK 3 · KAIST & MORE"
-          EyebrowIcon={Atom}
-          title="내년, 과기원도 함께 지원합니다"
-          subtitle="의대 여섯 장에 선택지를 묶어 둘 이유가 없습니다. KAIST 등 과학기술원은 그 여섯 장 밖에 있습니다."
+          eyebrow="PLUS · 더불어"
+          EyebrowIcon={Medal}
+          title="가는 김에, 훈장 하나를 달고 갑니다"
+          subtitle="의대준비반의 목표는 의대입니다. 과학기술원은 목표가 아니라, 의대로 가는 길에 하나 걸쳐 두는 합격증입니다."
         >
-          <CheckList items={GWAGIWON_WHY} />
+          <FeatureGrid items={GWAGIWON_POINTS} columns={3} />
 
-          <div className="mt-14">
-            <p className="eyebrow mb-6 flex items-center justify-center gap-2 text-center text-brass-600">
-              <Ticket className="h-4 w-4" strokeWidth={1.5} />
-              KAIST 등 대비 — 미리 챙기는 세 가지
-            </p>
-            <FeatureGrid items={GWAGIWON_PREP} columns={3} />
+          <div className="mx-auto mt-12 max-w-5xl">
+            <NoteBox
+              tone="warn"
+              title="내년부터 입증자료 5건이 평가 대상이 됩니다"
+              items={[
+                "과학기술원은 내년 입시부터 이 입증자료 5건을 평가에 반영합니다. 내면 좋은 참고 서류가 아니라, 점수가 매겨지는 서류가 됩니다.",
+                "그래서 걸쳐만 두려 해도 미리 준비해야 합니다. 3학년 원서철에 급하게 모으면 의대 준비 시간을 깎게 됩니다.",
+              ]}
+              Icon={FileStack}
+            />
           </div>
 
           <MoreBar
-            title="과기원 입시는 T과기원에서 자세히"
-            body="KAIST · GIST · DGIST · UNIST 등 대학별 전형과 자기소개서 · 면접 대비는 T과기원에 정리되어 있습니다."
-            href={GWAGIWON_URL}
-            label="T과기원 바로가기"
+            title="자세한 전형 안내는 T과기원에서"
+            body="입증자료 5건이 무엇인지, 전형과 자기소개서 · 면접이 어떻게 진행되는지는 T과기원에 정리되어 있습니다."
+            href={GWAGIWON_KAIST_URL}
+            label="T과기원에서 보기"
           />
         </PromoSection>
       </div>
