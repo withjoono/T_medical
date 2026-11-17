@@ -466,6 +466,8 @@ export type Univ = {
   tracks: Track[];
   notes?: string[];
   sources: { label: string; url: string }[];
+  /** 대학이 실제로 게시한 면접대상자 발표. 해당 전형에만 표시한다. */
+  resultNotice?: { trackId: string; url: string; published: string; details: string };
   /** 검색 노출용 덮어쓰기 — 실제 검색어(약칭·전형명·발표일)가 기본 제목 템플릿과 다를 때만 쓴다.
    *  /interview/uidae/<slug> 의 <title> 과 description 앞머리에만 적용된다. URL 은 바꾸지 않는다. */
   search?: {
@@ -1194,19 +1196,29 @@ export const UNIVS: Univ[] = [
     short: "연세대",
     region: "서울",
     style: "none",
-    styleLabel: "제시문 기반 면접 (MMI 아님)",
-    headline: "MMI가 아니라 제시문 면접 — 준비 방향이 다르다",
+    styleLabel: "활동우수형 제시문 대면 인·적성 면접",
+    headline: "활동우수형 1차 발표와 11월 22일 면접",
     lede:
-      "연세대는 스테이션을 도는 MMI가 아니라 제시문 기반 면접입니다. 짧은 상황 판단을 여러 번 하는 훈련보다, 하나의 제시문을 깊게 읽고 길게 논증하는 훈련이 맞습니다.",
+      "연세대 의대(연대의대) 서울캠퍼스는 2026년 11월 16일 활동우수형 의예과 1단계 합격자, 즉 2단계 면접대상자를 발표했습니다. 11월 22일(일)에는 두 면접실에서 제시문을 바탕으로 의학 전공에 필요한 인성과 적성을 평가합니다.",
+    search: {
+      title: "2027 연세대 의대 면접 | 활동우수형 1차 발표·11월 22일 일정·기출 | T메디",
+      lead: "연세대 서울캠퍼스 의예과 활동우수형 1단계 결과는 11월 16일 발표됐습니다. 연세대 입학처 결과 조회, 11월 22일 개인별 입실 안내, 두 차례의 대면 면접과 전년도 기출을 확인하세요.",
+    },
+    resultNotice: {
+      trackId: "yonsei-hwaldong",
+      url: "https://www2.yonsei.ac.kr/entrance/2027/susi/pass_1st_CB_K/pass.asp",
+      published: "2026-11-16",
+      details: "입학처 조회 화면에 성명·수험번호·생년월일을 입력해 본인의 오전·오후 배정, 입실 완료 시각과 고사장을 확인하세요. 오전 조는 13시에 함께 퇴실하고 오후 조는 면접을 마친 뒤 개별 퇴실합니다.",
+    },
     format: [
-      "제시문 기반 면접 (자연계)",
-      "1단계 발표 11월 16일 → 면접 11월 22일",
-      "활동우수형 의예과",
+      "활동우수형 의예과는 대면 면접을 두 차례 봅니다. 각 차수마다 준비실에서 8분 동안 문제를 읽은 뒤 고사장으로 이동해 8분 내외로 답합니다.",
+      "준비실에서는 제공된 연습지 한 장의 앞뒷면에 메모할 수 있습니다. 면접에서 메모를 보고 답한 뒤 연습지를 제출하고 다음 준비실로 이동합니다.",
+      "기회균형 지원자는 별도 일정의 현장 녹화 면접을 봅니다. 11월 16일 발표와 11월 22일 대면 면접은 활동우수형 일정입니다.",
     ],
     drills: [
-      "MMI 커리큘럼을 그대로 쓰면 안 된다. 제시문 독해 → 논지 구성 → 반론 대응의 긴 호흡 훈련",
-      "제시문 안의 논리적 허점을 스스로 찾아 지적하는 연습 — 추가 질문의 상당수가 여기서 나온다",
-      "발표 11/16 → 면접 11/22, 6일. 수능(11/19) 직후 구간이라 체력 관리가 준비량만큼 중요하다",
+      "2026학년도 수시 활동우수형 의예과 기출 중 조언을 묻는 문제를 고르세요. 제시문에서 근거를 찾아 친구에게 건넬 말로 바꾸고, 조건이 달라졌을 때도 그 조언이 맞는지 설명해 보세요.",
+      "자료 해석 문제는 표나 그래프에서 직접 확인한 사실과 그 사실로부터 내린 판단을 나눠 메모하세요. 어떤 자료를 보고 결론을 냈는지 말로 짚어 보세요.",
+      "서로 다른 기출로 준비 8분과 답변 8분을 두 차례 연습하세요. 두 번째 문제는 새 연습지에서 시작합니다.",
     ],
     tracks: [
       {
@@ -1215,11 +1227,22 @@ export const UNIVS: Univ[] = [
         mmi: false,
         announce: "2026-11-16",
         interview: "2026-11-22",
-        interviewNote: "자연계",
+        interviewNote: "오전·오후 개별 배정, 대면 2회",
+        multiple: "4배수",
+        weight: "1단계 서류 100% → 2단계 1단계 점수 60% + 면접 40%",
+      },
+      {
+        id: "yonsei-opportunity",
+        name: "학생부종합 기회균형 의예",
+        mmi: false,
+        announce: "2026-10-26",
+        interview: "2026-11-01",
+        interviewNote: "오후, 현장 녹화",
       },
     ],
     sources: [
-      { label: "베리타스알파 — 연세대 2027수시 면접일정 공개", url: "https://www.veritas-a.com/news/articleView.html?idxno=625556" },
+      { label: "연세대 입학처 | 2027 수시 면접 일정·의과대학 사전 안내", url: "https://admission.yonsei.ac.kr/seoul/admission/html/rolling/noticeView.asp?BBS_NO=3523" },
+      { label: "연세대 입학처 | 2026학년도 기출문제 별책·선행학습 영향평가 보고서", url: "https://admission.yonsei.ac.kr/seoul/admission/html/counsel/dataView.asp?BBS_NO=3490" },
     ],
   },
 

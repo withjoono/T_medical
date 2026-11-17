@@ -206,7 +206,7 @@ export default function UidaeInterviewPage() {
             sub: "면접 준비가 필요 없는 대학",
           },
           {
-            label: "MMI 특강 개설",
+            label: "면접 특강 개설",
             value: String(UNIV_TOTALS.withClass),
             unit: "개교",
             sub: "1단계 발표일 기준 수업 캘린더 운영",

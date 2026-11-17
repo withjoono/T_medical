@@ -92,7 +92,7 @@ export async function generateMetadata({
     first?.interview ? `면접 ${formatKo(first.interview)}.` : "",
     noInterview ? "" : "면접 방식·일정과 대학별 대비 포인트, 1:1 면접 수업 일정까지 정리했습니다.",
   ].filter(Boolean);
-  const description = sentences.join(" ");
+  const description = u.interview?.resultNotice && search?.lead ? search.lead : sentences.join(" ");
 
   // 실제 검색어는 "○○대 의대 면접" — 제목 앞머리에 그대로 둔다(2026-10-21 노출 점검).
   const title =
@@ -145,6 +145,8 @@ export default async function UidaeInterviewUnivPage({
 
   const iv = u.interview;
   const tracks = iv?.tracks ?? [];
+  const notice = iv?.resultNotice;
+  const announcedTrack = notice && tracks.find((t) => t.id === notice.trackId);
   const groups = quotaByType(u);
   const noInterview = u.hasInterview === false;
   /** 특강 일정·예약 블록은 mmi-schedule SSOT 에 데이터가 있는 대학만 렌더한다. */
@@ -179,7 +181,7 @@ export default async function UidaeInterviewUnivPage({
       })();
   /** 띠 문구에 이 대학에만 성립하는 조각을 붙인다(39개 띠가 같은 문장이 되지 않게) */
   const classContext = [
-    interviewDays.length > 0 ? `면접 ${formatKo(interviewDays[0])}` : null,
+    interviewDays.length > 0 ? `면접 ${formatKo(announcedTrack?.interview ?? interviewDays[0])}` : null,
     iv?.styleLabel ?? null,
   ]
     .filter(Boolean)
@@ -215,7 +217,7 @@ export default async function UidaeInterviewUnivPage({
       ? { label: "면접", value: "없음", sub: "2027학년도 전 전형 미실시" }
       : { label: "면접 실시", value: String(tracks.length), unit: "개 전형", sub: iv?.styleLabel ?? "확인 필요" },
     interviewDays.length > 0
-      ? { label: "면접일", value: formatKo(interviewDays[0]).replace(/\(.\)$/, ""), sub: interviewDays.length > 1 ? `외 ${interviewDays.length - 1}일` : "단일 일정" }
+      ? { label: "면접일", value: formatKo(announcedTrack?.interview ?? interviewDays[0]).replace(/\(.\)$/, ""), sub: announcedTrack?.name ?? (interviewDays.length > 1 ? `외 ${interviewDays.length - 1}일` : "단일 일정") }
       : { label: "면접일", value: "—", sub: noInterview ? "면접 없음" : "미공지" },
   ];
 
@@ -230,8 +232,8 @@ export default async function UidaeInterviewUnivPage({
           ]),
           article({
             path: `/interview/uidae/${u.slug}`,
-            headline: `${u.short} 의대 면접 2027 — 방식·일정·대비`,
-            description: `${u.name} 2027학년도 수시 면접. ${
+            headline: notice ? `${u.short} 의대 면접, ${iv?.headline}` : `${u.short} 의대 면접 2027 — 방식·일정·대비`,
+            description: iv?.search?.lead ?? `${u.name} 2027학년도 수시 면접. ${
               noInterview ? "면접 미실시" : iv?.styleLabel ?? "면접 실시"
             }.`,
           }),
@@ -268,17 +270,29 @@ export default async function UidaeInterviewUnivPage({
           iv?.lede ??
           `${u.name}의 2027학년도 수시 면접을 정리했습니다. 면접 방식과 일정, 이 대학을 겨냥한 대비 포인트를 확인하세요.`
         }
-        primaryHref={noInterview ? "#contact" : "#class"}
-        primaryLabel={noInterview ? `${u.short} 면접 수업 문의` : `${u.short} 면접 수업 안내`}
-        secondaryHref={`/univ/${u.slug}`}
-        secondaryLabel="전형 안내 보기"
+        primaryHref={notice?.url ?? (noInterview ? "#contact" : "#class")}
+        primaryLabel={notice ? "입학처에서 면접대상자 조회" : noInterview ? `${u.short} 면접 수업 문의` : `${u.short} 면접 수업 안내`}
+        secondaryHref={notice ? "#class" : `/univ/${u.slug}`}
+        secondaryLabel={notice ? "면접 수업 안내" : "전형 안내 보기"}
         Icon={MessagesSquare}
         stats={[
           { icon: MessagesSquare, label: noInterview ? "면접 미실시" : `면접 ${tracks.length}개 전형` },
-          ...(interviewDays.length > 0 ? [{ icon: CalendarDays, label: `면접 ${formatKo(interviewDays[0])}` }] : []),
-          ...(u.hasClassPage ? [{ icon: Users, label: "MMI 특강 개설" }] : []),
+          ...(interviewDays.length > 0 ? [{ icon: CalendarDays, label: `면접 ${formatKo(announcedTrack?.interview ?? interviewDays[0])}` }] : []),
+          ...(u.hasClassPage ? [{ icon: Users, label: "면접 특강 개설" }] : []),
         ]}
       />
+
+      {notice && announcedTrack && (
+        <PromoSection title={`${announcedTrack.name} 1단계 발표 후 확인할 사항`}>
+          <div className="mx-auto max-w-3xl space-y-4 leading-relaxed text-ink-700">
+            <p><time dateTime={notice.published}>{formatKo(notice.published)}</time> 발표에서 면접대상자로 선정됐다면, {notice.details}</p>
+            <ul className="list-disc space-y-2 pl-5 text-jade-700">
+              {iv?.sources.map((s) => <li key={s.url}><a className="underline underline-offset-4" href={s.url}>{s.label}</a></li>)}
+            </ul>
+            {univGichul && <a className="inline-block underline underline-offset-4" href="#gichul">{u.short} 의예과 기출 해설 보기</a>}
+          </div>
+        </PromoSection>
+      )}
 
       <UnivStatRow
         items={stats}
@@ -428,7 +442,7 @@ export default async function UidaeInterviewUnivPage({
       {/* ===== 공개 기출 분석 — 가천대(lib/gachon-gichul.ts) · 나머지 대학(lib/univ-gichul.ts).
           같은 대학의 여러 계열 페이지가 겹치지 않게 나눠 싣는다 ===== */}
       {gichul && <GachonGichul page={gichul} />}
-      {univGichul && <UnivGichulBlock u={univGichul.u} field={univGichul.field} />}
+      {univGichul && <div id="gichul" className="scroll-mt-24"><UnivGichulBlock u={univGichul.u} field={univGichul.field} /></div>}
 
       {cross.length > 0 && (
         <PromoSection

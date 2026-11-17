@@ -83,7 +83,7 @@ export function TypeUnivTable({
                     </Link>
                     {univ.hasClassPage && (
                       <span className="mt-1.5 block text-[11px] font-light tracking-tight text-brass-600">
-                        MMI 특강 개설
+                        면접 특강 개설
                       </span>
                     )}
                   </td>

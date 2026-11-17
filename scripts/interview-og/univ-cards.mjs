@@ -1,17 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
 import { cropPngTop } from "./crop.mjs";
 
-const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const CHROME =
   process.env.CHROME ??
   "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 const TMP = path.join(REPO, ".cache", "univ-lib");
 const OUT = path.join(REPO, "public", "og", "univ");
 const HTML = path.join(REPO, ".cache", "univ-html");
-fs.rmSync(HTML, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(HTML, { recursive: true });
 
@@ -43,7 +42,7 @@ function card(u) {
   const facts = [
     [none ? "면접" : "면접일", dateLabel, true],
     ["면접 전형", none ? "없음" : `${tracks.length}개`, false],
-    ["1단계 발표", anns.length ? koDate(anns[0]) : (none ? "—" : "미공지"), false],
+    [iv?.resultNotice ? "활동우수형 1차 발표" : "1단계 발표", iv?.resultNotice ? koDate(iv.resultNotice.published) : anns.length ? koDate(anns[0]) : (none ? "—" : "미공지"), false],
     ["요강 확인", conf, false],
   ];
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
@@ -80,12 +79,15 @@ function card(u) {
 }
 
 let n = 0;
-for (const u of UNIV_PAGES) {
+const slug = process.argv[2];
+const selected = slug ? UNIV_PAGES.filter((u) => u.slug === slug) : UNIV_PAGES;
+if (!selected.length) throw new Error(`Unknown university slug: ${slug}`);
+for (const u of selected) {
   const hp = path.join(HTML, `${u.slug}.html`);
   fs.writeFileSync(hp, card(u));
   const out = path.join(OUT, `${u.slug}.png`);
   execFileSync(CHROME, ["--headless=new","--no-sandbox","--disable-gpu","--hide-scrollbars",
-    "--force-device-scale-factor=1","--window-size=1200,900",`--screenshot=${out}`,`file://${hp}`], { stdio: "ignore" });
+    "--force-device-scale-factor=1","--window-size=1200,900",`--screenshot=${out}`,pathToFileURL(hp).href], { stdio: "ignore" });
   cropPngTop(out, 630);
   n++;
 }

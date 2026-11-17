@@ -215,7 +215,7 @@ export default async function UnivPage({
             </div>
           </div>
           <span className="inline-flex shrink-0 items-center justify-center gap-2 bg-paper px-7 py-4 text-[15px] font-semibold text-ink transition-colors group-hover:bg-brass-200">
-            {noInterview ? "면접 미실시 안내" : `${u.short} 면접 보러 가기`}
+            {iv?.resultNotice ? `${u.short} 의대 1차 발표·면접 기출 보기` : noInterview ? "면접 미실시 안내" : `${u.short} 면접 보러 가기`}
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2} />
           </span>
         </Link>

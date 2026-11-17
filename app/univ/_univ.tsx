@@ -341,7 +341,7 @@ export function UnivCard({ univ }: { univ: UnivPage }) {
         ) : tracks.length > 0 ? (
           <span className="tnum text-jade-700">면접 {tracks.length}개 전형</span>
         ) : null}
-        {univ.hasClassPage && <span className="text-brass-600">MMI 특강</span>}
+        {univ.hasClassPage && <span className="text-brass-600">면접 특강</span>}
       </div>
     </Link>
   );

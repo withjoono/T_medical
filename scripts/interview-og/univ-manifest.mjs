@@ -1,14 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
-const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../..");
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const require_ = createRequire(path.join(REPO, "package.json"));
 const ts = require_("typescript");
 
 
 const TMP = path.join(REPO, ".cache", "univ-lib");
-fs.rmSync(TMP, { recursive: true, force: true });
 fs.mkdirSync(path.join(TMP, "ipkyul"), { recursive: true });
 
 const FILES = [
