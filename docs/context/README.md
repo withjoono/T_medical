@@ -11,6 +11,7 @@
 | [`data-rules.md`](data-rules.md) | 입결·요강·면접 데이터를 추가·수정할 때 (실측만, 원천 위치, 필터, 분류 두 축) |
 | [`uiye-db-cleanup.md`](uiye-db-cleanup.md) | `lib/ipkyul/uiye.ts` 전형 행을 정리할 때 |
 | [`interview-system.md`](interview-system.md) | 내 면접·면접 수업 예약·선생님 연결·내 수업(수시앱에서 가져온 면접 시스템, 공용 서버)을 고칠 때 |
+| [`sim-review.md`](sim-review.md) | MMI 실전 모의면접의 복기 카드 · 질문 없는 방 · 지난 수업 과제를 고치거나 서버(susi-back)로 옮길 때, 서울대 면접 페이지의 그 설명을 고칠 때 |
 | [`scope-boundaries.md`](scope-boundaries.md) | "이걸 이 리포에서 고치나?"가 애매할 때 (Hub·Susi·Interview·Music_College) |
 
 ## 운영·교훈

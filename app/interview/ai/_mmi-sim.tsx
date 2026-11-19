@@ -35,9 +35,54 @@ import {
   type SpeechStats,
 } from "@/lib/interview-sim-api";
 import { speakKo, stopSpeaking, useSpeechTranscript } from "@/lib/use-speech-transcript";
+import {
+  addTask,
+  finishTask,
+  forgetAll,
+  forgetSession,
+  getReview,
+  hasAnyReview,
+  interviewerQuestions,
+  isQuestionless,
+  patchReview,
+  pendingTasks,
+  predictFor,
+  predictPref,
+  recordAttempt,
+  removeTask,
+  sessionOpts,
+  setPredictPref,
+  setSessionOpts,
+  snap,
+  summaryText,
+  taskById,
+  taskFor,
+  type ClassTask,
+  type ReviewBase,
+  type SelfMark,
+} from "@/lib/sim-review";
+import {
+  CopySummary,
+  emptyDraft,
+  PredictPanel,
+  PredictToggle,
+  ReviewBlock,
+  ReviewCard,
+  SelfTag,
+  TaskCards,
+  TaskCompare,
+  TaskMarker,
+  type ReviewDraft,
+} from "./_mmi-review";
 
 /** MMI 실전 모의면접 — 대학 형식 그대로 방을 돌고, AI 면접관의 꼬리질문에 답한 뒤 기준표 피드백을 받는다.
- *  서버: 면접 공용 엔진(/interview-sim). 답변은 글(받아쓰기)만 보낸다. */
+ *  서버: 면접 공용 엔진(/interview-sim). 답변은 글(받아쓰기)만 보낸다.
+ *
+ *  한 번의 모의면접은 응시 → 복기 → (수업) → 다시 답하기 한 묶음이다 (2026-11-19, lib/sim-review.ts · _mmi-review.tsx):
+ *   · 질문 없는 방 — 면접관 질문을 가려 두고 쟁점·예상 질문을 먼저 말한다(서울대 형식은 기본, 다른 대학은 연습에서 선택)
+ *   · 복기 카드 — 방을 마친 직후, 점검 결과를 보기 전에 쓴다. 결과 화면에서 내 판단과 점검을 나란히 놓는다
+ *   · 지난 수업 과제 — 수업에서 선생님이 짚은 문항을 표시해 두면 다음 모의면접이 그 문항을 다시 답하는 것으로 시작한다
+ *  셋 다 이 브라우저에만 저장한다(서버에 받는 곳이 생기기 전까지). */
 
 type Phase = "loading" | "login" | "error" | "disabled" | "consent" | "home" | "lobby" | "room" | "finishing" | "result";
 
@@ -57,6 +102,12 @@ export function MmiSim() {
   const [session, setSession] = useState<SimSession | null>(null);
   const [roomIdx, setRoomIdx] = useState(0);
   const [busy, setBusy] = useState(false);
+  /** 이 브라우저에 둔 복기·과제(lib/sim-review.ts)를 바꾼 뒤 화면을 다시 그린다 */
+  const [, setTick] = useState(0);
+  const bump = () => setTick((n) => n + 1);
+  /** 과제 때문에 미뤄 둔 회차 — 과제 결과 화면에서 이어서 시작한다 */
+  const [afterTask, setAfterTask] = useState<{ formatId: string; mode: "real" | "practice" } | null>(null);
+  const [skipTask, setSkipTask] = useState(false);
 
   const fail = useCallback((e: unknown) => {
     if (e instanceof SimApiError && e.status === 401) {
@@ -95,12 +146,26 @@ export function MmiSim() {
       });
   }, [authLoading, isAuthenticated, refreshHistory]);
 
-  const startSession = async (format: SimFormat, mode: "real" | "practice", opts: { promptId?: string; roomIdx?: number } = {}) => {
+  const startSession = async (
+    format: SimFormat,
+    mode: "real" | "practice",
+    opts: { promptId?: string; roomIdx?: number; /** 질문 없는 방 */ predict?: boolean; /** 지난 수업 과제를 다시 답하는 회차 */ taskId?: string } = {},
+  ) => {
     if (!config) return;
     setBusy(true);
     setError(null);
     try {
-      const s = await simApi.start({ formatId: format.id, mode, consentVersion: config.consentVersion, consentItems: consent, ...opts });
+      const { predict, taskId, ...serverOpts } = opts;
+      const common = { formatId: format.id, mode, consentVersion: config.consentVersion, consentItems: consent };
+      let s: SimSession;
+      try {
+        s = await simApi.start({ ...common, ...serverOpts });
+      } catch (e) {
+        // 과제 다시 답하기: 서버가 문항과 방 번호를 함께 받지 않으면 문항만으로 한 번 더 연다
+        if (!(e instanceof SimApiError) || e.status !== 400 || serverOpts.roomIdx == null || !serverOpts.promptId) throw e;
+        s = await simApi.start({ ...common, promptId: serverOpts.promptId });
+      }
+      setSessionOpts(s.id, { predict: !!predict, taskId });
       setSession(s);
       setRoomIdx(0);
       setPhase("lobby");
@@ -112,7 +177,29 @@ export function MmiSim() {
     }
   };
 
+  /** 과제 문항 다시 답하기 — 연습 회차로 그 문항 하나만 연다(질문을 이미 아는 문항이라 질문 없는 방은 끈다) */
+  const startTask = (task: ClassTask) => {
+    const format = config?.formats.find((f) => f.id === task.formatId);
+    if (!format) {
+      setError("이 과제의 면접 형식이 지금은 열려 있지 않아요. 과제를 끝내거나 나중에 다시 시도해 주세요.");
+      return;
+    }
+    return startSession(format, "practice", { promptId: task.promptId, ...(task.fromMode === "real" ? { roomIdx: task.fromRoomIdx } : {}), taskId: task.id });
+  };
+
+  /** 형식 카드의 시작 버튼 — 아직 한 번도 다시 답하지 않은 과제가 있으면 그 문항부터 */
+  const begin = (format: SimFormat, mode: "real" | "practice") => {
+    const task = skipTask ? undefined : pendingTasks().find((t) => t.formatId === format.id && t.attempts.length === 0);
+    if (task) {
+      setAfterTask({ formatId: format.id, mode });
+      return startTask(task);
+    }
+    setAfterTask(null);
+    return startSession(format, mode, { predict: predictFor(format.id, format.univ, mode) });
+  };
+
   const openSession = async (id: string) => {
+    setAfterTask(null);
     setBusy(true);
     setError(null);
     try {
@@ -190,21 +277,57 @@ export function MmiSim() {
     return (
       <Box>
         {error && <ErrorLine text={error} />}
+        <TaskCards
+          tasks={pendingTasks()}
+          busy={busy}
+          skip={skipTask}
+          onStart={(t) => {
+            setAfterTask(null);
+            startTask(t);
+          }}
+          onFinish={(t) => {
+            finishTask(t.id);
+            bump();
+          }}
+          onSkip={setSkipTask}
+        />
         {config.formats.map((f) => (
-          <FormatCard key={f.id} format={f} busy={busy} onReal={() => startSession(f, "real")} onPractice={() => startSession(f, "practice")} />
+          <FormatCard
+            key={f.id}
+            format={f}
+            busy={busy}
+            taskFirst={!skipTask && pendingTasks().some((t) => t.formatId === f.id && t.attempts.length === 0)}
+            predict={predictPref(f.id, f.univ)}
+            onPredict={(v) => {
+              setPredictPref(f.id, v);
+              bump();
+            }}
+            onReal={() => begin(f, "real")}
+            onPractice={() => begin(f, "practice")}
+          />
         ))}
         <History
           items={history}
           busy={busy}
           onOpen={openSession}
           onDelete={async (id) => {
-            if (!window.confirm("이 기록을 지울까요? 되돌릴 수 없어요.")) return;
-            await simApi.remove(id).catch(fail);
+            if (!window.confirm("이 기록을 지울까요? 이 기기에 적어 둔 복기와 과제도 함께 지워져요. 되돌릴 수 없어요.")) return;
+            try {
+              await simApi.remove(id);
+              forgetSession(id);
+            } catch (e) {
+              fail(e);
+            }
             refreshHistory();
           }}
           onDeleteAll={async () => {
-            if (!window.confirm("모의면접 기록을 전부 지울까요? 되돌릴 수 없어요.")) return;
-            await simApi.removeAll().catch(fail);
+            if (!window.confirm("모의면접 기록을 전부 지울까요? 이 기기에 적어 둔 복기와 과제도 함께 지워져요. 되돌릴 수 없어요.")) return;
+            try {
+              await simApi.removeAll();
+              forgetAll();
+            } catch (e) {
+              fail(e);
+            }
             refreshHistory();
           }}
         />
@@ -216,16 +339,29 @@ export function MmiSim() {
 
   if (phase === "lobby" && session) {
     const room = session.rooms[roomIdx];
+    const opts = sessionOpts(session.id);
+    const lobbyTask = taskById(opts.taskId);
     return (
       <Box>
         <p className="text-[12px] font-semibold tracking-wide text-brass-600">
-          {session.format?.univ} · {session.mode === "real" ? `실전 ${roomIdx + 1}/${session.rooms.length}` : "연습"}
+          {session.format?.univ} · {lobbyTask ? "지난 수업 과제 — 다시 답하기" : session.mode === "real" ? `실전 ${roomIdx + 1}/${session.rooms.length}` : "연습"}
         </p>
         <h3 className="mt-2 text-[1.25rem] font-bold text-ink-900">{room.label} 입실 전</h3>
+        {lobbyTask && (
+          <p className="mt-3 border-l-2 border-brass-400 bg-brass-50 px-3 py-2 text-[13px] leading-relaxed text-ink-800">
+            수업에서 선생님이 짚은 문항입니다. {lobbyTask.note ? `선생님 말씀 — “${lobbyTask.note}”` : "수업에서 들은 것을 떠올리고 다시 답해 보세요."}
+          </p>
+        )}
         <ul className="mt-4 space-y-2 text-[14px] leading-relaxed text-ink-600">
           <li>· {room.prepSec ? `준비 ${mmss(room.prepSec)} 뒤` : "준비 시간 없이"} 면접실 안에서 제시문을 읽고 <b className="text-ink-900">{Math.round(room.answerSec / 60)}분</b> 동안 답합니다. 읽는 시간도 포함입니다.</li>
           <li>· 면접관이 첫 질문을 하고, 답이 끝나면 꼬리질문을 최대 {room.followUpsLeft}번 합니다.</li>
           <li>· 시간이 끝나면 자동으로 면접실을 마칩니다. 실전처럼 되돌아갈 수 없습니다.</li>
+          {opts.predict && room.turns.length === 0 && (
+            <li>
+              · <b className="text-ink-900">질문 없는 방</b>입니다. 면접관 질문은 가려 둡니다. 제시문을 읽고 쟁점과 예상 질문을 먼저 말한 뒤 질문을 받습니다.
+            </li>
+          )}
+          <li>· 방을 마치면 점검 결과를 보기 전에 1분짜리 복기 카드를 씁니다.</li>
         </ul>
         {room.prompt?.draft && <DraftNote />}
         <button
@@ -246,6 +382,7 @@ export function MmiSim() {
           key={`${session.id}-${roomIdx}`}
           session={session}
           roomIdx={roomIdx}
+          predict={sessionOpts(session.id).predict}
           finishing={phase === "finishing"}
           onFinishing={() => setPhase("finishing")}
           onDone={onRoomFinished}
@@ -260,18 +397,37 @@ export function MmiSim() {
 
   if (phase === "result" && session && config) {
     const format = config.formats.find((f) => f.id === session.formatId);
+    const task = taskById(sessionOpts(session.id).taskId);
+    const next = task && afterTask ? config.formats.find((f) => f.id === afterTask.formatId) : undefined;
     return (
       <Box>
         <Result
           session={session}
           busy={busy}
-          onRetrySame={
-            session.mode === "practice" && format && session.rooms[0].prompt
-              ? () => startSession(format, "practice", { promptId: session.rooms[0].prompt!.id })
+          task={task}
+          onChange={bump}
+          onContinue={
+            next && afterTask
+              ? {
+                  label: afterTask.mode === "real" ? "이어서 실전 모의면접 시작" : "이어서 연습 시작",
+                  run: () => {
+                    const mode = afterTask.mode;
+                    setAfterTask(null);
+                    startSession(next, mode, { predict: predictFor(next.id, next.univ, mode) });
+                  },
+                }
               : undefined
           }
-          onNew={format ? () => startSession(format, session.mode) : undefined}
+          onRetrySame={
+            task
+              ? () => startTask(task)
+              : session.mode === "practice" && format && session.rooms[0].prompt
+                ? () => startSession(format, "practice", { promptId: session.rooms[0].prompt!.id })
+                : undefined
+          }
+          onNew={format ? () => startSession(format, session.mode, { predict: predictFor(format.id, format.univ, session.mode) }) : undefined}
           onHome={() => {
+            setAfterTask(null);
             setSession(null);
             setPhase("home");
             refreshHistory();
@@ -290,6 +446,7 @@ export function MmiSim() {
 function Room({
   session,
   roomIdx,
+  predict,
   finishing,
   onFinishing,
   onDone,
@@ -298,6 +455,8 @@ function Room({
 }: {
   session: SimSession;
   roomIdx: number;
+  /** 질문 없는 방 — 면접관 질문을 가려 두고 쟁점·예상 질문부터 말한다 */
+  predict: boolean;
   finishing: boolean;
   onFinishing: () => void;
   onDone: (s: SimSession) => void;
@@ -307,6 +466,23 @@ function Room({
   const room = session.rooms[roomIdx];
   const prompt = room.prompt;
   const startedAt = useRef(Date.now());
+  /** 문답이 시작된 때 — 질문 없는 방이면 예상을 마치고 질문을 받은 순간 */
+  const qaStartedAt = useRef(startedAt.current);
+  /** 이어서 하는 방(이미 답한 방)은 바로 문답으로 들어간다 */
+  const [stage, setStage] = useState<"predict" | "qa">(predict && prompt && room.turns.length === 0 ? "predict" : "qa");
+  const stageRef = useRef(stage);
+  stageRef.current = stage;
+  /** 점검이 끝난 회차 — 복기 카드를 닫을 때 부모에게 넘긴다 */
+  const [done, setDone] = useState<SimSession | null>(null);
+  const [draft, setDraft] = useState<ReviewDraft>(emptyDraft);
+  const base: ReviewBase = {
+    sessionId: session.id,
+    roomIdx,
+    formatId: session.formatId,
+    promptId: prompt?.id ?? null,
+    promptTitle: prompt?.title ?? room.label,
+    roomLabel: room.label,
+  };
   const [now, setNow] = useState(Date.now());
   const [turns, setTurns] = useState<SimTurn[]>(() => [{ role: "interviewer", text: prompt?.firstQuestion ?? "", at: 0 }, ...room.turns]);
   const [followUpsLeft, setFollowUpsLeft] = useState(room.followUpsLeft);
@@ -330,8 +506,11 @@ function Room({
 
   useEffect(() => {
     sp.resetMetrics();
-    if (voice && prompt) speakKo(prompt.firstQuestion);
-    const t = setInterval(() => setNow(Date.now()), 250);
+    if (voice && prompt && stageRef.current === "qa") speakKo(prompt.firstQuestion);
+    // 방을 마친 뒤(복기 카드)에는 시계를 돌리지 않는다
+    const t = setInterval(() => {
+      if (!finishStarted.current) setNow(Date.now());
+    }, 250);
     return () => {
       clearInterval(t);
       stopSpeaking();
@@ -343,7 +522,7 @@ function Room({
     const m = sp.metrics.current;
     const total = Math.min(room.answerSec, (Date.now() - startedAt.current) / 1000);
     return {
-      firstSpeakSec: m.firstHeardAt ? Math.round((m.firstHeardAt - startedAt.current) / 1000) : null,
+      firstSpeakSec: m.firstHeardAt ? Math.max(0, Math.round((m.firstHeardAt - qaStartedAt.current) / 1000)) : null,
       speakingSec: Math.round(m.speakingMs / 1000),
       totalSec: Math.round(total),
       longSilences: m.longSilences,
@@ -352,8 +531,21 @@ function Room({
     };
   };
 
+  /** 질문 없는 방 → 문답. 예상한 내용은 이 기기에만 남긴다 — 서버로 보내면 답변으로 처리되어 꼬리질문이 하나 줄어든다 */
+  const reveal = (skipped: boolean) => {
+    if (stageRef.current !== "predict") return;
+    sp.stop();
+    if (!skipped && draftRef.current) patchReview(base, { prediction: draftRef.current });
+    if (useTyping) setTypedText("");
+    else sp.reset();
+    sp.resetMetrics();
+    qaStartedAt.current = Date.now();
+    setStage("qa");
+    if (voice && prompt) speakKo(prompt.firstQuestion);
+  };
+
   const send = async () => {
-    if (!text || sending) return;
+    if (!text || sending || stage !== "qa") return;
     sp.stop();
     stopSpeaking();
     setSending(true);
@@ -380,11 +572,15 @@ function Room({
     onFinishing();
     try {
       // 보내지 않은 답변이 있으면 마지막 답으로 보낸다
-      if (draftRef.current) {
+      if (stageRef.current === "predict") {
+        // 질문을 받기 전에 끝났다 — 말하던 예상은 답변이 아니므로 서버로 보내지 않는다
+        if (draftRef.current) patchReview(base, { prediction: draftRef.current });
+      } else if (draftRef.current) {
         await simApi.turn(session.id, roomIdx, draftRef.current, Math.round((Date.now() - startedAt.current) / 1000)).catch(() => undefined);
       }
       await simApi.finish(session.id, roomIdx, stats());
-      onDone(await simApi.get(session.id));
+      // 바로 넘어가지 않는다 — 복기 카드를 닫을 때 onDone 을 부른다
+      setDone(await simApi.get(session.id));
     } catch (e) {
       // 피드백 생성이 실패하면 다시 시도할 수 있게 한다(이미 보낸 답변은 서버에 남아 있다)
       finishStarted.current = false;
@@ -400,15 +596,39 @@ function Room({
     }
   }, [remaining, finish]);
 
-  if (finishing)
+  // 방을 마치면 점검(10~30초)이 도는 동안 복기 카드를 쓴다. 점검 결과는 카드를 닫은 뒤에 보여 준다
+  if (finishing || done) {
+    const fb = done?.rooms[roomIdx]?.feedback ?? null;
+    const asked = stage === "qa" ? Array.from(new Set(turns.filter((t) => t.role === "interviewer" && t.text).map((t) => t.text))) : [];
+    const close = (save: boolean) => {
+      if (!done) return;
+      const blank = draft.hardest === null && !draft.conclusion.trim() && !draft.redo.trim() && Object.keys(draft.self).length === 0;
+      if (save && !blank) {
+        patchReview(base, {
+          hardest: draft.hardest ?? undefined,
+          conclusion: draft.conclusion.trim() || undefined,
+          redo: draft.redo.trim() || undefined,
+          self: draft.self,
+          savedAt: new Date().toISOString(),
+        });
+      }
+      onDone(done);
+    };
     return (
-      <div className="py-10 text-center">
-        <Loader2 className="mx-auto h-7 w-7 animate-spin text-jade-700" />
-        <p className="mt-4 text-[15px] font-semibold text-ink-900">{room.label}을(를) 마쳤어요</p>
-        <p className="mt-1 text-[13px] text-ink-500">답변을 기준표로 점검하고 있어요. 10~30초쯤 걸립니다.</p>
-        {error && <ErrorLine text={error} />}
-      </div>
+      <ReviewCard
+        roomLabel={room.label}
+        questions={asked}
+        criteria={fb ? fb.items.map(({ key, label }) => ({ key, label })) : null}
+        pending={!done}
+        real={session.mode === "real"}
+        draft={draft}
+        onDraft={setDraft}
+        onSave={() => close(true)}
+        onSkip={() => close(false)}
+        error={error}
+      />
     );
+  }
 
   const low = remaining <= 60;
   return (
@@ -471,10 +691,10 @@ function Room({
         </div>
       )}
 
+      {stage === "predict" && <PredictPanel />}
+
       <div className="mt-6 space-y-3" aria-live="polite">
-        {turns.map((t, i) => (
-          <Bubble key={i} turn={t} />
-        ))}
+        {stage === "qa" && turns.map((t, i) => <Bubble key={i} turn={t} />)}
         {sending && (
           <p className="flex items-center gap-2 text-[13px] text-ink-400">
             <Loader2 className="h-4 w-4 animate-spin" /> 면접관이 생각 중…
@@ -488,7 +708,7 @@ function Room({
             value={typedText}
             onChange={(e) => setTypedText(e.target.value)}
             rows={4}
-            placeholder="답변을 입력하세요. 실제 면접처럼 말하듯이 써 보세요."
+            placeholder={stage === "predict" ? "쟁점과, 면접관이 물을 것 같은 질문 두 가지를 적어 보세요." : "답변을 입력하세요. 실제 면접처럼 말하듯이 써 보세요."}
             className="w-full resize-y border border-hair-strong bg-white p-3 text-[15px] leading-relaxed text-ink-900 focus:border-jade-600 focus:outline-none"
           />
         ) : (
@@ -532,15 +752,33 @@ function Room({
               {sp.listening ? "말하기 멈춤" : "말하기 시작"}
             </button>
           )}
-          <button
-            type="button"
-            onClick={send}
-            disabled={!text || sending || sp.listening}
-            className="inline-flex items-center gap-2 bg-jade-700 px-4 py-3 text-[14px] font-semibold text-white hover:bg-jade-600 disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-400"
-          >
-            <Send className="h-4 w-4" /> 답변 보내기
-          </button>
-          <span className="text-[12px] text-ink-400">남은 꼬리질문 {followUpsLeft}개</span>
+          {stage === "predict" ? (
+            <>
+              <button
+                type="button"
+                onClick={() => reveal(false)}
+                disabled={!text || sp.listening}
+                className="inline-flex items-center gap-2 bg-jade-700 px-4 py-3 text-[14px] font-semibold text-white hover:bg-jade-600 disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-400"
+              >
+                예상 끝 · 면접관 질문 받기 <ChevronRight className="h-4 w-4" />
+              </button>
+              <button type="button" onClick={() => reveal(true)} className="text-[12px] text-ink-500 underline underline-offset-2">
+                건너뛰고 질문 받기
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={send}
+                disabled={!text || sending || sp.listening}
+                className="inline-flex items-center gap-2 bg-jade-700 px-4 py-3 text-[14px] font-semibold text-white hover:bg-jade-600 disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-400"
+              >
+                <Send className="h-4 w-4" /> 답변 보내기
+              </button>
+              <span className="text-[12px] text-ink-400">남은 꼬리질문 {followUpsLeft}개</span>
+            </>
+          )}
           {sp.supported && (
             <button
               type="button"
@@ -587,16 +825,33 @@ const STATUS_STYLE: Record<string, { cls: string; Icon: typeof CheckCircle2 }> =
 function Result({
   session,
   busy,
+  task,
+  onChange,
+  onContinue,
   onRetrySame,
   onNew,
   onHome,
 }: {
   session: SimSession;
   busy: boolean;
+  /** 이 회차가 지난 수업 과제를 다시 답한 것이면 그 과제 */
+  task: ClassTask | null;
+  /** 이 브라우저에 둔 복기·과제를 바꿨다 — 다시 그린다 */
+  onChange: () => void;
+  /** 과제 때문에 미뤄 둔 회차를 이어서 시작 */
+  onContinue?: { label: string; run: () => void };
   onRetrySame?: () => void;
   onNew?: () => void;
   onHome: () => void;
 }) {
+  const taskId = task?.id;
+  useEffect(() => {
+    if (!taskId) return;
+    recordAttempt(taskId, session.id, session.rooms[0]?.feedback?.items);
+    onChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taskId, session.id]);
+
   return (
     <div>
       <p className="text-[12px] font-semibold tracking-wide text-brass-600">
@@ -604,20 +859,58 @@ function Result({
       </p>
       <h3 className="mt-2 text-[1.25rem] font-bold text-ink-900">면접실별 점검</h3>
       <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-        점수나 합격 가능성은 내지 않습니다. 기준 6가지를 해냈는지만 보고, 부족한 곳에는 스스로 고칠 질문을 돌려 드립니다. ‘보류’는 받아쓰기에서 근거를 찾지 못해 판단하지 않은 항목입니다.
+        점수나 합격 가능성은 내지 않습니다. 기준 6가지를 해냈는지만 보고, 부족한 곳에는 스스로 고칠 질문을 돌려 드립니다. ‘보류’는 받아쓰기에서 근거를 찾지 못해 판단하지 않은 항목입니다. 복기 카드를 썼다면 내 판단을 점검 결과 옆에 함께 보여 드립니다.
       </p>
+      {task && (
+        <TaskCompare
+          task={task}
+          items={session.rooms[0]?.feedback?.items}
+          onFinish={() => {
+            finishTask(task.id);
+            onChange();
+          }}
+        />
+      )}
       <div className="mt-6 space-y-8">
-        {session.rooms.map((r) => (
+        {session.rooms.map((r) => {
+          const review = getReview(session.id, r.idx);
+          const marked = taskFor(session.id, r.idx);
+          return (
           <div key={r.idx} className="border border-hair">
             <div className="border-b border-hair bg-paper-50 px-5 py-4">
               <p className="text-[12px] font-semibold text-ink-400">{r.label}</p>
               <p className="mt-1 text-[15px] font-semibold text-ink-900">{r.prompt?.title}</p>
               {r.feedback?.summary && <p className="mt-2 text-[14px] leading-relaxed text-ink-700">{r.feedback.summary}</p>}
             </div>
+            <ReviewBlock review={review} items={r.feedback?.items} questions={interviewerQuestions(r.prompt?.firstQuestion, r.turns)} />
             <ul className="divide-y divide-hair">
-              {r.feedback?.items.map((it) => <RubricRow key={it.key} item={it} />)}
+              {r.feedback?.items.map((it) => <RubricRow key={it.key} item={it} self={review?.self?.[it.key]} />)}
             </ul>
             {r.feedback?.speech && <SpeechLine s={r.feedback.speech} answerSec={r.answerSec} />}
+            {/* 과제를 다시 답한 회차에서는 또 과제로 정하지 않는다 */}
+            {!task && r.prompt && r.feedback && (
+              <TaskMarker
+                task={marked}
+                onAdd={(note) => {
+                  addTask({
+                    formatId: session.formatId,
+                    promptId: r.prompt!.id,
+                    promptTitle: r.prompt!.title,
+                    roomLabel: r.label,
+                    fromSessionId: session.id,
+                    fromRoomIdx: r.idx,
+                    fromMode: session.mode,
+                    note,
+                    before: snap(r.feedback!.items),
+                  });
+                  onChange();
+                }}
+                onRemove={() => {
+                  if (marked) removeTask(marked.id);
+                  onChange();
+                }}
+              />
+            )}
             <details className="border-t border-hair px-5 py-3">
               <summary className="cursor-pointer text-[13px] font-semibold text-ink-600">대화 다시 보기</summary>
               <div className="mt-3 space-y-3">
@@ -628,12 +921,19 @@ function Result({
               </div>
             </details>
           </div>
-        ))}
+          );
+        })}
       </div>
+      {hasAnyReview(session) && <CopySummary text={() => summaryText(session)} />}
       <div className="mt-8 flex flex-wrap gap-2">
+        {onContinue && (
+          <button type="button" disabled={busy} onClick={onContinue.run} className="inline-flex items-center gap-2 bg-jade-700 px-4 py-3 text-[14px] font-semibold text-white hover:bg-jade-600 disabled:opacity-60">
+            {onContinue.label} <ChevronRight className="h-4 w-4" />
+          </button>
+        )}
         {onRetrySame && (
           <button type="button" disabled={busy} onClick={onRetrySame} className="inline-flex items-center gap-2 bg-jade-700 px-4 py-3 text-[14px] font-semibold text-white hover:bg-jade-600 disabled:opacity-60">
-            <RotateCcw className="h-4 w-4" /> 같은 제시문으로 다시
+            <RotateCcw className="h-4 w-4" /> {task ? "과제 문항 한 번 더" : "같은 제시문으로 다시"}
           </button>
         )}
         {onNew && (
@@ -659,15 +959,16 @@ function Result({
   );
 }
 
-function RubricRow({ item }: { item: RubricItem }) {
+function RubricRow({ item, self }: { item: RubricItem; /** 복기 카드에 적은 내 판단 */ self?: SelfMark }) {
   const st = STATUS_STYLE[item.status] ?? STATUS_STYLE["보류"];
   return (
     <li className="px-5 py-4">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className={`inline-flex shrink-0 items-center gap-1 border px-2 py-0.5 text-[12px] font-semibold ${st.cls}`}>
           <st.Icon className="h-3.5 w-3.5" /> {item.status}
         </span>
         <span className="text-[14px] font-semibold text-ink-900">{item.label}</span>
+        <SelfTag self={self} status={item.status} />
       </div>
       {item.evidence && <p className="mt-2 border-l-2 border-hair-strong pl-3 text-[13px] leading-relaxed text-ink-500">“{item.evidence}”</p>}
       {item.question && <p className="mt-2 text-[13px] leading-relaxed text-ink-700">→ {item.question}</p>}
@@ -687,7 +988,25 @@ function SpeechLine({ s, answerSec }: { s: SpeechStats; answerSec: number }) {
 
 // ===================================================================== 홈·동의·기록
 
-function FormatCard({ format, busy, onReal, onPractice }: { format: SimFormat; busy: boolean; onReal: () => void; onPractice: () => void }) {
+function FormatCard({
+  format,
+  busy,
+  taskFirst,
+  predict,
+  onPredict,
+  onReal,
+  onPractice,
+}: {
+  format: SimFormat;
+  busy: boolean;
+  /** 아직 다시 답하지 않은 지난 수업 과제가 있다 — 시작하면 그 문항부터 */
+  taskFirst: boolean;
+  /** 질문 없는 방으로 시작 */
+  predict: boolean;
+  onPredict: (v: boolean) => void;
+  onReal: () => void;
+  onPractice: () => void;
+}) {
   return (
     <div className="border border-hair">
       <div className="px-5 py-5 sm:px-6">
@@ -705,15 +1024,18 @@ function FormatCard({ format, busy, onReal, onPractice }: { format: SimFormat; b
           근거: {format.source.label}
         </a>
         {format.draft && <DraftNote />}
+        <PredictToggle on={predict} questionless={isQuestionless(format.univ)} onChange={onPredict} />
       </div>
       <div className="grid gap-px border-t border-hair bg-hair sm:grid-cols-2">
         <button type="button" disabled={busy} onClick={onReal} className="bg-white px-5 py-4 text-left hover:bg-jade-50 disabled:opacity-60">
           <span className="block text-[15px] font-semibold text-ink-900">실전 모의면접</span>
-          <span className="mt-1 block text-[12px] text-ink-500">방 {format.rooms.length}개를 이어서 · 피드백은 마지막에</span>
+          <span className="mt-1 block text-[12px] text-ink-500">
+            {taskFirst ? `지난 수업 과제 한 문항 먼저 → 이어서 방 ${format.rooms.length}개` : `방 ${format.rooms.length}개를 이어서 · 피드백은 마지막에`}
+          </span>
         </button>
         <button type="button" disabled={busy} onClick={onPractice} className="bg-white px-5 py-4 text-left hover:bg-jade-50 disabled:opacity-60">
           <span className="block text-[15px] font-semibold text-ink-900">연습 · 방 하나</span>
-          <span className="mt-1 block text-[12px] text-ink-500">한 방만 · 바로 피드백 · 같은 제시문 다시 하기</span>
+          <span className="mt-1 block text-[12px] text-ink-500">{taskFirst ? "지난 수업 과제 한 문항 먼저 → 이어서 연습" : "한 방만 · 바로 피드백 · 같은 제시문 다시 하기"}</span>
         </button>
       </div>
     </div>

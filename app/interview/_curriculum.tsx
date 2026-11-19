@@ -1,4 +1,5 @@
-import { ClipboardCheck, Layers, NotebookPen, UserCheck } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ClipboardCheck, Layers, NotebookPen, Repeat, UserCheck } from "lucide-react";
 import { PromoSection } from "../_site/components";
 import { curriculumFor } from "@/lib/class-curriculum";
 
@@ -61,6 +62,49 @@ export function ClassCurriculum({ path }: { path: string }) {
           ))}
         </div>
       </div>
+
+      {/* 숙제(AI 모의면접) 한 번의 순서 — 적어 둔 대학만(lib/class-curriculum.ts aiLoop) */}
+      {c.aiLoop && (
+        <div id="ai-loop" className="mx-auto mt-14 max-w-5xl scroll-mt-24">
+          <p className="flex items-center justify-center gap-2 text-[12px] font-semibold tracking-wide text-brass-600">
+            <Repeat className="h-4 w-4" strokeWidth={1.75} /> AI HOMEWORK
+          </p>
+          <h3 className="display mt-3 text-center text-[1.375rem] leading-snug text-ink-900 sm:text-[1.625rem]">{c.aiLoop.title}</h3>
+          <p className="mx-auto mt-4 max-w-3xl text-center text-[15px] font-light leading-[1.9] text-ink-600">{c.aiLoop.lede}</p>
+
+          <ol className="mt-10 grid gap-5 md:grid-cols-3">
+            {c.aiLoop.steps.map((s) => (
+              <li key={s.title} className="flex flex-col border border-hair-strong bg-white">
+                <div className="border-b border-hair bg-paper-50 px-6 py-5">
+                  <p className="display text-[1.125rem] leading-snug text-ink-900">{s.title}</p>
+                  <p className="mt-1.5 text-[12px] font-medium text-brass-600">{s.when}</p>
+                </div>
+                <ul className="flex flex-1 flex-col gap-3 px-6 py-5">
+                  {s.body.map((b) => (
+                    <li key={b} className="text-[13px] font-light leading-[1.85] text-ink-700">
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ol>
+
+          <ul className="mx-auto mt-8 max-w-3xl space-y-2 border-l-2 border-brass-400 pl-5">
+            {c.aiLoop.notes.map((n) => (
+              <li key={n} className="text-[13px] font-light leading-[1.85] text-ink-600">
+                {n}
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-8 text-center">
+            <Link href="/interview/ai?mode=mmi" className="inline-flex items-center gap-2 text-[14px] font-semibold text-jade-700 underline underline-offset-4">
+              MMI 실전 모의면접에서 직접 해 보기 <ArrowRight className="h-4 w-4" />
+            </Link>
+          </p>
+        </div>
+      )}
     </PromoSection>
   );
 }
