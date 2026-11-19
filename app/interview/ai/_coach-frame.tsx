@@ -150,6 +150,8 @@ export function CoachFrame({ entries, onMmi }: { entries: PickerEntry[]; onMmi?:
             <>{generic.label} 면접에서 자주 나오는 공통 질문으로 연습합니다. 지원 대학을 고르면 그 대학 기출로 바뀝니다.</>
           )}
         </p>
+        {/* 기출이 아닌 문항·연습용 시간이 섞인 세트는 출처를 따로 밝힌다(lib/interview-sets.ts REVIEW_FLOW) */}
+        {current?.note && <p className="mt-2 text-[12.5px] leading-relaxed text-ink-500">{current.note}</p>}
         {univ === KOREA_MMI.univ && field === KOREA_MMI.field && onMmi && (
           <p className="mt-2 text-[12.5px] leading-relaxed text-ink-500">
             고려대 의학과 인·적성 면접은 AI 면접관이 꼬리질문을 하는{" "}
