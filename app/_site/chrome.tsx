@@ -186,6 +186,7 @@ export function SiteChrome({
           </nav>
           <div className="mt-8 flex flex-wrap items-center gap-6 border-t pt-6 text-sm">
             <h2 className="font-semibold">상담 문의</h2>
+            <a href="https://pf.kakao.com/_ylyNX/chat" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">카카오톡 상담</a>
             <a href={CONTACT_TEL} className="inline-flex items-center gap-2"><Phone className="h-4 w-4" />{CONTACT_PHONE}</a>
             <a href="mailto:withjuno@naver.com" className="inline-flex items-center gap-2"><Mail className="h-4 w-4" />withjuno@naver.com</a>
           </div>
