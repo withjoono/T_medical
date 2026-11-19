@@ -12,6 +12,7 @@ import {
   Stethoscope,
   Compass,
   Building2,
+  Repeat,
 } from "lucide-react";
 import {
   FinalCTA,
@@ -31,6 +32,9 @@ import { GachonGichul } from "./_gichul";
 import { univGichulFor } from "@/lib/univ-gichul";
 import { UnivGichulBlock } from "./_univ-gichul";
 import { ClassCurriculum } from "./_curriculum";
+import { HomeworkSteps } from "./_ai-homework";
+import { curriculumFor } from "@/lib/class-curriculum";
+import { homeworkSubtitle } from "@/lib/ai-homework";
 import {
   FieldAxisPair,
   FieldCountdown,
@@ -333,6 +337,21 @@ export function FieldUnivPage({ field, univ: u }: { field: FieldPage; univ: Fiel
 
       {/* 수업 회차 구성 — 교과 기반 면접이라 회차가 정해진 대학만(lib/class-curriculum.ts) */}
       {!none && <ClassCurriculum path={`${field.base}/${u.slug}`} />}
+
+      {/* ===== 숙제로 보는 AI 모의면접 (2026-11-19, lib/ai-homework.ts) — 가천대(concept)는 수업에 AI 가 없어 뺀다.
+          제목·부제만 서버에서, 공통 본문은 HomeworkSteps 가 마운트 뒤에 그린다 ===== */}
+      {!none && classKind !== "concept" && !curriculumFor(`${field.base}/${u.slug}`)?.aiLoop && (
+        <div id="ai-loop" className="scroll-mt-24">
+          <PromoSection
+            eyebrow="AI HOMEWORK"
+            EyebrowIcon={Repeat}
+            title={`${unit} 면접 숙제 — AI 모의면접 한 번이 이렇게 돕니다`}
+            subtitle={homeworkSubtitle(classKind)}
+          >
+            <HomeworkSteps kind={classKind} />
+          </PromoSection>
+        </div>
+      )}
 
       {/* 공개 기출 분석 — 가천대(lib/gachon-gichul.ts) · 나머지 대학(lib/univ-gichul.ts). 계열 페이지가 겹치지 않게 나눠 싣는다 */}
       {gichul && <GachonGichul page={gichul} />}

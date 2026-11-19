@@ -8,6 +8,8 @@
  *  원칙 (docs/context/business-decisions.md)
  *   · 고치는 주체는 선생님이다. 여기서는 학생의 판단과 점검 결과를 나란히 놓기만 하고, 점수를 새로 만들지 않는다.
  *   · 질문 예상은 채점하지 않는다 — 결과 화면에서 실제 질문과 나란히 보여 줄 뿐이다.
+ *   · 모든 대학 형식에서 쓴다(2026-11-19). 질문을 실제로 주지 않는 서울대 의예만 '질문 없는 방'이 기본·실전 포함이고,
+ *     나머지는 '질문 먼저 짐작하기'를 연습에서 켠다. 페이지 설명은 lib/ai-homework.ts.
  *   · 계정마다 따로 둔다(같은 PC 를 형제가 함께 쓰는 경우).
  *  ========================================================================= */
 import { loadAuth } from "@/lib/auth";
@@ -183,14 +185,16 @@ export function setSessionOpts(sessionId: string, opts: { predict?: boolean; tas
   write(s);
 }
 
-/** 제시문만 주고 질문을 주지 않는 것으로 알려진 대학 — 이 형식은 '질문 없는 방'이 기본으로 켜진다.
- *  근거: lib/gichul-data/snu.json(2025·2026 공개 제시문 18개에 질문 없음 + 응시 후기). 다른 대학을 넣으려면 근거를 먼저 적는다. */
-export const isQuestionless = (univ: string) => /서울대/.test(univ);
+/** 제시문만 주고 질문을 주지 않는 것으로 알려진 면접 — 이 형식은 '질문 없는 방'이 기본으로 켜지고 실전에도 쓴다.
+ *  근거: lib/gichul-data/snu.json(서울대 의예 2025·2026 공개 제시문 18개에 질문 없음 + 응시 후기). 서울대 치의·수의·약학·간호는 근거가 없어 뺀다.
+ *  그 밖의 대학(질문이 함께 주어지는 면접)은 모두 '질문 먼저 짐작하기'를 연습에서 켤 수 있다(2026-11-19 "모든 대학으로 확대").
+ *  대학을 여기 넣으려면 근거를 먼저 적는다(data-rules.md '실측만'). */
+export const isQuestionless = (univ: string, track = "") => /서울대/.test(univ) && !/치|수의|약|간호/.test(track);
 
 /** 이 형식에서 '질문 없는 방'을 켤지 — 학생이 고른 값이 있으면 그것, 없으면 대학 기본값 */
-export function predictPref(formatId: string, univ: string): boolean {
+export function predictPref(formatId: string, univ: string, track = ""): boolean {
   const p = read().predictPref[formatId];
-  return typeof p === "boolean" ? p : isQuestionless(univ);
+  return typeof p === "boolean" ? p : isQuestionless(univ, track);
 }
 
 export function setPredictPref(formatId: string, on: boolean) {
@@ -200,9 +204,9 @@ export function setPredictPref(formatId: string, on: boolean) {
 }
 
 /** 실제 회차에 적용할지. 질문이 가려지지 않는 대학의 **실전**은 대학 형식 그대로 둔다(훈련 장치는 연습에서만) */
-export function predictFor(formatId: string, univ: string, mode: "real" | "practice"): boolean {
-  if (mode === "real" && !isQuestionless(univ)) return false;
-  return predictPref(formatId, univ);
+export function predictFor(formatId: string, univ: string, mode: "real" | "practice", track = ""): boolean {
+  if (mode === "real" && !isQuestionless(univ, track)) return false;
+  return predictPref(formatId, univ, track);
 }
 
 // ------------------------------------------------------------------ 지난 수업 과제

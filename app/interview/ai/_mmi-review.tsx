@@ -23,11 +23,11 @@ const INPUT = "w-full border border-hair-strong bg-white px-3 py-2.5 text-[14px]
 // ===================================================================== 질문 없는 방
 
 /** 면접실 첫 단계 — 면접관 질문을 가려 두고, 쟁점과 예상 질문을 먼저 말하게 한다 */
-export function PredictPanel() {
+export function PredictPanel({ questionless }: { /** 실제로 질문을 주지 않는 면접(서울대 의예) */ questionless: boolean }) {
   return (
     <div className="mt-6 border border-brass-400 bg-brass-50 px-5 py-4">
       <p className="flex items-center gap-2 text-[14px] font-semibold text-ink-900">
-        <EyeOff className="h-4 w-4 text-brass-600" strokeWidth={1.75} /> 질문 없는 방 — 면접관 질문은 아직 가려 두었습니다
+        <EyeOff className="h-4 w-4 text-brass-600" strokeWidth={1.75} /> {questionless ? "질문 없는 방" : "질문 먼저 짐작하기"} — 면접관 질문은 아직 가려 두었습니다
       </p>
       <p className="mt-2 text-[13px] leading-relaxed text-ink-700">
         제시문을 읽고 먼저 말해 보세요. <b className="font-semibold text-ink-900">① 이 글에서 무엇과 무엇이 부딪히는지(쟁점)</b>{" "}
@@ -44,7 +44,7 @@ export function PredictToggle({ on, questionless, onChange }: { on: boolean; que
     <label className="mt-4 flex cursor-pointer gap-3 border border-hair px-4 py-3 text-[13px] leading-relaxed text-ink-700 hover:border-jade-600">
       <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-[#1f6f5c]" checked={on} onChange={(e) => onChange(e.target.checked)} />
       <span>
-        <b className="font-semibold text-ink-900">질문 없는 방으로 시작</b> — 면접관 질문을 가려 두고, 제시문에서 쟁점과 예상 질문을 먼저 말한 뒤 질문을 받습니다.{" "}
+        <b className="font-semibold text-ink-900">{questionless ? "질문 없는 방으로 시작" : "질문 먼저 짐작하기"}</b> — 면접관 질문을 가려 두고, 제시문에서 쟁점과 예상 질문을 먼저 말한 뒤 질문을 받습니다.{" "}
         <span className="text-ink-500">{questionless ? "실전과 연습 모두에 적용됩니다." : "연습에만 적용됩니다. 실전은 대학 형식 그대로 진행합니다."}</span>
       </span>
     </label>
@@ -242,7 +242,7 @@ export function ReviewBlock({ review, items, questions }: { review: RoomReview |
       {review.prediction && (
         <div className={hasReviewCard(review) ? "mt-4 border-t border-hair pt-4" : ""}>
           <p className="flex items-center gap-2 text-[12px] font-semibold text-brass-600">
-            <EyeOff className="h-3.5 w-3.5" strokeWidth={1.75} /> 질문 없는 방 — 예상한 것과 실제 질문
+            <EyeOff className="h-3.5 w-3.5" strokeWidth={1.75} /> 질문을 보기 전에 예상한 것과 실제 질문
           </p>
           <div className="mt-3 grid gap-4 text-[13px] leading-relaxed sm:grid-cols-2">
             <div>

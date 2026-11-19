@@ -54,6 +54,9 @@ import { GachonGichul } from "../../_gichul";
 import { univGichulFor } from "@/lib/univ-gichul";
 import { UnivGichulBlock } from "../../_univ-gichul";
 import { ClassCurriculum } from "../../_curriculum";
+import { HomeworkSteps } from "../../_ai-homework";
+import { curriculumFor } from "@/lib/class-curriculum";
+import { homeworkSubtitle } from "@/lib/ai-homework";
 
 /** =========================================================================
  *  /interview/uidae/[slug] — 대학별 의대 **면접** 페이지 (2026-10-23 분리)
@@ -438,6 +441,22 @@ export default async function UidaeInterviewUnivPage({
 
       {/* 수업 회차 구성 — 고려대·가천대처럼 교과 기반 면접이라 회차가 정해진 대학만(lib/class-curriculum.ts) */}
       {!noInterview && <ClassCurriculum path={`/interview/uidae/${u.slug}`} />}
+
+      {/* ===== 숙제로 보는 AI 모의면접 — 짐작 · 복기 · 다시 답하기 (2026-11-19, lib/ai-homework.ts).
+          서울대 의대는 위 ClassCurriculum(aiLoop)이 자세히 그린다. 가천대(concept)는 수업에 AI 가 없어 뺀다.
+          제목·부제만 서버에서, 공통 본문은 HomeworkSteps 가 마운트 뒤에 그린다 ===== */}
+      {!noInterview && classKind !== "concept" && !curriculumFor(`/interview/uidae/${u.slug}`)?.aiLoop && (
+        <div id="ai-loop" className="scroll-mt-24">
+          <PromoSection
+            eyebrow="AI HOMEWORK"
+            EyebrowIcon={Repeat}
+            title={`${u.short} 면접 숙제 — AI 모의면접 한 번이 이렇게 돕니다`}
+            subtitle={homeworkSubtitle(classKind)}
+          >
+            <HomeworkSteps kind={classKind} />
+          </PromoSection>
+        </div>
+      )}
 
       {/* ===== 공개 기출 분석 — 가천대(lib/gachon-gichul.ts) · 나머지 대학(lib/univ-gichul.ts).
           같은 대학의 여러 계열 페이지가 겹치지 않게 나눠 싣는다 ===== */}

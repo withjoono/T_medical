@@ -26,6 +26,16 @@ updated: 2026-11-19
 | `app/interview/ai/_mmi-review.tsx` | 화면 조각 — `PredictPanel`·`PredictToggle`·`ReviewCard`·`ReviewBlock`·`SelfTag`·`CopySummary`·`TaskMarker`·`TaskCards`·`TaskCompare` |
 | `app/interview/ai/_mmi-sim.tsx` | 흐름 — 면접실의 예상 단계(`stage`), 방 종료 뒤 복기 카드(점검이 끝나고 카드를 닫아야 다음으로), 시작 버튼의 과제 우선(`begin`·`startTask`), 결과 화면 |
 | `lib/class-curriculum.ts` `SNU_MED.aiLoop` → `app/interview/_curriculum.tsx` | 서울대 의대 면접 페이지(`/interview/uidae/snu#ai-loop`)의 설명 |
+| `lib/ai-homework.ts` → `app/interview/_ai-homework.tsx` | 그 밖의 대학 면접 페이지의 설명(아래 '모든 대학으로 확대') |
+
+## 모든 대학으로 확대 (2026-11-19 같은 날, 사용자 "모든 대학으로 확대해줘")
+
+- **페이지 설명** — 의치한약수 대학 면접 페이지 77곳에 `#ai-loop` 절을 넣었다(서울대 의대는 위 `SNU_MED.aiLoop` 그대로). 문장 SSOT 는 `lib/ai-homework.ts`, 그리는 곳은 `app/interview/_ai-homework.tsx`(마운트 뒤에만 — 같은 본문이 수십 페이지 정적 HTML 에 깔리지 않게, `_class-story.tsx` 와 같은 원칙). 제목·부제만 대학마다 서버가 그린다.
+  - 형식별(ClassKind): 생기부·서류 58곳 = ② 복기 카드 · ③ 과제 두 단계(공통 문항을 낼 수 없어 ① 을 뺐다) / MMI 10곳 · 제시문 8곳 = ① 질문 먼저 짐작하기(연습에서 선택) + ② + ③.
+  - **가천대(의예·약학)는 넣지 않았다** — 수업에 AI 모의면접이 없다(business-decisions.md 가천대 예외). 가천대 AI 세트가 수업에 붙으면 `homeworkLoop("concept")` 를 채운다.
+  - 서울대 의대의 ② ③ 문장도 같은 SSOT 를 쓴다(`REVIEW_STEP`·`TASK_STEP`).
+- **화면(모의면접)** — 복기 카드·과제는 처음부터 모든 형식에서 작동했다. 질문 가리기는 모든 형식의 연습에서 켤 수 있고, 이름이 다르다: 질문을 실제로 주지 않는 서울대 의예 = '질문 없는 방'(기본 켜짐·실전 포함), 나머지 = '질문 먼저 짐작하기'(기본 꺼짐·연습만). `isQuestionless(univ, track)` 이 서울대 치의·수의·약학·간호를 뺀다(질문 없음 근거가 의예뿐).
+- **실전에는 넓히지 않았다** — 질문이 주어지는 대학의 실전에서 질문을 가리면 대학 형식이 아니게 되고, 실전 기록으로 매기는 등수(mock-sets.md)의 조건이 섞인다. 바꾸려면 등수 규칙부터 정한다.
 
 ## 지킬 것
 

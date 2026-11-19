@@ -195,7 +195,7 @@ export function MmiSim() {
       return startTask(task);
     }
     setAfterTask(null);
-    return startSession(format, mode, { predict: predictFor(format.id, format.univ, mode) });
+    return startSession(format, mode, { predict: predictFor(format.id, format.univ, mode, format.track) });
   };
 
   const openSession = async (id: string) => {
@@ -297,7 +297,7 @@ export function MmiSim() {
             format={f}
             busy={busy}
             taskFirst={!skipTask && pendingTasks().some((t) => t.formatId === f.id && t.attempts.length === 0)}
-            predict={predictPref(f.id, f.univ)}
+            predict={predictPref(f.id, f.univ, f.track)}
             onPredict={(v) => {
               setPredictPref(f.id, v);
               bump();
@@ -358,7 +358,7 @@ export function MmiSim() {
           <li>· 시간이 끝나면 자동으로 면접실을 마칩니다. 실전처럼 되돌아갈 수 없습니다.</li>
           {opts.predict && room.turns.length === 0 && (
             <li>
-              · <b className="text-ink-900">질문 없는 방</b>입니다. 면접관 질문은 가려 둡니다. 제시문을 읽고 쟁점과 예상 질문을 먼저 말한 뒤 질문을 받습니다.
+              · <b className="text-ink-900">{isQuestionless(session.format?.univ ?? "", session.format?.track ?? "") ? "질문 없는 방" : "질문 먼저 짐작하기"}</b>입니다. 면접관 질문은 가려 둡니다. 제시문을 읽고 쟁점과 예상 질문을 먼저 말한 뒤 질문을 받습니다.
             </li>
           )}
           <li>· 방을 마치면 점검 결과를 보기 전에 1분짜리 복기 카드를 씁니다.</li>
@@ -413,7 +413,7 @@ export function MmiSim() {
                   run: () => {
                     const mode = afterTask.mode;
                     setAfterTask(null);
-                    startSession(next, mode, { predict: predictFor(next.id, next.univ, mode) });
+                    startSession(next, mode, { predict: predictFor(next.id, next.univ, mode, next.track) });
                   },
                 }
               : undefined
@@ -425,7 +425,7 @@ export function MmiSim() {
                 ? () => startSession(format, "practice", { promptId: session.rooms[0].prompt!.id })
                 : undefined
           }
-          onNew={format ? () => startSession(format, session.mode, { predict: predictFor(format.id, format.univ, session.mode) }) : undefined}
+          onNew={format ? () => startSession(format, session.mode, { predict: predictFor(format.id, format.univ, session.mode, format.track) }) : undefined}
           onHome={() => {
             setAfterTask(null);
             setSession(null);
@@ -691,7 +691,7 @@ function Room({
         </div>
       )}
 
-      {stage === "predict" && <PredictPanel />}
+      {stage === "predict" && <PredictPanel questionless={isQuestionless(session.format?.univ ?? "", session.format?.track ?? "")} />}
 
       <div className="mt-6 space-y-3" aria-live="polite">
         {stage === "qa" && turns.map((t, i) => <Bubble key={i} turn={t} />)}
@@ -1024,7 +1024,7 @@ function FormatCard({
           근거: {format.source.label}
         </a>
         {format.draft && <DraftNote />}
-        <PredictToggle on={predict} questionless={isQuestionless(format.univ)} onChange={onPredict} />
+        <PredictToggle on={predict} questionless={isQuestionless(format.univ, format.track)} onChange={onPredict} />
       </div>
       <div className="grid gap-px border-t border-hair bg-hair sm:grid-cols-2">
         <button type="button" disabled={busy} onClick={onReal} className="bg-white px-5 py-4 text-left hover:bg-jade-50 disabled:opacity-60">
