@@ -72,7 +72,9 @@ export function ClassCodeForm({ className }: { className?: string }) {
 function useClassParam(): [string | null, () => void] {
   const [code, setCode] = useState<string | null>(null);
   useEffect(() => {
-    setCode(new URLSearchParams(window.location.search).get("class"));
+    const code = new URLSearchParams(window.location.search).get("class");
+    if (code) { window.location.replace(`https://tinterview.kr/practice?inbox=1&class=${encodeURIComponent(code)}`); return; }
+    setCode(null);
   }, []);
   const clear = () => {
     const url = new URL(window.location.href);

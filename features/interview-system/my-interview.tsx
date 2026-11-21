@@ -27,6 +27,7 @@ export function MyInterviewPage({ catalog }: { catalog: InterviewCatalog }) {
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5 px-4 pb-16 pt-6 sm:px-6">
       <ClassInvite />
+      <a href="https://tinterview.kr/practice?inbox=1" className="block rounded-xl border border-sky-200 bg-sky-50 p-4 font-bold text-sky-900">선생님 면접 과제는 T면접에서 받으세요 →<span className="mt-1 block text-sm font-normal">Hub 가입·로그인부터 과제 제출과 피드백까지 휴대폰에서 이어집니다.</span></a>
       <TodoCard todo={todo} />
       <MyUnivsSection catalog={catalog} />
       {ready &&
@@ -36,8 +37,8 @@ export function MyInterviewPage({ catalog }: { catalog: InterviewCatalog }) {
           <Panel>
             <div className="py-4 text-center">
               <Lock className="mx-auto h-7 w-7 text-ink-300" />
-              <p className="mt-3 text-[15px] font-semibold text-ink-900">로그인하면 수업 일정 · 선생님 과제를 여기서 챙겨요</p>
-              <p className="mt-1 text-[13px] text-ink-500">면접 수업을 예약했거나 선생님 초대 링크를 받았다면 T스쿨 계정으로 로그인하세요.</p>
+              <p className="mt-3 text-[15px] font-semibold text-ink-900">로그인하면 수업 일정을 여기서 챙겨요</p>
+              <p className="mt-1 text-[13px] text-ink-500">면접 수업 일정은 T스쿨 계정으로 로그인하세요. 초대와 과제는 위 T면접 링크에서 확인하세요.</p>
               <LoginButton className="mt-4" />
             </div>
           </Panel>

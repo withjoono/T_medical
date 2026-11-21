@@ -26,7 +26,7 @@ export const TINTERVIEW_URL = "https://tinterview.kr";
  * T메디 AI 면접(/interview/ai)은 기기 안 분석 엔진이라 선생님 과제·결과 보내기를 아직 받지 못한다.
  */
 export function assignmentUrl(id: string, setCode: string | null | undefined): string {
-  return setCode ? `${TINTERVIEW_URL}/t/${encodeURIComponent(setCode)}` : `${TINTERVIEW_URL}/susi/interview/ai?assign=${encodeURIComponent(id)}`;
+  return setCode ? `${TINTERVIEW_URL}/t/${encodeURIComponent(setCode)}` : `${TINTERVIEW_URL}/practice?assign=${encodeURIComponent(id)}`;
 }
 
 /** 선생님앱 — 학생 목록·과제 내기·제출 결과 */
