@@ -8,6 +8,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   GraduationCap,
+  History,
   Image as ImageIcon,
   Clock,
   ListChecks,
@@ -57,6 +58,13 @@ import { ClassCurriculum } from "../../_curriculum";
 import { HomeworkSteps } from "../../_ai-homework";
 import { curriculumFor } from "@/lib/class-curriculum";
 import { homeworkSubtitle } from "@/lib/ai-homework";
+import {
+  interviewShifts,
+  SHIFTS_BY_TYPE,
+  UNIV_SHIFT_NOTES,
+  univHistoryFor,
+} from "@/lib/uidae-interview-history";
+import { UnivHistoryBlock, UnivShiftBox } from "../../_history";
 
 /** =========================================================================
  *  /interview/uidae/[slug] — 대학별 의대 **면접** 페이지 (2026-10-23 분리)
@@ -203,6 +211,23 @@ export default async function UidaeInterviewUnivPage({
       : assign?.primary === "jesimun"
         ? "jesimun"
         : "document";
+
+  /** 면접 변천 — 연도별 변천사가 있는 대학(서울대)은 그것을, 나머지는 '흐름 속 이 대학' 상자를 싣는다
+   *  (lib/uidae-interview-history.ts). 상자는 이 대학에만 성립하는 문장 또는 유형이 있을 때만 그린다. */
+  const history = univHistoryFor(u.slug);
+  const shiftNotes = UNIV_SHIFT_NOTES[u.slug] ?? [];
+  const allShifts = interviewShifts();
+  const shiftIds = [
+    ...(!noInterview && assign ? SHIFTS_BY_TYPE[assign.primary] : []),
+    // 지역의사 전형이 면접 전형에 있으면 '전형마다 다르다' 줄 — 대학 고유 문장이 이미 그 얘기를 하면 뺀다
+    ...(!noInterview &&
+    tracks.some((t) => /지역의사/.test(t.name)) &&
+    !shiftNotes.some((n) => /지역의사/.test(n))
+      ? (["track"] as const)
+      : []),
+  ];
+  const boxShifts = allShifts.filter((s) => shiftIds.includes(s.id));
+  const showShiftBox = !history && (shiftNotes.length > 0 || boxShifts.length > 0);
 
   const stats = [
     u.admission
@@ -363,6 +388,14 @@ export default async function UidaeInterviewUnivPage({
                 items={iv.notes}
               />
             )}
+            {showShiftBox && (
+              <UnivShiftBox
+                univShort={u.short}
+                tag={noInterview ? null : assign?.tag ?? iv.styleLabel ?? null}
+                notes={shiftNotes}
+                shifts={boxShifts}
+              />
+            )}
           </div>
         ) : (
           <p className="mx-auto max-w-2xl text-center text-sm font-light leading-[1.9] text-ink-500">
@@ -370,6 +403,20 @@ export default async function UidaeInterviewUnivPage({
           </p>
         )}
       </PromoSection>
+
+      {/* ===== 면접 변천사 (2026-11-23) — 연도별 자료가 있는 대학만(현재 서울대). lib/uidae-interview-history.ts ===== */}
+      {history && (
+        <div id="history" className="scroll-mt-24">
+          <PromoSection
+            eyebrow="HISTORY"
+            EyebrowIcon={History}
+            title={history.title}
+            subtitle="2013년 MMI 도입부터 2028학년도 예고까지. 어느 해 자료가 지금 형식과 같은지 알아야 기출을 제대로 씁니다 — 해마다 무엇이 바뀌었는지와 근거의 등급을 함께 적었습니다."
+          >
+            <UnivHistoryBlock h={history} />
+          </PromoSection>
+        </div>
+      )}
 
       {/* ===== 3. 면접 수업 안내 ===== */}
       <PromoSection

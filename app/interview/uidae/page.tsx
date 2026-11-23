@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
+  ArrowRight,
   Brain,
   CalendarDays,
   ClipboardCheck,
   FileText,
   GraduationCap,
+  History,
   MessagesSquare,
   MonitorPlay,
   Scale,
@@ -37,6 +40,8 @@ import {
   typeCounts,
 } from "@/lib/interview-types";
 import { UNIV_TOTALS } from "@/lib/univ";
+import { interviewShifts } from "@/lib/uidae-interview-history";
+import { InterviewShifts } from "../_history";
 import { JsonLdAll } from "@/components/json-ld";
 import { article, breadcrumb } from "@/lib/jsonld";
 
@@ -234,6 +239,27 @@ export default function UidaeInterviewPage() {
         <NoInterviewRow univs={noInterview} />
       </PromoSection>
 
+      {/* ===== 바뀌어 온 흐름 (2026-11-23) — lib/uidae-interview-history.ts. 대학 페이지의 '흐름 속 이 대학' 상자가 여기 앵커로 온다 ===== */}
+      <div id="history" className="scroll-mt-24" />
+      <PromoSection
+        eyebrow="HISTORY"
+        EyebrowIcon={History}
+        title="의대 면접은 이렇게 바뀌어 왔습니다"
+        subtitle="2013년 서울대의 MMI 도입부터 2027학년도 요강, 2028학년도 예고까지. 무엇이 바뀌었는지, 그래서 준비가 어떻게 달라져야 하는지를 근거와 함께 정리했습니다."
+        tone="muted"
+      >
+        <InterviewShifts shifts={interviewShifts()} />
+        <div className="mx-auto mt-10 max-w-5xl text-center">
+          <Link
+            href="/interview/uidae/snu#history"
+            className="inline-flex items-center gap-2 border border-hair-strong bg-white px-5 py-3 text-[14px] font-medium text-ink-900 transition-colors hover:border-jade-600 hover:text-jade-700"
+          >
+            서울대 의대 면접 변천사 — 2013년부터 해마다 보기
+            <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+          </Link>
+        </div>
+      </PromoSection>
+
       <ClassCtaBand typeName="의대 면접" />
 
       <PromoSection eyebrow="MORE" EyebrowIcon={Stethoscope} title="함께 보기" tone="muted">
@@ -265,6 +291,7 @@ export default function UidaeInterviewPage() {
       <SourceNote
         lines={[
           "면접 방식·일정은 각 대학 2027학년도 수시 모집요강에서 정리했습니다. 대학별 근거와 출처는 각 대학 페이지 하단에 있습니다.",
+          "'바뀌어 온 흐름'의 근거는 항목마다 달았습니다. 2013~2020학년도 서울대 면접실 구성은 서울대 공식 자료가 아니라 합격생 인터뷰를 복원한 보도에 근거하며, '준비에 주는 뜻'은 T메디 판단입니다.",
           "유형 분류는 요강에 적힌 면접 방식 문장을 기준으로 했습니다. 한 대학이 두 방식을 함께 쓰는 경우 주된 형식으로 분류하고, 나머지 유형 페이지에는 '함께 보는 대학'으로 실었습니다.",
           "요강에서 확인되지 않은 날짜·시간·면접위원 수는 비워 두었습니다. 추정치로 채우지 않습니다.",
           "모집인원과 일정은 대학 사정에 따라 변경될 수 있습니다. 지원 판단은 반드시 해당 대학 최종 모집요강을 근거로 하세요.",
