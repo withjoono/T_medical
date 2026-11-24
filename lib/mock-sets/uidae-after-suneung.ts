@@ -120,13 +120,16 @@ export type MockItem = {
   focus: string;
   /** 세트의 채점 틀과 다른 틀로 채점하는 문항(제시문형 세트에 섞인 서류형 문항) */
   rubric?: Rubric["id"];
+  /** 서버(MMI 실전) 점검 기준표 — 없으면 채점 틀을 따른다(doc → 서류형, 그 밖 → 제시문형). 수학 구술은 'solve' */
+  simKind?: "passage" | "doc" | "solve";
 };
 
 export const rubricOf = (m: { rubric: Rubric }, it: { rubric?: Rubric["id"] }): Rubric =>
   it.rubric === "doc" ? RUBRIC_DOC : it.rubric === "passage" ? RUBRIC_PASSAGE : m.rubric;
 
 /** 서류확인·학생부 기반 면접용 질문 틀 — 학생이 자기 생기부에서 하나를 골라 답한다 */
-const DOC_POOL: Record<"inquiry" | "concept" | "reading" | "teamwork" | "motive" | "growth" | "plan", Omit<MockItem, "id">> = {
+export type DocKey = "inquiry" | "concept" | "reading" | "teamwork" | "motive" | "growth" | "plan";
+export const DOC_POOL: Record<DocKey, Omit<MockItem, "id">> = {
   plan: {
     kind: "서류 · 입학 후 계획",
     title: "입학한 뒤 공부하고 싶은 것",
@@ -272,13 +275,33 @@ const DOC_POOL: Record<"inquiry" | "concept" | "reading" | "teamwork" | "motive"
   },
 };
 
-const doc = (prefix: string, k: keyof typeof DOC_POOL): MockItem => ({ id: `${prefix}-doc-${k}`, ...DOC_POOL[k], rubric: "doc" });
+export const doc = (prefix: string, k: keyof typeof DOC_POOL): MockItem => ({ id: `${prefix}-doc-${k}`, ...DOC_POOL[k], rubric: "doc" });
 
 /* ───────────────────────────── 대학별 세트 ───────────────────────────── */
+
+/** 학과 — 의·치·한·약·수 (lib/field-registry.ts 의 키와 같다) */
+export type MockField = "uidae" | "chidae" | "hanuidae" | "yakdae" | "suuidae";
+
+/** MMI 실전 모의면접(서버 susi-back /interview-sim)에 올리는 방 구성.
+ *  서버의 방 하나 = 문항 하나 + AI 꼬리질문(최대 3번)이다. 실제 면접 시간을 문항 수로 나눠 방을 만든다.
+ *  items 는 그 방에 나올 수 있는 문항 id — 실전에서는 그중 하나를 고른다. */
+export type SimSpec = {
+  /** 형식 이름(화면에 보임) */
+  label: string;
+  rooms: { label: string; answerSec: number; prepSec: number; items: string[] }[];
+  /** 시간을 어떻게 정했는지 — 대학이 밝힌 값과 T메디 설정을 가른다 */
+  note: string;
+};
 
 export type UnivMock = {
   key: string;
   univ: string;
+  /** 학과 — 없으면 의예과 */
+  field?: MockField;
+  /** 면접일 전부(YYYY-MM-DD) — 없으면 firstInterview 하나. 지난 면접을 화면에서 숨길 때 쓴다 */
+  dates?: string[];
+  /** 서버(MMI 실전 탭) 방 구성 — 있는 세트만 서버에 올린다 */
+  sim?: SimSpec;
   /** 이 세트가 맞춘 전형 */
   track: string;
   /** 가장 이른 면접일(2027학년도) — lib/mmi-schedule.ts · lib/univ-interview.ts 와 같아야 한다 */
@@ -294,7 +317,7 @@ export type UnivMock = {
   items: MockItem[];
 };
 
-const PREP_NOTE = "준비 시간은 대학이 밝히지 않아 T메디가 정했습니다.";
+export const PREP_NOTE = "준비 시간은 대학이 밝히지 않아 T메디가 정했습니다.";
 
 export const UNIV_MOCKS: UnivMock[] = [
   /* ── 계명대 — 인성·상황·모의상황 3개 고사실 ── */
@@ -1335,12 +1358,12 @@ export const UNIV_MOCKS: UnivMock[] = [
 
 /* ───────────────────────────── 세트로 바꾸기 ───────────────────────────── */
 
-const COMMON_NOTES = [
+export const COMMON_NOTES = [
   "대학 기출이 아닙니다. 그 대학의 공개 기출 유형을 분석해 T메디가 새로 만든 문항입니다.",
   "점수와 등급은 T메디 기준이며 그 대학의 채점기준이나 합격 가능성을 뜻하지 않습니다.",
 ];
 
-function rubricText(m: UnivMock): string {
+export function rubricText(m: UnivMock): string {
   const used = [m.rubric, ...[RUBRIC_PASSAGE, RUBRIC_DOC].filter((r) => r.id !== m.rubric.id && m.items.some((it) => rubricOf(m, it).id === r.id))];
   const nameOf = (it: MockItem, k: string) => rubricOf(m, it).factors.find((x) => x.key === k)?.name ?? k;
   return [
@@ -1359,7 +1382,7 @@ function rubricText(m: UnivMock): string {
   ].join("\n");
 }
 
-function toItem(m: UnivMock, it: MockItem): SetItem {
+export function toItem(m: UnivMock, it: MockItem): SetItem {
   const nameOf = (k: string) => rubricOf(m, it).factors.find((x) => x.key === k)?.name ?? k;
   return {
     id: it.id,
@@ -1382,33 +1405,47 @@ function toItem(m: UnivMock, it: MockItem): SetItem {
   };
 }
 
+export const FIELD_LABEL: Record<MockField, { unit: string; short: string }> = {
+  uidae: { unit: "의예과", short: "의대" },
+  chidae: { unit: "치의예과", short: "치대" },
+  hanuidae: { unit: "한의예과", short: "한의대" },
+  yakdae: { unit: "약학과", short: "약대" },
+  suuidae: { unit: "수의예과", short: "수의대" },
+};
+
+/** 세트 id — 의대는 예전 id 를 그대로 둔다(medi:<key>:mock:uidae:mock1) */
+export const mockSetId = (m: UnivMock) => `medi:${m.key}:mock:${m.field ?? "uidae"}:mock1`;
+
 /** 서버용 — 면접관 메모 포함 */
+export function mockToSet(m: UnivMock): InterviewSet {
+  const timed = m.rooms.every((r) => r.answerSec !== undefined);
+  const field = m.field ?? "uidae";
+  return {
+    spec: 1,
+    id: mockSetId(m),
+    site: "medi",
+    target: { year: 2027, univ: m.univ, univKey: m.univ, track: m.track, unit: FIELD_LABEL[field].unit, field },
+    title: `${m.univ} ${FIELD_LABEL[field].short} 모의면접 1회`,
+    engine: timed && m.rooms.length > 1 ? "mmi" : "question",
+    format: {
+      pick: "order",
+      scoring: m.scoring,
+      timeNote: m.timeNote,
+      rooms: m.rooms.map((r) => ({ ...r, ...(timed && m.rooms.length > 1 ? { followUps: 3 } : {}) })),
+    },
+    items: m.items.map((it) => toItem(m, it)),
+    source: { kind: "자체 제작", label: `T메디 제작 — ${m.univ} 공개 기출 유형 분석 기반` },
+    grading: {
+      factors: m.rubric.factors.map((c) => ({ name: c.name, weight: c.weight, looksAt: `${c.looksAt} (T메디 해석)` })),
+      rubricText: rubricText(m),
+    },
+    draft: true,
+    notes: [...COMMON_NOTES, ...m.notes],
+  } satisfies InterviewSet;
+}
+
 export function uidaeMockSets(): InterviewSet[] {
-  return UNIV_MOCKS.map((m) => {
-    const timed = m.rooms.every((r) => r.answerSec !== undefined);
-    return {
-      spec: 1,
-      id: `medi:${m.key}:mock:uidae:mock1`,
-      site: "medi",
-      target: { year: 2027, univ: m.univ, univKey: m.univ, track: m.track, unit: "의예과", field: "uidae" },
-      title: `${m.univ} 의대 모의면접 1회`,
-      engine: timed && m.rooms.length > 1 ? "mmi" : "question",
-      format: {
-        pick: "order",
-        scoring: m.scoring,
-        timeNote: m.timeNote,
-        rooms: m.rooms.map((r) => ({ ...r, ...(timed && m.rooms.length > 1 ? { followUps: 3 } : {}) })),
-      },
-      items: m.items.map((it) => toItem(m, it)),
-      source: { kind: "자체 제작", label: `T메디 제작 — ${m.univ} 공개 기출 유형 분석 기반` },
-      grading: {
-        factors: m.rubric.factors.map((c) => ({ name: c.name, weight: c.weight, looksAt: `${c.looksAt} (T메디 해석)` })),
-        rubricText: rubricText(m),
-      },
-      draft: true,
-      notes: [...COMMON_NOTES, ...m.notes],
-    } satisfies InterviewSet;
-  });
+  return UNIV_MOCKS.map(mockToSet);
 }
 
 /** 공개 파일용 — 면접관 메모를 뺀 사본 */
@@ -1416,14 +1453,6 @@ export function uidaeMockPublicSets(): InterviewSet[] {
   return uidaeMockSets().map((s) => ({ ...s, items: s.items.map(({ memo: _memo, ...rest }): SetItem => rest) }));
 }
 
-/** 수능 이후 면접 의대 33곳 중 아직 세트가 없는 13곳(가장 이른 면접일 순) — 다음 차수에 채운다.
- *  가천대도 만든다(2026-11-13 사용자 확정) */
-export const PENDING_BY_DATE: { date: string; univs: string[] }[] = [
-  { date: "2026-12-01", univs: ["cnu", "wonkwang"] },
-  { date: "2026-12-02", univs: ["jnu"] },
-  { date: "2026-12-04", univs: ["jeju"] },
-  { date: "2026-12-05", univs: ["cau", "hanyang", "dongguk-wise", "pusan"] },
-  { date: "2026-12-06", univs: ["skku", "khu"] },
-  { date: "2026-12-09", univs: ["hallym"] },
-  { date: "2026-12-14", univs: ["ajou", "gachon"] },
-];
+/** 수능 이후 면접 의대 33곳 중 이 파일에 없는 곳 — 2026-11-24 에 13곳을 모두 만들었다(uidae-late.ts 의 UIDAE_LATE).
+ *  빈 목록으로 두는 까닭: scripts/check-mock-sets.ts 가 UNIV_MOCKS + UIDAE_LATE + 이 목록 = 33 을 확인한다. */
+export const PENDING_BY_DATE: { date: string; univs: string[] }[] = [];

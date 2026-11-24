@@ -22,14 +22,21 @@ import {
 import { getLoginUrl } from "@/lib/auth";
 import { useAuth } from "@/lib/use-auth";
 import {
+  dateLabel,
+  formatsFor,
+  kstToday,
   loadConsent,
+  nextDate,
   saveConsent,
+  SIM_FIELDS,
   SimApiError,
   simApi,
   type RubricItem,
   type SimConfig,
+  type SimField,
   type SimFormat,
   type SimListItem,
+  type SimPrompt,
   type SimSession,
   type SimTurn,
   type SpeechStats,
@@ -84,13 +91,39 @@ import {
  *   · 지난 수업 과제 — 수업에서 선생님이 짚은 문항을 표시해 두면 다음 모의면접이 그 문항을 다시 답하는 것으로 시작한다
  *  셋 다 이 브라우저에만 저장한다(서버에 받는 곳이 생기기 전까지). */
 
-type Phase = "loading" | "login" | "error" | "disabled" | "consent" | "home" | "lobby" | "room" | "finishing" | "result";
+type Phase = "loading" | "login" | "error" | "disabled" | "consent" | "home" | "lobby" | "prep" | "room" | "finishing" | "result";
 
 const mmss = (sec: number) => {
   const s = Math.max(0, Math.round(sec));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
-const ROMAN = ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ"];
+/** "3분 45초" */
+const dur = (sec: number) => {
+  const s = Math.max(0, Math.round(sec));
+  const m = Math.floor(s / 60);
+  return m ? `${m}분${s % 60 ? ` ${s % 60}초` : ""}` : `${s}초`;
+};
+
+/** 고른 학과 탭은 이 브라우저에 기억한다 */
+const FIELD_KEY = "medical_sim_field";
+const loadField = (): SimField => {
+  try {
+    const v = localStorage.getItem(FIELD_KEY);
+    return SIM_FIELDS.some((f) => f.key === v) ? (v as SimField) : "uidae";
+  } catch {
+    return "uidae";
+  }
+};
+const saveField = (v: SimField) => {
+  try {
+    localStorage.setItem(FIELD_KEY, v);
+  } catch {
+    /* 기억 못 해도 다음에 다시 고르면 된다 */
+  }
+};
+
+/** 문항 종류에 따른 카드 이름 */
+const cardName = (p: SimPrompt | null | undefined) => (p?.kind === "doc" ? "질문 카드" : p?.kind === "solve" ? "문제" : "제시문");
 
 export function MmiSim() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -108,6 +141,10 @@ export function MmiSim() {
   /** 과제 때문에 미뤄 둔 회차 — 과제 결과 화면에서 이어서 시작한다 */
   const [afterTask, setAfterTask] = useState<{ formatId: string; mode: "real" | "practice" } | null>(null);
   const [skipTask, setSkipTask] = useState(false);
+  /** 홈 화면 — 학과 탭과 고른 형식 */
+  const [field, setField] = useState<SimField>("uidae");
+  const [pickedId, setPickedId] = useState<string | null>(null);
+  useEffect(() => setField(loadField()), []);
 
   const fail = useCallback((e: unknown) => {
     if (e instanceof SimApiError && e.status === 401) {
@@ -291,21 +328,32 @@ export function MmiSim() {
           }}
           onSkip={setSkipTask}
         />
-        {config.formats.map((f) => (
-          <FormatCard
-            key={f.id}
-            format={f}
-            busy={busy}
-            taskFirst={!skipTask && pendingTasks().some((t) => t.formatId === f.id && t.attempts.length === 0)}
-            predict={predictPref(f.id, f.univ, f.track)}
-            onPredict={(v) => {
-              setPredictPref(f.id, v);
-              bump();
-            }}
-            onReal={() => begin(f, "real")}
-            onPractice={() => begin(f, "practice")}
-          />
-        ))}
+        <FormatPicker
+          formats={config.formats}
+          field={field}
+          pickedId={pickedId}
+          onField={(v) => {
+            setField(v);
+            saveField(v);
+            setPickedId(null);
+          }}
+          onPick={setPickedId}
+          render={(f) => (
+            <FormatCard
+              key={f.id}
+              format={f}
+              busy={busy}
+              taskFirst={!skipTask && pendingTasks().some((t) => t.formatId === f.id && t.attempts.length === 0)}
+              predict={predictPref(f.id, f.univ, f.track)}
+              onPredict={(v) => {
+                setPredictPref(f.id, v);
+                bump();
+              }}
+              onReal={() => begin(f, "real")}
+              onPractice={() => begin(f, "practice")}
+            />
+          )}
+        />
         <History
           items={history}
           busy={busy}
@@ -353,10 +401,29 @@ export function MmiSim() {
           </p>
         )}
         <ul className="mt-4 space-y-2 text-[14px] leading-relaxed text-ink-600">
-          <li>· {room.prepSec ? `준비 ${mmss(room.prepSec)} 뒤` : "준비 시간 없이"} 면접실 안에서 제시문을 읽고 <b className="text-ink-900">{Math.round(room.answerSec / 60)}분</b> 동안 답합니다. 읽는 시간도 포함입니다.</li>
+          <li>
+            ·{" "}
+            {room.prompt?.kind === "doc" ? (
+              <>
+                제시문 없이 면접관의 질문을 듣고 <b className="text-ink-900">{dur(room.answerSec)}</b> 동안 내 학교생활기록부의 기록 하나로 답합니다.
+              </>
+            ) : room.prompt?.kind === "solve" ? (
+              <>
+                준비실에서 {dur(room.prepSec)} 동안 문제를 풀고, 면접실에서 <b className="text-ink-900">{dur(room.answerSec)}</b> 동안 풀이를 설명합니다. 종이와 펜을 준비하세요.
+              </>
+            ) : room.prepSec ? (
+              <>
+                준비실에서 {dur(room.prepSec)} 동안 제시문을 먼저 읽고, 면접실에서 <b className="text-ink-900">{dur(room.answerSec)}</b> 동안 답합니다.
+              </>
+            ) : (
+              <>
+                준비 시간 없이 면접실 안에서 제시문을 읽고 <b className="text-ink-900">{dur(room.answerSec)}</b> 동안 답합니다. 읽는 시간도 포함입니다.
+              </>
+            )}
+          </li>
           <li>· 면접관이 첫 질문을 하고, 답이 끝나면 꼬리질문을 최대 {room.followUpsLeft}번 합니다.</li>
           <li>· 시간이 끝나면 자동으로 면접실을 마칩니다. 실전처럼 되돌아갈 수 없습니다.</li>
-          {opts.predict && room.turns.length === 0 && (
+          {opts.predict && room.turns.length === 0 && room.prompt?.kind !== "doc" && (
             <li>
               · <b className="text-ink-900">{isQuestionless(session.format?.univ ?? "", session.format?.track ?? "") ? "질문 없는 방" : "질문 먼저 짐작하기"}</b>입니다. 면접관 질문은 가려 둡니다. 제시문을 읽고 쟁점과 예상 질문을 먼저 말한 뒤 질문을 받습니다.
             </li>
@@ -366,7 +433,7 @@ export function MmiSim() {
         {room.prompt?.draft && <DraftNote />}
         <button
           type="button"
-          onClick={() => setPhase("room")}
+          onClick={() => setPhase(room.prepSec > 0 && room.turns.length === 0 && room.prompt?.kind !== "doc" ? "prep" : "room")}
           className="mt-6 inline-flex w-full items-center justify-center gap-2 bg-jade-700 px-5 py-3.5 text-[15px] font-semibold text-white hover:bg-jade-600 sm:w-auto"
         >
           입실하기 <ChevronRight className="h-4 w-4" />
@@ -374,6 +441,13 @@ export function MmiSim() {
       </Box>
     );
   }
+
+  if (phase === "prep" && session)
+    return (
+      <Box>
+        <PrepRoom key={`${session.id}-${roomIdx}-prep`} session={session} roomIdx={roomIdx} onEnter={() => setPhase("room")} />
+      </Box>
+    );
 
   if ((phase === "room" || phase === "finishing") && session)
     return (
@@ -469,7 +543,7 @@ function Room({
   /** 문답이 시작된 때 — 질문 없는 방이면 예상을 마치고 질문을 받은 순간 */
   const qaStartedAt = useRef(startedAt.current);
   /** 이어서 하는 방(이미 답한 방)은 바로 문답으로 들어간다 */
-  const [stage, setStage] = useState<"predict" | "qa">(predict && prompt && room.turns.length === 0 ? "predict" : "qa");
+  const [stage, setStage] = useState<"predict" | "qa">(predict && prompt && prompt.kind !== "doc" && room.turns.length === 0 ? "predict" : "qa");
   const stageRef = useRef(stage);
   stageRef.current = stage;
   /** 점검이 끝난 회차 — 복기 카드를 닫을 때 부모에게 넘긴다 */
@@ -684,12 +758,7 @@ function Room({
         {mmss(remaining)}
       </div>
 
-      {prompt && (
-        <div className="mt-5 border border-hair bg-paper-50 p-5 sm:p-6">
-          <p className="text-[12px] font-semibold text-ink-400">제시문 · {prompt.title}</p>
-          <p className="mt-3 select-none text-[15px] leading-[1.9] text-ink-800">{prompt.text}</p>
-        </div>
-      )}
+      {prompt && <PromptCard prompt={prompt} />}
 
       {stage === "predict" && <PredictPanel questionless={isQuestionless(session.format?.univ ?? "", session.format?.track ?? "")} />}
 
@@ -933,12 +1002,12 @@ function Result({
         )}
         {onRetrySame && (
           <button type="button" disabled={busy} onClick={onRetrySame} className="inline-flex items-center gap-2 bg-jade-700 px-4 py-3 text-[14px] font-semibold text-white hover:bg-jade-600 disabled:opacity-60">
-            <RotateCcw className="h-4 w-4" /> {task ? "과제 문항 한 번 더" : "같은 제시문으로 다시"}
+            <RotateCcw className="h-4 w-4" /> {task ? "과제 문항 한 번 더" : "같은 문항으로 다시"}
           </button>
         )}
         {onNew && (
           <button type="button" disabled={busy} onClick={onNew} className="inline-flex items-center gap-2 bg-ink-900 px-4 py-3 text-[14px] font-semibold text-white hover:bg-ink-800 disabled:opacity-60">
-            {session.mode === "real" ? "실전 다시 하기" : "다른 제시문으로 연습"}
+            {session.mode === "real" ? "실전 다시 하기" : "다른 문항으로 연습"}
           </button>
         )}
         <button type="button" onClick={onHome} className="border border-hair-strong px-4 py-3 text-[14px] font-semibold text-ink-700 hover:border-ink-900">
@@ -1010,11 +1079,23 @@ function FormatCard({
   return (
     <div className="border border-hair">
       <div className="px-5 py-5 sm:px-6">
-        <p className="text-[12px] font-semibold tracking-wide text-brass-600">{format.univ} · {format.track}</p>
-        <h3 className="mt-2 text-[1.125rem] font-bold text-ink-900">{format.label}</h3>
-        <p className="mt-2 text-[13px] text-ink-500">
-          {format.rooms.map((r, i) => `${ROMAN[i] ?? i + 1} ${Math.round(r.answerSec / 60)}분`).join(" → ")} · {format.rooms[0]?.prepSec ? `준비 ${Math.round(format.rooms[0].prepSec / 60)}분` : "준비 시간 없음"}
+        <p className="text-[12px] font-semibold tracking-wide text-brass-600">
+          {format.univ}
+          {format.unit ? ` ${format.unit}` : ""} · {format.track}
         </p>
+        <h3 className="mt-2 text-[1.125rem] font-bold text-ink-900">{format.label}</h3>
+        {!!format.dates?.length && <p className="mt-1 text-[13px] font-semibold text-ink-700">면접 {format.dates.map(dateLabel).join(" · ")}</p>}
+        <p className="mt-2 text-[13px] text-ink-500">{roomsSummary(format.rooms)}</p>
+        {format.rooms.length > 1 && (
+          <ol className="mt-2 space-y-0.5 text-[12px] text-ink-500">
+            {format.rooms.map((r, i) => (
+              <li key={i}>
+                {i + 1}. {r.label} — 답변 {dur(r.answerSec)}
+                {r.prepSec ? ` · 준비 ${dur(r.prepSec)}` : ""}
+              </li>
+            ))}
+          </ol>
+        )}
         <ul className="mt-4 space-y-1.5 text-[13px] leading-relaxed text-ink-600">
           {format.notes.map((n) => (
             <li key={n}>· {n}</li>
@@ -1035,7 +1116,7 @@ function FormatCard({
         </button>
         <button type="button" disabled={busy} onClick={onPractice} className="bg-white px-5 py-4 text-left hover:bg-jade-50 disabled:opacity-60">
           <span className="block text-[15px] font-semibold text-ink-900">연습 · 방 하나</span>
-          <span className="mt-1 block text-[12px] text-ink-500">{taskFirst ? "지난 수업 과제 한 문항 먼저 → 이어서 연습" : "한 방만 · 바로 피드백 · 같은 제시문 다시 하기"}</span>
+          <span className="mt-1 block text-[12px] text-ink-500">{taskFirst ? "지난 수업 과제 한 문항 먼저 → 이어서 연습" : "한 방만 · 바로 피드백 · 같은 문항 다시 하기"}</span>
         </button>
       </div>
     </div>
@@ -1045,7 +1126,7 @@ function FormatCard({
 function DraftNote() {
   return (
     <p className="mt-4 border-l-2 border-brass-400 bg-brass-50 px-3 py-2 text-[12px] leading-relaxed text-brass-600">
-      시제품입니다. 제시문은 선생님 검수 전 초안이고, 실제 기출이 아닙니다.
+      시제품입니다. 문항은 선생님 검수 전 초안이고, 실제 기출이 아닙니다.
     </p>
   );
 }
@@ -1154,4 +1235,199 @@ function Spinner({ text }: { text: string }) {
 
 function ErrorLine({ text }: { text: string }) {
   return <p className="mt-4 border-l-2 border-[#c65327] bg-[#fbf1e8] px-3 py-2 text-[13px] text-[#b9471b]">{text}</p>;
+}
+
+/** 방 구성 한 줄 요약 */
+function roomsSummary(rooms: SimFormat["rooms"]): string {
+  if (!rooms.length) return "";
+  const sameAnswer = rooms.every((r) => r.answerSec === rooms[0].answerSec);
+  const samePrep = rooms.every((r) => r.prepSec === rooms[0].prepSec);
+  const total = rooms.reduce((n, r) => n + r.answerSec, 0);
+  const answer = sameAnswer ? `답변 ${dur(rooms[0].answerSec)}${rooms.length > 1 ? "씩" : ""}` : `답변 합계 ${dur(total)}`;
+  const prep = samePrep ? (rooms[0].prepSec ? `준비 ${dur(rooms[0].prepSec)}${rooms.length > 1 ? "씩" : ""}` : "준비 시간 없음") : "방마다 준비 시간이 다름";
+  return `방 ${rooms.length}개 · ${answer} · ${prep}`;
+}
+
+/** 학과 탭 → 면접일이 가까운 대학 → 고른 형식의 카드. 면접일이 모두 지난 형식은 숨긴다(한국 시간 기준) */
+function FormatPicker({
+  formats,
+  field,
+  pickedId,
+  onField,
+  onPick,
+  render,
+}: {
+  formats: SimFormat[];
+  field: SimField;
+  pickedId: string | null;
+  onField: (v: SimField) => void;
+  onPick: (id: string) => void;
+  render: (f: SimFormat) => React.ReactNode;
+}) {
+  const today = kstToday();
+  const list = formatsFor(formats, field, today);
+  const current = list.find((f) => f.id === pickedId) ?? list[0];
+  const count = (k: SimField) => formatsFor(formats, k, today).length;
+  return (
+    <div>
+      <div role="tablist" aria-label="학과" className="flex flex-wrap gap-2">
+        {SIM_FIELDS.map((f) => {
+          const n = count(f.key);
+          const on = f.key === field;
+          return (
+            <button
+              key={f.key}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              disabled={!n}
+              onClick={() => onField(f.key)}
+              className={`border px-3.5 py-2 text-[14px] font-semibold disabled:opacity-40 ${on ? "border-ink-900 bg-ink-900 text-white" : "border-hair-strong text-ink-700 hover:border-ink-900"}`}
+            >
+              {f.label} <span className={`tnum text-[12px] ${on ? "text-white/70" : "text-ink-400"}`}>{n}</span>
+            </button>
+          );
+        })}
+      </div>
+      {list.length ? (
+        <>
+          <p className="mt-4 text-[12px] text-ink-400">면접일이 가까운 순서입니다. 면접일이 지난 대학은 보이지 않습니다.</p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {list.map((f) => {
+              const on = f.id === current?.id;
+              const d = nextDate(f, today);
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => onPick(f.id)}
+                  aria-pressed={on}
+                  className={`border px-3 py-2.5 text-left ${on ? "border-jade-700 bg-jade-50" : "border-hair hover:border-ink-400"}`}
+                >
+                  <span className="tnum block text-[12px] font-semibold text-brass-600">{d ? dateLabel(d) : "면접일 확인 중"}</span>
+                  <span className="block text-[14px] font-semibold text-ink-900">{f.univ}</span>
+                  <span className="block truncate text-[12px] text-ink-500">{f.track}</span>
+                </button>
+              );
+            })}
+          </div>
+          {current && <div className="mt-5">{render(current)}</div>}
+        </>
+      ) : (
+        <p className="mt-4 text-[14px] text-ink-500">이 학과는 지금 열린 모의면접이 없습니다.</p>
+      )}
+    </div>
+  );
+}
+
+/** 제시문·질문 카드·문제 — 표(| a | b |)는 표로 그린다 */
+function PromptCard({ prompt }: { prompt: SimPrompt }) {
+  return (
+    <div className="mt-5 border border-hair bg-paper-50 p-5 sm:p-6">
+      <p className="text-[12px] font-semibold text-ink-400">
+        {cardName(prompt)} · {prompt.title}
+      </p>
+      <div className="mt-3 select-none text-[15px] leading-[1.9] text-ink-800">
+        <PassageText text={prompt.text} />
+      </div>
+    </div>
+  );
+}
+
+function PassageText({ text }: { text: string }) {
+  type Block = { t: "p"; lines: string[] } | { t: "table"; rows: string[][] };
+  const blocks: Block[] = [];
+  for (const line of text.split("\n")) {
+    const last = blocks[blocks.length - 1];
+    if (/^\s*\|.*\|\s*$/.test(line)) {
+      if (/^\s*\|[\s:|-]+\|\s*$/.test(line)) continue;
+      const cells = line.trim().slice(1, -1).split("|").map((c) => c.trim());
+      if (last?.t === "table") last.rows.push(cells);
+      else blocks.push({ t: "table", rows: [cells] });
+    } else if (last?.t === "p") last.lines.push(line);
+    else blocks.push({ t: "p", lines: [line] });
+  }
+  return (
+    <div className="space-y-3">
+      {blocks.map((b, i) =>
+        b.t === "table" ? (
+          <div key={i} className="overflow-x-auto">
+            <table className="tnum w-full border-collapse text-[13px] leading-snug">
+              <thead>
+                <tr>
+                  {b.rows[0].map((c, j) => (
+                    <th key={j} className="border border-hair-strong bg-white px-2 py-1.5 text-left font-semibold">
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {b.rows.slice(1).map((r, k) => (
+                  <tr key={k}>
+                    {r.map((c, j) => (
+                      <td key={j} className="border border-hair-strong bg-white px-2 py-1.5">
+                        {c}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : b.lines.join("\n").trim() ? (
+          <p key={i} className="whitespace-pre-line">
+            {b.lines.join("\n").trim()}
+          </p>
+        ) : null,
+      )}
+    </div>
+  );
+}
+
+/** 준비실 — 제시문(문제)을 먼저 읽는다. 면접관 질문은 아직 없다. 시간이 끝나면 자동으로 입실한다 */
+function PrepRoom({ session, roomIdx, onEnter }: { session: SimSession; roomIdx: number; onEnter: () => void }) {
+  const room = session.rooms[roomIdx];
+  const prompt = room.prompt;
+  const startedAt = useRef(Date.now());
+  const [now, setNow] = useState(Date.now());
+  const entered = useRef(false);
+  const remaining = room.prepSec - (now - startedAt.current) / 1000;
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(t);
+  }, []);
+  const enter = useCallback(() => {
+    if (entered.current) return;
+    entered.current = true;
+    onEnter();
+  }, [onEnter]);
+  useEffect(() => {
+    if (remaining <= 0) enter();
+  }, [remaining, enter]);
+  return (
+    <div>
+      <div className="-mx-5 mb-5 flex items-center justify-between gap-3 border-b border-hair px-5 pb-4 sm:-mx-8 sm:px-8">
+        <div className="min-w-0">
+          <p className="truncate text-[12px] font-semibold text-brass-600">
+            {session.format?.univ} · {room.label} — 준비실
+          </p>
+          <p className="tnum text-[1.75rem] font-bold leading-none text-ink-900" role="timer" aria-label={`준비 시간 ${mmss(remaining)} 남음`}>
+            <Clock className="mr-1.5 inline h-5 w-5 align-[-2px]" />
+            {mmss(remaining)}
+          </p>
+        </div>
+        <button type="button" onClick={enter} className="bg-jade-700 px-3 py-2 text-[13px] font-semibold text-white hover:bg-jade-600">
+          준비 끝 — 입실하기
+        </button>
+      </div>
+      <p className="text-[14px] leading-relaxed text-ink-600">
+        {prompt?.kind === "solve"
+          ? "종이에 풀어 두세요. 면접실에서는 답보다 식을 세운 까닭과 확인한 방법을 말로 설명합니다."
+          : "쟁점과 내 판단, 근거를 짧게 메모해 두세요. 면접관 질문은 입실한 뒤에 나옵니다."}{" "}
+        준비 시간이 끝나면 자동으로 면접실에 들어갑니다.
+      </p>
+      {prompt && <PromptCard prompt={prompt} />}
+    </div>
+  );
 }

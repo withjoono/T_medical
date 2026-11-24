@@ -18,7 +18,9 @@ export type SpeechStats = {
 };
 export type RoomFeedback = { items: RubricItem[]; summary: string; speech: SpeechStats | null; createdAt: string; model: string };
 export type SimTurn = { role: "interviewer" | "student"; text: string; at: number };
-export type SimPrompt = { id: string; title: string; tags: string[]; text: string; firstQuestion: string; draft: boolean };
+/** passage = 상황·제시문 · doc = 서류 확인(학생부 기반, 제시문 없음) · solve = 수학 구술 */
+export type SimPromptKind = "passage" | "doc" | "solve";
+export type SimPrompt = { id: string; title: string; tags: string[]; text: string; firstQuestion: string; draft: boolean; kind?: SimPromptKind };
 export type SimRoom = {
   idx: number;
   label: string;
@@ -49,9 +51,47 @@ export type SimFormat = {
   rooms: { label: string; answerSec: number; prepSec: number }[];
   notes: string[];
   source: { label: string; url: string };
+  /** T메디 의·치·한·약·수 형식 — 'medi'. 없으면 공용(고려대 등) */
+  site?: "medi";
+  /** 학과 — 없으면 의대로 본다 */
+  field?: SimField;
+  /** 모집단위(의예과·치의예과…) */
+  unit?: string;
+  /** 면접일(YYYY-MM-DD) — 모두 지나면 목록에서 숨긴다 */
+  dates?: string[];
   promptCount: number;
   draft: boolean;
 };
+
+export type SimField = "uidae" | "chidae" | "hanuidae" | "yakdae" | "suuidae";
+export const SIM_FIELDS: { key: SimField; label: string }[] = [
+  { key: "uidae", label: "의대" },
+  { key: "chidae", label: "치대" },
+  { key: "hanuidae", label: "한의대" },
+  { key: "yakdae", label: "약대" },
+  { key: "suuidae", label: "수의대" },
+];
+export const fieldOf = (f: SimFormat): SimField => f.field ?? "uidae";
+
+/** 오늘(한국 시간) YYYY-MM-DD */
+export function kstToday(now: Date = new Date()): string {
+  return new Date(now.getTime() + 9 * 3600_000).toISOString().slice(0, 10);
+}
+/** 면접일이 모두 지났는가 — 면접일이 없는 형식은 지나지 않은 것으로 본다 */
+export const isPastFormat = (f: SimFormat, today: string) => !!f.dates?.length && f.dates.every((d) => d < today);
+/** 오늘 이후 가장 가까운 면접일 */
+export const nextDate = (f: SimFormat, today: string) => f.dates?.find((d) => d >= today) ?? null;
+/** "11/25(수)" */
+export function dateLabel(d: string): string {
+  const [y, m, day] = d.split("-").map(Number);
+  return `${m}/${day}(${"일월화수목금토"[new Date(Date.UTC(y, m - 1, day)).getUTCDay()]})`;
+}
+/** 학과 하나의 형식 — 지난 면접은 빼고 가까운 면접일 순(면접일이 없는 형식은 맨 뒤) */
+export function formatsFor(formats: SimFormat[], field: SimField, today: string): SimFormat[] {
+  return formats
+    .filter((f) => fieldOf(f) === field && !isPastFormat(f, today))
+    .sort((a, b) => (nextDate(a, today) ?? "9999").localeCompare(nextDate(b, today) ?? "9999") || a.univ.localeCompare(b.univ, "ko"));
+}
 export type SimConfig = {
   enabled: boolean;
   consentVersion: string;
