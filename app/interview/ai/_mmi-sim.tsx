@@ -36,6 +36,8 @@ import {
   type SimField,
   type SimFormat,
   type SimListItem,
+  type RoomScore,
+  type SessionResult,
   type SimPrompt,
   type SimSession,
   type SimTurn,
@@ -926,9 +928,10 @@ function Result({
       <p className="text-[12px] font-semibold tracking-wide text-brass-600">
         {session.format?.univ} · {session.mode === "real" ? "실전 모의면접 결과" : "연습 결과"}
       </p>
-      <h3 className="mt-2 text-[1.25rem] font-bold text-ink-900">면접실별 점검</h3>
+      {session.result && <ScoreSummary result={session.result} mode={session.mode} />}
+      <h3 className="mt-6 text-[1.25rem] font-bold text-ink-900">면접실별 점수와 점검</h3>
       <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-        점수나 합격 가능성은 내지 않습니다. 기준 6가지를 해냈는지만 보고, 부족한 곳에는 스스로 고칠 질문을 돌려 드립니다. ‘보류’는 받아쓰기에서 근거를 찾지 못해 판단하지 않은 항목입니다. 복기 카드를 썼다면 내 판단을 점검 결과 옆에 함께 보여 드립니다.
+        방마다 역량별로 1~5점을 매겨 방 점수(100점)를 내고, 총점은 방 점수의 평균입니다. 점수는 T메디 채점 기준에 얼마나 닿았는지이고 합격 가능성 예측이 아닙니다. 그 아래 기준 6가지 점검에서는 부족한 곳에 스스로 고칠 질문을 돌려 드립니다. ‘보류’는 받아쓰기에서 근거를 찾지 못해 판단하지 않은 항목입니다. 복기 카드를 썼다면 내 판단을 점검 결과 옆에 함께 보여 드립니다.
       </p>
       {task && (
         <TaskCompare
@@ -951,6 +954,7 @@ function Result({
               <p className="mt-1 text-[15px] font-semibold text-ink-900">{r.prompt?.title}</p>
               {r.feedback?.summary && <p className="mt-2 text-[14px] leading-relaxed text-ink-700">{r.feedback.summary}</p>}
             </div>
+            {r.feedback && r.feedback.score !== undefined && <RoomScoreBlock score={r.feedback.score} />}
             <ReviewBlock review={review} items={r.feedback?.items} questions={interviewerQuestions(r.prompt?.firstQuestion, r.turns)} />
             <ul className="divide-y divide-hair">
               {r.feedback?.items.map((it) => <RubricRow key={it.key} item={it} self={review?.self?.[it.key]} />)}
@@ -1206,7 +1210,11 @@ function History({
               </span>
               <span className="mt-0.5 block text-[12px] text-ink-400">
                 {new Date(s.createdAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} ·{" "}
-                {s.status === "done" ? `끝남 · 없음 ${s.rooms.reduce((n, r) => n + r.missing, 0)}개` : "진행 중 — 이어서 하기"}
+                {s.status === "done"
+                  ? typeof s.total === "number"
+                    ? `끝남 · 총점 ${s.total.toFixed(1)}점${s.grade ? ` · ${s.grade}등급` : ""}`
+                    : `끝남 · 없음 ${s.rooms.reduce((n, r) => n + r.missing, 0)}개`
+                  : "진행 중 — 이어서 하기"}
               </span>
             </button>
             <button type="button" onClick={() => onDelete(s.id)} aria-label="이 기록 삭제" className="p-2 text-ink-300 hover:text-[#b9471b]">
@@ -1428,6 +1436,98 @@ function PrepRoom({ session, roomIdx, onEnter }: { session: SimSession; roomIdx:
         준비 시간이 끝나면 자동으로 면접실에 들어갑니다.
       </p>
       {prompt && <PromptCard prompt={prompt} />}
+    </div>
+  );
+}
+
+/** 회차 총점·등급·등수 */
+function ScoreSummary({ result, mode }: { result: SessionResult; mode: SimSession["mode"] }) {
+  return (
+    <div className="mt-5 border border-ink-900 bg-paper-50 p-5 sm:p-6">
+      <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
+        <div>
+          <p className="text-[12px] font-semibold text-ink-400">총점</p>
+          <p className="tnum text-[2.25rem] font-bold leading-none text-ink-900">
+            {result.total === null ? "—" : result.total.toFixed(1)}
+            <span className="ml-1 text-[14px] font-semibold text-ink-400">/ 100</span>
+          </p>
+        </div>
+        {result.band && (
+          <div>
+            <p className="text-[12px] font-semibold text-ink-400">등급</p>
+            <p className="text-[2.25rem] font-bold leading-none text-jade-700">{result.band.grade}</p>
+          </div>
+        )}
+        {result.rank && (
+          <div>
+            <p className="text-[12px] font-semibold text-ink-400">등수</p>
+            <p className="tnum text-[2.25rem] font-bold leading-none text-ink-900">
+              {result.rank.position}
+              <span className="ml-1 text-[14px] font-semibold text-ink-500">
+                등 / {result.rank.takers}명 · 상위 {result.rank.topPct}%
+              </span>
+            </p>
+          </div>
+        )}
+      </div>
+      {result.band && <p className="mt-3 text-[13px] leading-relaxed text-ink-600">{result.band.meaning}</p>}
+      {result.total === null && <p className="mt-3 text-[13px] leading-relaxed text-ink-600">채점하지 못한 면접실이 있어 총점을 내지 않았습니다.</p>}
+      {result.rank && !result.rank.isBasis && (
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-600">
+          등수는 이 형식의 첫 실전 응시 점수({result.rank.basisTotal.toFixed(1)}점)로 매깁니다. 다시 본 회차는 문항을 알고 치르므로 내 점수 변화로만 보여 드립니다.
+        </p>
+      )}
+      {result.rankNote && <p className="mt-2 text-[13px] leading-relaxed text-ink-600">{result.rankNote}</p>}
+      <p className="mt-3 text-[12px] leading-relaxed text-ink-400">
+        {mode === "real" ? "등수는 이 형식을 실전으로 끝까지 본 T메디 응시자 안에서, 사람마다 첫 응시 점수로 매깁니다. 동점이면 꼬리질문 대응 같은 정해 둔 역량 점수로 가릅니다. " : ""}
+        점수·등급·등수는 대학이 공개한 점수가 아니라 T메디 채점 기준으로 AI 가 매긴 것입니다.
+      </p>
+    </div>
+  );
+}
+
+/** 방 점수 — 역량별 1~5점과 까닭, 감점 */
+function RoomScoreBlock({ score }: { score: RoomScore | null }) {
+  if (!score)
+    return (
+      <p className="border-b border-hair px-5 py-3 text-[13px] text-ink-500">
+        이 면접실은 점수를 매기지 못했습니다(답변이 너무 짧거나 채점이 끝까지 되지 않았습니다).
+      </p>
+    );
+  return (
+    <div className="border-b border-hair px-5 py-4">
+      <p className="text-[13px] font-semibold text-ink-900">
+        방 점수 <span className="tnum text-[1.25rem] font-bold">{score.total.toFixed(1)}</span>
+        <span className="text-ink-400"> / 100</span>
+        {score.penalty > 0 && <span className="ml-2 text-[12px] font-semibold text-[#b9471b]">감점 −{score.penalty}</span>}
+      </p>
+      <ul className="mt-3 space-y-2.5">
+        {score.factors.map((f) => (
+          <li key={f.key}>
+            <div className="flex items-center gap-2 text-[13px]">
+              <span className="w-28 shrink-0 font-semibold text-ink-800">
+                {f.label} <span className="font-normal text-ink-400">{f.weight}%</span>
+              </span>
+              <span className="flex gap-0.5" aria-label={`${f.score}점 / 5점`}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span key={n} className={`h-2.5 w-5 ${n <= f.score ? "bg-jade-700" : "bg-hair"}`} />
+                ))}
+              </span>
+              <span className="tnum font-semibold text-ink-900">{f.score}</span>
+            </div>
+            {f.reason && <p className="mt-1 pl-0 text-[12px] leading-relaxed text-ink-500 sm:pl-[7.5rem]">{f.reason}</p>}
+          </li>
+        ))}
+      </ul>
+      {score.redFlags.length > 0 && (
+        <div className="mt-3 border-l-2 border-[#b9471b] pl-3">
+          {score.redFlags.map((f) => (
+            <p key={f.key} className="text-[12px] leading-relaxed text-ink-600">
+              <b className="text-[#b9471b]">감점 · {f.label}</b> — “{f.evidence}”
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

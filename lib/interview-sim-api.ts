@@ -16,7 +16,23 @@ export type SpeechStats = {
   overtime: boolean;
   stt: "browser" | "typed";
 };
-export type RoomFeedback = { items: RubricItem[]; summary: string; speech: SpeechStats | null; createdAt: string; model: string };
+/** 방 점수 — 역량별 1~5점 × 비중, 감점. 2026-11-25 부터(옛 기록은 칸이 없다), 채점을 못 하면 null */
+export type RoomScore = {
+  rubric: "passage" | "doc" | "solve";
+  factors: { key: string; label: string; weight: number; score: number; reason: string }[];
+  redFlags: { key: string; label: string; evidence: string }[];
+  penalty: number;
+  total: number;
+};
+export type RoomFeedback = { items: RubricItem[]; summary: string; speech: SpeechStats | null; createdAt: string; model: string; score?: RoomScore | null };
+/** 회차 결과 — 총점(방 점수 평균)·등급·등수(실전만, 같은 형식 · 사람마다 첫 응시) */
+export type SessionResult = {
+  total: number | null;
+  band: { grade: string; meaning: string } | null;
+  rooms: (number | null)[];
+  rank: { position: number; takers: number; topPct: number; basisTotal: number; isBasis: boolean } | null;
+  rankNote: string | null;
+};
 export type SimTurn = { role: "interviewer" | "student"; text: string; at: number };
 /** passage = 상황·제시문 · doc = 서류 확인(학생부 기반, 제시문 없음) · solve = 수학 구술 */
 export type SimPromptKind = "passage" | "doc" | "solve";
@@ -42,6 +58,8 @@ export type SimSession = {
   status: "active" | "done";
   createdAt: string;
   rooms: SimRoom[];
+  /** 끝난 회차만(서버가 새 버전일 때) */
+  result?: SessionResult | null;
 };
 export type SimFormat = {
   id: string;
@@ -107,7 +125,9 @@ export type SimListItem = {
   mode: "real" | "practice";
   status: string;
   createdAt: string;
-  rooms: { label: string; promptTitle: string; done: boolean; held: number; missing: number }[];
+  rooms: { label: string; promptTitle: string; done: boolean; held: number; missing: number; score?: number | null }[];
+  total?: number | null;
+  grade?: string | null;
 };
 
 export class SimApiError extends Error {
@@ -148,7 +168,7 @@ export const simApi = {
       body: JSON.stringify({ text, elapsedSec }),
     }),
   finish: (id: string, idx: number, speech?: SpeechStats) =>
-    call<{ feedback: RoomFeedback; status: string }>(`/interview-sim/sessions/${id}/rooms/${idx}/finish`, {
+    call<{ feedback: RoomFeedback; status: string; result?: SessionResult | null }>(`/interview-sim/sessions/${id}/rooms/${idx}/finish`, {
       method: "POST",
       body: JSON.stringify(speech ? { speech } : {}),
     }),

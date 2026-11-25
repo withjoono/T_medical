@@ -10,10 +10,11 @@
  */
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { buildSimCatalog } from "../lib/mock-sets/sim-catalog";
+import { buildSimCatalog, buildSimScoring } from "../lib/mock-sets/sim-catalog";
 
 const out = resolve(process.argv[2] ?? "../Susi/susi-back/src/modules/interview-sim/lib/medi-catalog.generated.ts");
 const { formats, prompts } = buildSimCatalog();
+const scoring = buildSimScoring();
 
 const body = `/* eslint-disable */
 // prettier-ignore
@@ -25,11 +26,14 @@ const body = `/* eslint-disable */
  * T메디(tmedi.kr) 'MMI 실전' 탭에 나오는 의·치·한·약·수 모의면접 형식과 문항이다.
  * 형식 ${formats.length}개 · 문항 ${prompts.length}개. 문항은 모두 T메디 창작(기출 아님) · draft.
  */
-import type { SimFormat, SimPrompt } from './types';
+import type { SimFormat, SimPrompt, SimScoring } from './types';
 
 export const MEDI_FORMATS: SimFormat[] = ${JSON.stringify(formats, null, 2)};
 
 export const MEDI_PROMPTS: SimPrompt[] = ${JSON.stringify(prompts, null, 2)};
+
+/** 점수 규칙 — 채점 틀 셋(제시문형·서류형·수학 구술형)·감점·등급. 원본 T_medical lib/mock-sets/snu-mmi.ts · uidae-after-suneung.ts · sim-catalog.ts */
+export const MEDI_SCORING: SimScoring = ${JSON.stringify(scoring, null, 2)};
 `;
 
 writeFileSync(out, body, "utf8");

@@ -27,7 +27,7 @@ import {
 } from "../lib/mock-sets/uidae-after-suneung";
 import { UIDAE_LATE } from "../lib/mock-sets/uidae-late";
 import { FIELD_MOCKS } from "../lib/mock-sets/field-sets";
-import { EXISTING_SIM_KEYS, buildSimCatalog, simFormatId } from "../lib/mock-sets/sim-catalog";
+import { EXISTING_SIM_KEYS, buildSimCatalog, buildSimScoring, simFormatId } from "../lib/mock-sets/sim-catalog";
 import { UNIV_PAGES } from "../lib/univ";
 import type { InterviewSet, SetItem } from "../lib/interview-set/types";
 
@@ -45,8 +45,10 @@ must(roomScore(all(5), 9) === 85, "감점 상한이 15점이 아니다");
 must(totalScore([100, 80, 60, 70]) === 77.5, "총점 평균이 틀리다");
 must(bandOf(88).grade === "S" && bandOf(87.9).grade === "A" && bandOf(0).grade === "D", "등급 경계가 틀리다");
 must(BANDS.every((b, i) => i === 0 || b.min < BANDS[i - 1].min), "등급 기준이 내림차순이 아니다");
-must(rankOf(80, [90, 70]).rank === null, "표본이 모자란데 등수를 냈다");
-const pool = Array.from({ length: RANKING.minSample - 1 }, (_, i) => 50 + i);
+// 2026-11-25 표본 하한을 없앴다(minSample 1) — 첫 응시자부터 'n명 중 k등'
+must(RANKING.minSample === 1 && rankOf(80, []).rank === 1, "혼자 응시했을 때 1등이 아니다");
+must(rankOf(80, [90, 70]).rank === 2 && rankOf(80, [90, 70]).of === 3, "등수 계산이 틀리다");
+const pool = Array.from({ length: 40 }, (_, i) => 50 + i);
 must(rankOf(60, pool).rank === 1 + pool.filter((x) => x > 60).length, "등수 계산이 틀리다");
 
 for (const s of snuMockSets()) {
@@ -127,6 +129,15 @@ for (const p of cat.prompts) {
   must(q.endsWith("?") || q.endsWith("요."), `${p.id}: 첫 질문이 물음표·'요.'로 끝나지 않는다`);
   must(p.memo.issues.length > 0 && p.memo.pitfalls.length > 0, `${p.id}: 면접관 메모가 비었다`);
 }
+// 점수 규칙 — 채점 틀마다 비중 합 100, 동점 기준 역량이 그 틀에 있다, 문항의 채점 틀이 있다
+const scoring = buildSimScoring();
+for (const [id, r] of Object.entries(scoring.rubrics)) {
+  must(r.factors.reduce((n, f) => n + f.weight, 0) === 100, `채점 틀 ${id}: 비중 합이 100 이 아니다`);
+  must(r.tieBreak.length > 0 && r.tieBreak.every((k) => r.factors.some((f) => f.key === k)), `채점 틀 ${id}: 동점 기준 역량이 틀에 없다`);
+}
+for (const p of cat.prompts) must(p.scoreRubric in scoring.rubrics, `${p.id}: 채점 틀 ${p.scoreRubric} 이 없다`);
+must(scoring.bands.length >= 3 && scoring.bands[scoring.bands.length - 1].min === 0, "등급표 끝이 0점이 아니다");
+
 must(cat.formats.length === EXISTING_SIM_KEYS.length + UIDAE_LATE.length + FIELD_MOCKS.length + 2, "서버 형식 수가 세트 수와 맞지 않는다");
 must(fids.has(simFormatId("suuidae", "gnu")) && cat.formats[0].dates[0] === "2026-11-25", "카탈로그 첫 형식이 11/25 면접이 아니다");
 

@@ -10,9 +10,21 @@
  *  ========================================================================= */
 
 import { FIELD_MOCKS } from "./field-sets";
-import { SNU_MOCK_STATIONS } from "./snu-mmi";
+import { BANDS, RANKING, RED_FLAG_CAP, RED_FLAG_PENALTY, RED_FLAGS, SNU_MOCK_STATIONS } from "./snu-mmi";
 import { UIDAE_LATE } from "./uidae-late";
-import { FIELD_LABEL, rubricOf, UNIV_MOCKS, type MockField, type MockItem, type SimSpec, type UnivMock } from "./uidae-after-suneung";
+import {
+  FIELD_LABEL,
+  RUBRIC_DOC,
+  RUBRIC_PASSAGE,
+  rubricOf,
+  UNIV_MOCKS,
+  type MockField,
+  type MockItem,
+  type Rubric,
+  type RubricFactor,
+  type SimSpec,
+  type UnivMock,
+} from "./uidae-after-suneung";
 import { CHIDAE_UNIVS } from "../chidae-interview";
 import { HANUIDAE_UNIVS } from "../hanuidae-interview";
 import { YAKDAE_UNIVS } from "../yakdae-interview";
@@ -47,7 +59,113 @@ export type SimCatalogPrompt = {
   draft: boolean;
   kind: SimKind;
   room: number;
+  /** 점수를 매기는 채점 틀 — MEDI_SCORING.rubrics 의 key */
+  scoreRubric: SimKind;
 };
+
+/* ───────────── 점수·등급·등수 규칙 (서버로 함께 내보낸다) ───────────── */
+
+/** 수학 구술형 채점 틀 — 서울대 약학(일반) 수학 제시문. 제시문형·서류형은 uidae-after-suneung.ts 의 두 틀 */
+export const RUBRIC_SOLVE_SCORE: RubricFactor[] = [
+  {
+    key: "understand",
+    name: "조건 이해",
+    weight: 15,
+    looksAt: "주어진 조건·가정과 구하는 것을 정확히 잡는가",
+    levels: {
+      5: "조건·가정·구하는 것을 자기 말로 정확히 정리하고, 숫자와 기호를 틀리지 않는다.",
+      3: "조건은 맞게 옮기지만 가정이나 구하는 것의 일부를 놓친다.",
+      1: "조건을 잘못 읽어 다른 문제를 푼다.",
+    },
+  },
+  {
+    key: "plan",
+    name: "식 세우기",
+    weight: 20,
+    looksAt: "관계식·방법을 왜 그렇게 세웠는지 말하는가",
+    levels: {
+      5: "관계식을 세운 까닭을 조건에서 끌어와 설명하고, 일반항·극한처럼 다음 단계로 가는 길을 스스로 잡는다.",
+      3: "식은 맞지만 왜 그렇게 세웠는지 설명이 없거나, 면접관이 이끌어야 다음 단계로 간다.",
+      1: "식을 세우지 못하거나 조건과 맞지 않는 식을 세운다.",
+    },
+  },
+  {
+    key: "compute",
+    name: "계산·논리",
+    weight: 20,
+    looksAt: "계산과 논리 단계를 건너뛰지 않고 맞게 이어 가는가",
+    levels: {
+      5: "계산이 맞고, 단계마다 무엇에서 무엇이 나오는지 이어서 말한다.",
+      3: "답은 대체로 맞지만 중간 단계를 건너뛰거나 작은 실수를 스스로 고치지 못한다.",
+      1: "계산이나 논리가 틀려 답이 맞지 않는다.",
+    },
+  },
+  {
+    key: "explain",
+    name: "말로 설명",
+    weight: 20,
+    looksAt: "듣는 사람이 따라올 수 있게 순서대로 말하는가",
+    levels: {
+      5: "결론을 먼저 말하고, 처음 듣는 사람도 따라올 수 있게 순서대로 설명한다. 꼬리질문에 바로 답한다.",
+      3: "설명은 하지만 순서가 뒤섞이거나 식을 읽기만 한다.",
+      1: "답만 말하고 과정을 설명하지 못한다.",
+    },
+  },
+  {
+    key: "check",
+    name: "검산",
+    weight: 10,
+    looksAt: "답을 조건에 넣어 보거나 다른 방법으로 확인하는가",
+    levels: {
+      5: "작은 값을 넣어 보거나 다른 방법으로 답을 스스로 확인한다.",
+      3: "면접관이 물으면 확인하지만 스스로는 하지 않는다.",
+      1: "확인하지 않거나, 확인을 물어도 답하지 못한다.",
+    },
+  },
+  {
+    key: "meaning",
+    name: "뜻과 결론",
+    weight: 15,
+    looksAt: "결과가 문제 상황에서 무엇을 뜻하는지 말하는가",
+    levels: {
+      5: "결과가 상황(약을 먹는 사람 등)에서 무엇을 뜻하는지 말하고, 모형의 가정과 한계까지 짚는다.",
+      3: "뜻을 한 줄로만 말하거나 가정의 한계를 다루지 않는다.",
+      1: "계산 결과에서 멈추고 뜻을 말하지 못한다.",
+    },
+  },
+];
+
+/** 동점일 때 먼저 보는 역량 — 방마다 이 순서의 점수를 평균해 비교한다 */
+const TIE_BREAK: Record<SimKind, string[]> = {
+  passage: [...RANKING.tieBreak],
+  doc: ["follow", "understand", "fact"],
+  solve: ["explain", "plan", "compute"],
+};
+
+export type SimScoreRubric = { label: string; factors: RubricFactor[]; tieBreak: string[] };
+export type SimScoring = {
+  rubrics: Record<SimKind, SimScoreRubric>;
+  redFlags: { key: string; label: string }[];
+  redFlagPenalty: number;
+  redFlagCap: number;
+  bands: { grade: string; min: number; meaning: string }[];
+};
+
+/** 서버에 내보내는 점수 규칙 — 방 점수(0~100) = Σ 비중 × (점수 ÷ 5) − 감점, 총점 = 방 점수 평균, 등급 = BANDS */
+export function buildSimScoring(): SimScoring {
+  const r = (rubric: Rubric, kind: SimKind): SimScoreRubric => ({ label: rubric.label, factors: rubric.factors, tieBreak: TIE_BREAK[kind] });
+  return {
+    rubrics: {
+      passage: r(RUBRIC_PASSAGE, "passage"),
+      doc: r(RUBRIC_DOC, "doc"),
+      solve: { label: "수학 구술형", factors: RUBRIC_SOLVE_SCORE, tieBreak: TIE_BREAK.solve },
+    },
+    redFlags: RED_FLAGS.map((f) => ({ key: f.key, label: f.label })),
+    redFlagPenalty: RED_FLAG_PENALTY,
+    redFlagCap: RED_FLAG_CAP,
+    bands: BANDS.map((b) => ({ grade: b.grade, min: b.min, meaning: b.meaning.replace("여섯 역량이", "역량이") })),
+  };
+}
 
 /* ───────────── 이미 만든 의대 세트(11/25 이후 면접 12곳)의 방 구성 ───────────── */
 
@@ -248,6 +366,7 @@ function toPrompt(m: UnivMock, formatId: string, it: MockItem, room: number): Si
     draft: true,
     kind,
     room,
+    scoreRubric: kind === "solve" ? "solve" : rubric.id,
   };
 }
 
@@ -325,6 +444,7 @@ function snuCatalog(): { format: SimCatalogFormat; prompts: SimCatalogPrompt[] }
         draft: true,
         kind: "passage" as const,
         room: i,
+        scoreRubric: "passage" as const,
       })),
     };
   });
